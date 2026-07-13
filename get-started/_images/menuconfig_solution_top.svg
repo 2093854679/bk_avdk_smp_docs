@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <rect x="0" y="0" width="1024" height="500" fill="#2b76c4"/>
+  <rect x="6" y="6" width="1012" height="414" fill="#e9e9e9"/>
+  <rect x="6" y="8" width="1012" height="16" fill="#26b6c8"/>
+  <rect x="31" y="37" width="145" height="17" fill="#2476d8"/>
+
+  <text x="8" y="20" fill="#ffffff" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="14">(Top)</text>
+  <text x="552" y="20" fill="#000000" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="14">Armino SDK bk7259_ap Configuration</text>
+
+  <g font-family="DejaVu Sans Mono, Consolas, monospace" font-size="14">
+    <text x="34" y="51" fill="#ffffff" font-weight="700">Build &amp; Target      ---&gt;</text>
+    <text x="34" y="69" fill="#000000">Board &amp; SoC         ---&gt;</text>
+    <text x="34" y="87" fill="#000000">RTOS &amp; Kernel       ---&gt;</text>
+    <text x="34" y="105" fill="#000000">System Services     ---&gt;</text>
+    <text x="34" y="123" fill="#000000">Device Drivers      ---&gt;</text>
+    <text x="34" y="141" fill="#000000">Wireless Connectivity  ---&gt;</text>
+    <text x="34" y="159" fill="#000000">Network Services    ---&gt;</text>
+    <text x="34" y="177" fill="#000000">Multimedia          ---&gt;</text>
+    <text x="34" y="195" fill="#000000">Storage             ---&gt;</text>
+    <text x="34" y="213" fill="#000000">Power Management    ---&gt;</text>
+    <text x="34" y="231" fill="#000000">Security &amp; Cloud    ---&gt;</text>
+    <text x="34" y="249" fill="#000000">Debug               ---&gt;</text>
+    <text x="34" y="267" fill="#000000">Demos               ---&gt;</text>
+    <text x="34" y="285" fill="#000000">Third Party         ---&gt;</text>
+    <text x="34" y="303" fill="#000000">Solution &amp; Product  ---&gt;</text>
+    <text x="34" y="321" fill="#000000">BEKEN GENIE demo Configuration  ---&gt;</text>
+  </g>
+
+  <rect x="6" y="421" width="1012" height="73" fill="#2b76c4"/>
+  <g fill="#ffffff" font-family="DejaVu Sans Mono, Consolas, monospace" font-size="14">
+    <text x="7" y="440">[Space/Enter] Toggle/enter  [ESC] Leave menu       [S] Save</text>
+    <text x="7" y="458">[O] Load                    [?] Symbol info       [/] Jump to symbol</text>
+    <text x="7" y="476">[F] Toggle show-help mode   [C] Toggle show-name  [A] Toggle show-all mode</text>
+    <text x="7" y="494">[Q] Quit (prompts for save) [D] Save Project minimal default config</text>
+  </g>
+</svg>

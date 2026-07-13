@@ -1,0 +1,93 @@
+# **语音识别服务**
+
+
+
+## **1. 简介**
+
+> 语音识别服务组件是基于ADK语音开发框架设计实现的，提供语音识别(ASR)功能。
+>
+> 支持Wanson ASR引擎。
+>
+> 支持音频数据重采样功能，可根据不同ASR引擎的需求进行采样率转换。
+>
+> 支持板载麦克风、UAC设备或通过其他语音服务获取音频数据等多种输入模式。
+
+备注
+
+1. 用户可以使用统一的API接口来配置和控制ASR服务，无需关注具体的ASR引擎实现。
+
+
+- 有关语音识别服务的API参考，请参阅：
+
+
+  - [语音识别服务API参考](../../api-reference/audio/asr_service.md "../../api-reference/audio/asr_service.md")
+
+- 有关语音识别服务的示例工程，请参阅：
+
+
+  - 语音识别服务示例工程?????
+
+
+## **2. 软件框架**
+
+> 语音识别服务主要功能包括：
+>
+> > - 音频数据采集：支持直接从麦克风采集(如Figure1)或从语音服务获取音频数据(如Figure2)。
+> > - 音频数据处理：提供重采样功能，确保音频数据符合ASR引擎的输入要求。
+> > - 语音识别：将处理后的音频数据送入ASR引擎进行语音识别。
+>
+> 软件框架如下图所示：
+
+![ASR Service Architecture](../../_images/asr_service_architecture1.png)
+
+Figure1 ASR Service Architecture
+
+![ASR Service Architecture](../../_images/asr_service_architecture2.png)
+
+Figure2 ASR Service Architecture
+
+备注
+
+1. 当前软件版本语音识别服务例举了两种工作模式：直接使用麦克风进行录音识别，或通过语音服务获取音频数据进行识别。用户可根据实际应用场景,对asr的工作模式进行其他配置。
+2. 不同的ASR引擎可能对音频数据的格式和采样率有特定要求，可通过配置进行适配,如Wanson ASR引擎要求音频数据为16位PCM格式，采样率为16000Hz。
+
+
+## **3. 宏配置**
+
+> 功能宏配置：
+>
+> |  |  |  |  |
+> | --- | --- | --- | --- |
+> | Kconfig | CPU | Format | Value |
+> | CONFIG_ASR_SERVICE | AP | bool | y |
+>
+> 依赖功能宏配置：
+>
+> |  |  |  |  |
+> | --- | --- | --- | --- |
+> | Kconfig | CPU | Format | Value |
+> | CONFIG_ADK | AP | bool | y |
+> | CONFIG_ADK_RAW_STREAM | AP | bool | y |
+> | CONFIG_ADK_ONBOARD_MIC_STREAM | AP | bool | y |
+> | CONFIG_WANSON_ARMINO_ASR | AP | bool | y |
+> | ONFIG_WANSON_ASR_GROUP_VERSION_WORDS_V1 | AP | bool | y |
+
+备注
+
+1. 如果需要支持AEC及重采样等功能，参考音频开发框架中的组件模块说明，打开对应的功能宏以及对应的组件功能宏即可。
+
+
+## **4. 示例说明**
+
+> 具体示例可参见asr_service_example工程。
+
+
+## **6. 常见问题**
+
+> **Q: 采样率如何选择？**
+>
+> A: 根据使用的ASR引擎要求选择合适的采样率，通常为8kHz或16kHz。
+>
+> **Q: 如何处理ASR识别结果？**
+>
+> A: 通过注册回调函数接收ASR识别结果，具体可参考API文档中的回调函数设置方法。

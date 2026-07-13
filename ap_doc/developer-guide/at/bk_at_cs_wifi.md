@@ -1,0 +1,842 @@
+# **BK IDK AT Wi-Fi命令**
+
+
+重要
+
+
+*除非特定指定，Wi-Fi AT命令的超时时间均为15s*
+
+
+- [AT+STASTART](#cs-wifi-stastart "#cs-wifi-stastart") : 以STA身份连接至指定SSID的路由器上
+
+- [AT+STASTOP](#cs-wifi-stastop "#cs-wifi-stastop") : 以STA身份从目前正在连接的路由器上断开
+
+- [AT+WIFISTATUS](#cs-wifi-getstatus "#cs-wifi-getstatus") : 用来查看wifi设备当前的模式状态或指定参数信息
+
+- [AT+WIFISCAN](#cs-wifi-scan "#cs-wifi-scan") : 扫描周围AP信息
+
+- [AT+SAPSTART](#cs-wifi-sapstart "#cs-wifi-sapstart") : 以SAP身份创建SoftAP
+
+- [AT+SAPSTOP](#cs-wifi-sapstop "#cs-wifi-sapstop") : 停止当前开启的SoftAP
+
+- [AT+STAPING](#cs-wifi-pingstart "#cs-wifi-pingstart") : 进行指定IP地址和指定时长和每包大小的PING包操作
+
+- [AT+STAPINGSTOP](#cs-wifi-pingstop "#cs-wifi-pingstop") : 停止当前正在进行的PING包操作
+
+- [AT+GETINTERVAL](#cs-wifi-getinterval "#cs-wifi-getinterval") : 获取STATION连接热点的listen interval的值
+
+- [AT+HIDDENSAP](#cs-wifi-hiddensap "#cs-wifi-hiddensap") : 以SoftAP的身份启动一个隐藏ssid的热点。
+
+- [AT+CLOSECSA](#cs-wifi-closecsa "#cs-wifi-closecsa") : 用于执行关闭Wi-Fi多身份（SoftAP+ STA）共存模式下SoftAP主动切换到STA的信道上的操作。
+
+
+## [AT+STASTART](#cs-wifi-at "#cs-wifi-at") **:以STA身份连接至指定SSID的路由器上**
+
+
+**命令说明**
+
+
+```
+该命令用于以STA身份连接至指定SSID的路由器或者热点上。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+STASTART=ssid, pwd(可选)
+
+```
+
+
+**参数**
+
+
+```
+ssid：要以STA身份连接的AP路由器或者热点的SSID
+
+pwd：该路由器或者热点的密码，如果该路由器或者热点为OPEN则忽略此选项
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 20s |
+
+
+**AT消息**
+
+
+```
+EVT:WLAN STA CONNECTED
+
+CONNECTED SSID: xxxx(该AP的SSID)
+
+EVT:GOT-IP
+
+sta got ip:192.168.xx.xx所获得的IP地址
+
+```
+
+
+**示例**
+
+
+```
+AT+STASTART=ax86u,12345678
+
+EVT:WLAN STA CONNECTED
+
+CONNECTED SSID:ax86u
+
+EVT:BK STA GOT IP
+
+sta got ip:192.168.50.159
+
+CMDRSP:OK
+
+```
+
+
+## [AT+STASTOP](#cs-wifi-at "#cs-wifi-at") **:以STA身份从目前正在连接的路由器上断开**
+
+
+**命令说明**
+
+
+```
+该命令用于将STA身份从目前正在连接的路由器上断开。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+STASTOP
+
+```
+
+
+**参数**
+
+
+```
+无
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+## [AT+WIFISTATUS](#cs-wifi-at "#cs-wifi-at") **:用来查看wifi设备当前的模式状态或指定参数信息**
+
+
+**命令说明**
+
+
+```
+该命令用于查看wifi设备当前的模式状态或指定参数信息。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+WIFISTATUS
+
+AT+WIFISTATUS=param1
+
+AT+WIFISTATUS=param1,param2
+
+```
+
+
+**参数**
+
+
+```
+无参数：查看wi-fi设备当前的模式状态
+
+param1：查询wi-fi状态的身份，取值范围：STA/AP
+
+param2：查询wi-fi的具体状态。
+
+```
+
+注意
+
+STA支持：RSSI、BSSID、SSID、IP、CHANNEL
+
+AP支持：SSID、CHANNEL、SECURITY、IP
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**AT消息**
+
+
+```
+无参数时:
+    EVT:'sta: x, ap: x (1:对应身份已启动；0:对应身份未启动)
+    EVT:sta:rssi=xxx,aid=xx,ssid=xxxx,bssid=xx:xx:xx:xx:xx:xx,channel=xx,cipher_type=xxx(STA开启)
+    EVT:softap: ssid=1 , channel=3, cipher_type=WPA2-AES(SAP开启)
+    EVT:ap_ip=xxx,ap_gate=xxx,ap_mask=xxx,ap_dns=xxx(SAP开启)
+
+单一参数：
+    STA状态：
+    CMDRSP:STA_WIFI_CONNECT
+    CMDRSP:STA_WIFI_DISCONNECT
+
+    AP状态：
+    CMDRSP:AP_WIFI_START
+    CMDRSP:AP_WIFI_CLOSE
+
+两个参数：
+    STA身份：
+        RSSI:    CMDRSP:sta_rssi:xxx
+        CHANNEL: CMDRSP:sta_chnl:xx
+        BSSID：  CMDRSP:sta_bssid:xx:xx:xx:xx:xx:xx
+        SSID：   CMDRSP:sta_ssid::xxx
+        IP：     CMDRSP:STA_IP=192.168.xx.xx,GATE=192.168.xx.xx,MASK=xxx.xxx.xxx.x,DNS=xxx.xx.xx.
+
+    AP身份：
+        SSID:    CMDRSP:ap_ssid:xxx
+        CHANNEL: CMDRSP:ap_chnl:xx
+        SECURITY:CMDRSP:ap_security:xxx
+        IP：     CMDRSP:AP_IP=192.168.xx.xx,GATE=192.168.xx.xx,MASK=xxx.xxx.xxx.x,DNS=xxx.xx.xx.
+
+```
+
+
+## [AT+WIFISCAN](#cs-wifi-at "#cs-wifi-at") **:扫描周围AP信息**
+
+
+**命令说明**
+
+
+```
+该命令用于扫描周围AP信息，可以通过配置指定扫描信道、扫描时长等。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+WIFISCAN
+AT+WIFISCAN=param1
+AT+WIFISCAN=param1<,param2,param3,param4,param5,param6>(param2~param6均为可选参数)
+AT+WIFISCAN=SET_SSID,SSID,TYPE,DURATION,CNT,NUMBER
+
+```
+
+
+**参数**
+
+
+```
+无参数：设备会扫描周围所有的AP信息并打印
+只有param1:ssid 可以返按照指定ssid进行扫描。
+
+其他情况：
+
+    a) param1:SET_SSID,是否指定ssid扫描,指定ssid:1; 不指定ssid:0；
+
+    b) param2:SSID,若参数a为1，则填写目标ssid，否则此值为0；
+
+    c) param3:TYPE,扫描类型，主动扫描:0，被动扫描:1；【若不指定则填写0】
+
+    d) param4:DURATION,单信道扫描时长，单位为ms;【若不指定则填写0】
+
+    e) param5:CNT,指定扫描信道的数量；【若不指定则填写0】
+
+    f) param6:NUMBER,若e中指定扫描信道个数不为0 ，则f填写扫描的信道编号；【可选，若e为0不填写】
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 5s |
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**AT消息**
+
+
+```
+EVT:WLAN STA SCAN_DONE
+
+```
+
+
+**示例**
+
+
+```
+1.AT+WIFISCAN【使用默认方式全信道扫描全部AP】
+
+2.AT+WIFISCAN=aclsemi【使用默认方式全信道扫描指定ssid的AP】
+
+3.AT+WIFISCAN=1,aclsemi,0,0,0【扫描aclsemi路由器，其他默认】
+
+4.AT+WIFISCAN=0,0,0,0,3,1,6,11【扫描1/6/11信道全部AP，其他默认】
+
+5.AT+WIFISCAN=0,0,1,0,0【被动扫描，其他默认】
+
+6.AT+WIFISCAN=0,0,0,70,0【指定信道扫描时长70ms，其他默认】
+
+7.AT+WIFISCAN=1,aclsemi,1,70,3,1,6,11【扫描指定ssid路由器，被动扫描，信道扫描时长70ms，仅扫描1/6/11信道】
+
+```
+
+备注
+
+当配置的 *duration* 时间在0~120ms(包括120ms)时，当扫描时间超过1.6s时会认定为失败
+
+
+**只有在配置了duration时此情况才生效**
+
+
+**示例**
+
+
+```
+AT+WIFISCAN
+
+scan found 64 AP
+
+                          SSID                     BSSID         RSSI chan security
+
+-------------------------------- -----------------   ---- ---- ---------
+NETGEAR55                        74:d0:2b:6d:6b:cc    -49  3  WPA3-SAE
+tplink                           c0:61:18:2b:82:b4    -49 10  WPA-AES
+aclsemi_2.4G                     74:50:4e:3f:7e:d1    -57  6  WPA2-AES
+daily_test                       50:0f:f5:63:0c:21    -58  3  WPA3-WPA2-MIX
+ChinaNet-AbO3                    ba:a1:4a:65:54:b5    -58 11  WPA2-MIX
+OpenWrt                          d4:da:21:76:0d:d9    -29  1  NONE
+······
+
+CMDRSP:OK
+
+$EVT:WLAN STA SCAN_DONE
+
+```
+
+
+## [AT+SAPSTART](#cs-wifi-at "#cs-wifi-at") **:以SAP身份创建SoftAP**
+
+
+**命令说明**
+
+
+```
+该命令用于以SAP身份创建SoftA。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+SAPSTART=ssid
+AT+SAPSTART=ssid,password
+AT+SAPSTART=ssid,channel（当第二个参数小于3个字符时会被认为是信道参）
+AT+SAPSTART=ssid,password,channel
+
+```
+
+
+**参数**
+
+
+```
+ssid:SSID,想要创建的SoftAP的SSID字符串
+
+password:密码,想要创建的SoftAP的密码，如果想将SAP设为OPEN则忽视此选项
+
+channel:信道,当您设置ssid和pwd之后，第三个参数为设置的信道值
+
+```
+
+备注
+
+SSID设置长度请不要超过32个字符，超过32个字符会返回失败！
+
+密码设置长度请置于8~64个字节之间，小于8个字节则按照OPEN处理，超过64个字节将创建失败！
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+**AT消息**
+
+
+```
+当有STA连接至本SAP时打印
+
+EVT:WLAN SAP CONNECTED + 连接上的STA的MAC地址
+
+```
+
+
+## [AT+SAPSTOP](#cs-wifi-at "#cs-wifi-at") **:停止当前开启的SoftAP**
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+SAPSTOP
+
+```
+
+
+**参数**
+
+
+```
+无
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+## [AT+STAPING](#cs-wifi-at "#cs-wifi-at") **:进行指定IP地址和指定时长和每包大小的PING包操作**
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+STAPING=ip
+AT+STAPING=ip,num
+AT+STAPING=ip,num,size
+
+```
+
+
+**参数**
+
+
+```
+ip:想要PING的目标IP地址
+num:想要PING的包的个数
+size:想要PING的包的大小
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+## [AT+STAPINGSTOP](#cs-wifi-at "#cs-wifi-at") **:停止当前正在进行的PING包工作**
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+STAPINGSTOP
+
+```
+
+
+**参数**
+
+
+```
+无
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+## [AT+GETINTERVAL](#cs-wifi-at "#cs-wifi-at") **:获取STATION连接热点的listen interval的值**
+
+
+**命令说明**
+
+
+```
+获取当前STATION连接热点的listen interval的值。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+GETINTERVAL
+
+```
+
+
+**参数**
+
+
+```
+无
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+**示例**
+
+
+```
+AT+GETINTERVAL
+
+EVT: get wifi listen interval 1.
+
+CMDRSP:OK
+
+```
+
+
+## [AT+HIDDENSAP](#cs-wifi-at "#cs-wifi-at") **:以SoftAP的身份启动一个隐藏ssid的热点**
+
+
+**命令说明**
+
+
+```
+该命令用于以SoftAP的身份启动一个隐藏ssid的热点。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+HIDDENSAP=ssid, pwd(可选)
+
+```
+
+
+**参数**
+
+
+```
+ssid：启动热点的SSID
+
+pwd：热点的密码，如果热点设置为OPEN则忽略该参数
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |
+
+
+## [AT+CLOSECSA](#cs-wifi-at "#cs-wifi-at") **:关闭Wi-Fi SoftAP + STA 共存模式下SoftAP主动切换到STA的信道上的操作**
+
+
+**命令说明**
+
+
+```
+该命令用于执行关闭Wi-Fi SoftAP + STA 共存模式下SoftAP主动切换到STA的信道上的操作。
+
+当关闭该功能后，再启动SoftAP时，SoftAP将根据客户配置的信道或者默认信道启动，不会再主动将信道切换到已经连接的STA的信道上。
+
+```
+
+
+**查询命令**
+
+
+```
+无
+
+```
+
+
+**执行命令**
+
+
+```
+AT+CLOSECSA=close_csa
+
+```
+
+
+**参数**
+
+
+```
+close_csa：是否关闭Wi-Fi SoftAP + STA 共存模式下SoftAP主动切换到STA的信道上，取值范围：0/1。
+
+```
+
+
+**响应**
+
+
+```
+CMDRSP:OK
+
+CMDRSP:ERROR
+
+```
+
+
+**属性**
+
+> | 是否超时 | 超时时间 |
+> | --- | --- |
+> | 是 | 15s |

@@ -1,0 +1,171 @@
+# Kconfig 配置
+
+
+本节介绍 Armino Kconfig 使用过程中常见问题。
+
+
+## Kconfig 配置文件
+
+Armino Kconfig 组织如下图所示：
+
+
+```
+
+- armino/
+
+    - ap/
+
+        - components/
+
+            - c1/
+
+                - Kconfig
+
+        - middleware/
+
+            - soc/
+
+                - bk7259_ap/
+
+                    - bk7259_ap.defconfig
+
+    - cp/
+
+        - components/
+
+            - c1/
+
+                - Kconfig
+
+        - middleware/
+
+            - soc/
+
+                - bk7259/
+
+                    - bk7259.defconfig
+
+    - projects/
+
+        - my_project/
+
+            - ap/
+
+                - config/
+
+                    - bk7259_ap/config
+
+                - Kconfig.projbuild
+
+                - components/
+
+                    - c2/
+
+                        - Kconfig
+
+            - cp/
+
+                - config/
+
+                    - bk7259/config
+
+```
+
+可以将这些文件归为两类：
+
+> - 配置定义文件:
+>
+>   - Kconfig - 通常定义在组件中。
+>   - Kconfig.projbuild - 定义在组件或者工程目录下。
+> - 配置修改文件:
+>
+>   - ap/middleware/boards/bk7259_ap/bk7259_ap.defconfig - Armino 提供的 BK7259 AP 默认配置。
+>   - cp/middleware/boards/bk7259/bk7259.defconfig - Armino 提供的 BK7259 CP 默认配置。
+>   - projects/xx/ap/config/bk7259_ap/config - 工程中 BK7259 AP 专有配置。
+>   - projects/xx/cp/config/bk7259/config - 工程中 BK7259 CP 专有配置。
+
+重要
+
+特定配置项只有在 Kconfig/Kconfig.projbuild 中定义之后才能通过配置修改文件去修改该配置，
+如果偿试修改一个未定义的配置，则不会在 sdkconfig.h 中生成任何定义。
+
+备注
+
+Kconfig.projbuild 是针对 menuconfig 来设计的，当向 Kconfig.projbuild 中增加一项时，
+会在 menuconfig 顶层菜单中显示该配置项。BK7259 不支持 menuconfig，因此 Kconfig.projbuild
+与 Kconfig 作用相同。
+
+备注
+
+在Kconfig文件中定义的配置项名称，在config、defconfig和C代码中使用需要加上 `CONFIG_` 前缀。
+
+在 Armino AP 工程中，Kconfig 配置优先级为:
+
+> bk7259_ap/config > bk7259.defconfig > 配置定义文件
+
+在 Armino CP 工程中，Kconfig 配置优先级为:
+
+> bk7259/config > bk7259.defconfig > 配置定义文件
+
+
+## menuconfig 支持
+
+BK7259 Kconfig 配置支持 menuconfig 配置。
+
+以app工程为例
+配置ap工程，输入命令如下:
+
+
+```
+make bk7259_ap_menuconfig PROJECT=app
+
+```
+
+保存后，配置将保存到projects/app/ap/config/bk7259_ap/config
+
+配置cp工程，输入命令如下:
+
+
+```
+make bk7259_cp_menuconfig PROJECT=app
+
+```
+
+保存后，配置将保存到projects/app/ap/config/bk7259_cp/config
+
+menuconfig中常用快捷键如下:
+
+
+```
+SPACE/Enter 选中/取消
+S 保存配置
+O 载入配置
+? 查看配置详细信息
+/ 搜索并跳转
+F 切换帮助信息显示
+C 切换配置名称显示
+A 显示所有配置
+Q 离开
+ESC 返回
+
+```
+
+备注
+
+如果在solution工程中，在工程目录下输入 make bk7259_ap_menuconfig 来进行ap侧 menuconfig配置，输入 make bk7259_cp_menuconfig 来进行cp侧 menuconfig配置。
+
+
+## 配置依赖
+
+相互依赖的配置项自动更改成正确的值，仅发生在使用 menuconfig 配置时，建议使用menuconfig来配置依赖的配置项。
+当手动通过配置修改文件更改某项配置时，与该项配置相互依赖的配置不会自动更改。
+
+重要
+
+在 Armino 中所有配置项均需显式指定，或者使用默认值。
+
+
+## CMakeLists.txt 中使用 Kconfig
+
+在 CMakeLists.txt 中可直接使用 Kconfig 中定义的配置项，唯一要注意的问题不要将
+armino_component_register() 放在任何配置条件中。
