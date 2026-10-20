@@ -1,14 +1,28 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_wdt.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="watchdog"></a>
+
 # Watchdog
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
-BK7259 AP 侧 watchdog 测试只覆盖 `task_wdt` 和 `wwdt`。AP 侧没有 `wdt` / `aon_wdt` 测试命令；AON_WDT 由 CP 侧管理。
+BK7259 AP 侧 watchdog 测试只覆盖 `task_wdt` 和 `wwdt`。AP 侧没有 `wdt` / `aon_wdt` 测试命令；AON\_WDT 由 CP 侧管理。
 
+- watchdog 功能说明参考：[Watchdog 使用指南](../../developer-guide/peripheral/bk_wdt.md)
 
-- watchdog 功能说明参考：[Watchdog 使用指南](../../developer-guide/peripheral/bk_wdt.md "../../developer-guide/peripheral/bk_wdt.md")
-
+<a id="id2"></a>
 
 ## 2 代码路径
 
@@ -23,6 +37,7 @@ BK7259 AP 侧 watchdog 测试只覆盖 `task_wdt` 和 `wwdt`。AP 侧没有 `wdt
 > - `wwdt` API 头文件：
 >   :   `ap/include/driver/wwdt.h`
 
+<a id="id3"></a>
 
 ## 3 宏配置
 
@@ -36,6 +51,7 @@ BK7259 AP 侧 watchdog 测试只覆盖 `task_wdt` 和 `wwdt`。AP 侧没有 `wdt
 | `CONFIG_WWDT_TEST` | 编译 `wwdt_test.c` 中的测试命令 | `ap/middleware/driver/wwdt/Kconfig` | `y` |
 | `CONFIG_CLI` | 系统命令框架；测试命令入口依赖该宏 | 项目配置 / 默认配置 | `y` |
 
+<a id="id4"></a>
 
 ## 4 测试命令
 
@@ -57,12 +73,13 @@ AP 侧测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀。
 | `wwdt feed_in_win` | none | 测试窗口内喂狗。 |
 | `wwdt feed_out_win` | none | 测试窗口外喂狗。 |
 
+<a id="id5"></a>
 
 ## 5 命令行演示
 
 1. 查看 AP `task_wdt` 状态。
 
-   > **ap_cmd task_wdt status**
+   > **ap\_cmd task\_wdt status**
    > :   ```
    >     [17:10:01.000]发->◇ap_cmd task_wdt status
    >     [17:10:01.006]收<-◆ap_cmd task_wdt status
@@ -72,7 +89,7 @@ AP 侧测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀。
    >     ```
 2. 当前 core 执行一次 `task_wdt` 喂狗。
 
-   > **ap_cmd task_wdt feed_once**
+   > **ap\_cmd task\_wdt feed\_once**
    > :   ```
    >     [17:10:05.000]发->◇ap_cmd task_wdt feed_once
    >     [17:10:05.006]收<-◆ap_cmd task_wdt feed_once
@@ -80,7 +97,7 @@ AP 侧测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀。
    >     ```
 3. 启动 AP `wwdt`。
 
-   > **ap_cmd wwdt start 6000**
+   > **ap\_cmd wwdt start 6000**
    > :   ```
    >     [17:10:10.000]发->◇ap_cmd wwdt start 6000
    >     [17:10:10.006]收<-◆ap_cmd wwdt start 6000
@@ -88,7 +105,7 @@ AP 侧测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀。
    >     ```
 4. 查看 AP `wwdt` 状态。
 
-   > **ap_cmd wwdt status**
+   > **ap\_cmd wwdt status**
    > :   ```
    >     [17:10:12.000]发->◇ap_cmd wwdt status
    >     [17:10:12.006]收<-◆ap_cmd wwdt status
@@ -96,7 +113,7 @@ AP 侧测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀。
    >     ```
 5. 停止 AP `wwdt`。
 
-   > **ap_cmd wwdt stop**
+   > **ap\_cmd wwdt stop**
    > :   ```
    >     [17:10:20.000]发->◇ap_cmd wwdt stop
    >     [17:10:20.006]收<-◆ap_cmd wwdt stop

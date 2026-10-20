@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/bluetooth/bk_ble.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="ble"></a>
+
 # 单BLE
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -8,18 +22,18 @@
 蓝牙由一个或多个task执行体组成，依靠蓝牙中断驱动运行。
 蓝牙有多个event和callback，这些构成了用户调用的反馈。
 
+<a id="id2"></a>
 
 ## 角色
 
 蓝牙角色分为两个相互独立的层面：
 
-
 - GAP 角色：发起连接的一方称为 central（也叫 master），被连接的一方称为 peripheral（也叫 slave）。
-
 - GATT 角色：发起读写的一方称为 client，提供 ATT 数据库的一方称为 server。
 
 通常 central 同时充当 client、peripheral 同时充当 server，但二者并非强制绑定。连接建立后，GAP 主从角色基本不再变化。
 
+<a id="api"></a>
 
 ## API调用注意事项
 
@@ -31,48 +45,50 @@ callback的调用栈不能太深。
 
 应极力避免蓝牙task被阻塞，否则会出现断连、扫不到、连不上等异常现象。
 
+<a id="id3"></a>
 
 ## 常用使用场景
 
-可参考demo工程 `projects/bluetooth/gatt_client` 与 `projects/bluetooth/gatt_server`
+可参考demo工程 `projects/bluetooth/gatt_client`、`projects/bluetooth/gatt_server` 与
+`projects/bluetooth/mesh`。其中 Mesh 工程使用 Zephyr v2.7.6 Bluetooth Host/Mesh，
+AP 侧运行 Host/Mesh，CP 侧运行 BLE controller-only。
 
+<a id="id4"></a>
 
 ### 蓝牙初始化
 
 在应用初始化阶段，可通过以下接口注册server与client的回调函数。
 :   - Register ble event notification callback: `bk_ble_set_notice_cb`
-
     - Register gatt notification/indication/read/write result event callback: `bk_ble_register_app_sdp_charac_callback`
-
     - Register gatt database information callback: `bk_ble_register_app_sdp_common_callback`
 
-![ble init flow](../../_images/ble_init.png)
+<a id="id8"></a>
+![ble init flow](../../../../_assets/7f8aa846f9cf8d9bd02e-ble_init.png)
 
-Figure 1. ble init flow
 
+Figure 1\. ble init flow
+
+<a id="slave-att"></a>
 
 ### 作为slave，创建ATT数据库供对端浏览
 
 ble通过ATT数据库作为双端的操作实体，所有的读写通知等操作都是对ATT数据库进行的。
 为了建立一个符合标准的数据库，需要了解Service、Characteristic、UUID的概念。
 
-
 - Attribute：数据库的一条数据称之为记录，由handle，类型、值组成。
-
 - Service：每个ATT数据库具有一个或多个服务，例如HID、HeartRate。
-
 - Characteristic：每个服务包含一个或多个特征，例如HID包括HID map、HID report，前者是按键映射表，后者是按键上报，具体操作是先读取HID map，再根据map解析HID report就能知道按键具体值。
-
-- UUID：以上几个均以记录的形式存在于ATT数据库中，为了知晓这些特殊记录，要用蓝牙标准规定的UUID值赋予记录的type。例如，DECL_PRIMARY_SERVICE_128(0x2800)表示这条记录为服务声明。
+- UUID：以上几个均以记录的形式存在于ATT数据库中，为了知晓这些特殊记录，要用蓝牙标准规定的UUID值赋予记录的type。例如，DECL\_PRIMARY\_SERVICE\_128(0x2800)表示这条记录为服务声明。
 
 通过接口 `bk_ble_create_db` 创建gatt database，建立连接后，client，server可分别对database中定义的characteristic进行read write，notify indicate操作。
 
-![ble gatts op flow](../../_images/ble_gatts_op.png)
+<a id="id9"></a>
+![ble gatts op flow](../../../../_assets/4f051ec232de4d4f2ed7-ble_gatts_op.png)
 
-Figure 2. ble gatt server operation
+
+Figure 2\. ble gatt server operation
 
 以下为具体示例
-
 
 ```
 //服务声明
@@ -106,6 +122,7 @@ ble_attm_desc_t test_service_db[TEST_IDX_NB] = {
    [TEST_IDX_CHAR_DESC] = {DESC_CLIENT_CHAR_CFG_128, BK_BLE_PERM_SET(RD, ENABLE) | BK_BLE_PERM_SET(WRITE_REQ, ENABLE), 0, 0},
 };
 
+
 struct bk_ble_db_cfg ble_db_cfg;
 const uint16_t service_uuid = 0xffff;
 
@@ -123,13 +140,11 @@ os_memcpy(&(ble_db_cfg.uuid[0]), &service_uuid, 2);
 bk_ble_set_notice_cb(ble_notice_cb);
 //创建数据库
 bk_ble_create_db(&ble_db_cfg);
-
 ```
 
-到此，我们得到一个0xfff的服务，该服务包含一个0x1234的特征，该特征可以通过读，或写TEST_IDX_CHAR_DESC来开启notify的行为。
+到此，我们得到一个0xfff的服务，该服务包含一个0x1234的特征，该特征可以通过读，或写TEST\_IDX\_CHAR\_DESC来开启notify的行为。
 
-我们还需要在ble_notice_cb中处理对端读写操作的回调event。
-
+我们还需要在ble\_notice\_cb中处理对端读写操作的回调event。
 
 ```
 void ble_notice_cb(ble_notice_t notice, void *param)
@@ -188,18 +203,19 @@ void ble_notice_cb(ble_notice_t notice, void *param)
                 break;
         }
 }
-
 ```
 
+<a id="id5"></a>
 
 ### 开启广播
 
 设定好数据库后，需要开启广播以让对端扫描到我们。
 
-![ble adv flow](../../_images/ble_adv.png)
+<a id="id10"></a>
+![ble adv flow](../../../../_assets/bc15590abf5c43ec094d-ble_adv.png)
 
-Figure 3. ble advertising
 
+Figure 3\. ble advertising
 
 ```
 ble_adv_param_t adv_param;
@@ -238,6 +254,7 @@ bk_ble_set_adv_data(actv_idx, adv_data, sizeof(adv_data), ble_gatt_cmd_cb);
 const uint8_t scan_data[] = {0x02, 0x01, 0x06, 0x0A, 0x09, 0x37, 0x32, 0x33, 0x31, 0x4e, 0x5f, 0x42, 0x4c, 0x45};
 bk_ble_set_scan_rsp_data(actv_idx, scan_data, sizeof(scan_data), ble_gatt_cmd_cb);
 
+
 //在ble_gatt_cmd_cb中，等待BLE_SET_RSP_DATA事件
 ...
 //
@@ -248,25 +265,26 @@ bk_ble_start_advertising(actv_idx, 0, ble_gatt_cmd_cb);
 //在ble_gatt_cmd_cb中，等待BLE_START_ADV事件
 ...
 //
-
 ```
 
 广播格式如下图:
-:   ![menuconfig gui](../../_images/adv_data.png)
+:   ![menuconfig gui](../../../../_assets/ae25525666c9c969ad97-adv_data.png)
 
-AD Type定义在 [Assigned Numbers](https://www.bluetooth.com/specifications/assigned-numbers "https://www.bluetooth.com/specifications/assigned-numbers")
+AD Type定义在 [Assigned Numbers](https://www.bluetooth.com/specifications/assigned-numbers)
 
+<a id="id6"></a>
 
 ### 开启扫描与连接,断开连接
 
 对端广播开启后，master可通过scan进行扫描连接。
 
-![ble scan&conn flow](../../_images/ble_scan_conn.png)
+<a id="id11"></a>
+![ble scan&conn flow](../../../../_assets/9c069536f6c9a5030ef2-ble_scan_conn.png)
 
-Figure 4. ble scan and connection
+
+Figure 4\. ble scan and connection
 
 开启扫描
-
 
 ```
 ble_scan_param_t scan_param;
@@ -292,11 +310,9 @@ bk_ble_start_scaning(actv_idx, ble_gatt_cmd_cb);
 //
 
 //在ble_notice_cb中处理BLE_5_REPORT_ADV ，为广播数据
-
 ```
 
 建立连接
-
 
 ```
 ble_conn_param_t conn_param;
@@ -309,6 +325,7 @@ conn_param.init_phys = INIT_PHY_TYPE_LE_1M;// 1M
 //获取当前空闲的active index，用于建立连接
 con_idx = bk_ble_get_idle_conn_idx_handle();
 
+
 bk_ble_create_init(con_idx, &conn_param, ble_gatt_cmd_cb);
 
 //在ble_gatt_cmd_cb中，等待BLE_INIT_CREATE
@@ -318,14 +335,13 @@ bk_ble_create_init(con_idx, &conn_param, ble_gatt_cmd_cb);
 //设置对端地址类型，不匹配会导致连接不上
 bk_ble_init_set_connect_dev_addr(con_idx, bt_mac, 1);
 
+
 bk_ble_init_start_conn(con_idx, ble_gatt_cmd_cb)
 
 //在ble_gatt_cmd_cb中，等待BLE_INIT_START_CONN
-
 ```
 
 断开连接
-
 
 ```
 //通过蓝牙地址获取连接handle
@@ -333,18 +349,19 @@ conn_idx = bk_ble_find_conn_idx_from_addr(&connect_addr);
 
 //断开连接
 err = bk_ble_disconnect(conn_idx, ble_gatt_cmd_cb);
-
 ```
 
+<a id="master"></a>
 
 ### master进行读写操作
 
 建立连接后，master可获取到对端database service信息，并对characteristic进行读写操作。
 
-![ble gattc op flow](../../_images/ble_gattc_op.png)
+<a id="id12"></a>
+![ble gattc op flow](../../../../_assets/dcb5e7113edf8d34705b-ble_gattc_op.png)
 
-Figure 5. ble gatt client operation
 
+Figure 5\. ble gatt client operation
 
 ```
 //database service information callback
@@ -456,6 +473,7 @@ bk_ble_set_notice_cb(ble_notice_cb);
 bk_ble_register_app_sdp_common_callback(gattc_sdp_comm_callback);
 bk_ble_register_app_sdp_charac_callback(gattc_sdp_charac_callback);
 
+
 // notify enable and disable
 if(en)
 {
@@ -489,15 +507,16 @@ if(ret != BK_OK)
     BLEGATTC_LOGE("ble read att :%d\n", ret);
     goto error;
 }
-
 ```
 
+<a id="id7"></a>
 
 ## 参考链接
 
-> [单BLE API](../../api-reference/bluetooth/single_ble.md "../../api-reference/bluetooth/single_ble.md") 介绍了单BLE的API接口
+> [单BLE API](../../api-reference/bluetooth/single_ble.md) 介绍了单BLE的API接口
 >
 > 样例演示：可参考工程
 >
-> 1. 单模ble client：[gatt_client](../../examples/projects/bluetooth/gatt_client.md "../../examples/projects/bluetooth/gatt_client.md")
-> 2. 单模ble server：[gatt_server](../../examples/projects/bluetooth/gatt_server.md "../../examples/projects/bluetooth/gatt_server.md")
+> 1. 单模ble client：[gatt\_client](../../examples/projects/bluetooth/gatt_client.md)
+> 2. 单模ble server：[gatt\_server](../../examples/projects/bluetooth/gatt_server.md)
+> 3. Bluetooth Mesh：`projects/bluetooth/mesh`

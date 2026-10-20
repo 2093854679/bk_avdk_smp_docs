@@ -1,10 +1,24 @@
-# 双模 BLE GATT Server 示例工程
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/bluetooth/dm_ble_gatt_server/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="ble-gatt-server"></a>
+
+# 双模 BLE GATT Server 示例工程
 
 本工程把 BK7259 开发板配置为双模蓝牙 Host 架构下的 BLE GATT Server。BLE Host 运行在 AP 侧，Controller 运行在 CP 侧；应用只演示 BLE GATT Server，不启动 A2DP、HFP、SPP 等 BT Classic profile。
 
-本工程可与 [dm_ble_gatt_client](dm_ble_gatt_client.md "dm_ble_gatt_client.md") 配合完成双板 BLE 读、写、通知测试，也可以使用手机 BLE 工具（如 nRF Connect、LightBlue）连接验证。
+本工程可与 [dm\_ble\_gatt\_client](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/bluetooth/dm_ble_gatt_client) 配合完成双板 BLE 读、写、通知测试，也可以使用手机 BLE 工具（如 nRF Connect、LightBlue）连接验证。
 
+<a id="id1"></a>
 
 ## 支持的芯片
 
@@ -12,41 +26,37 @@
 | --- | --- | --- | --- |
 | BK7259 | 支持 | Peripheral / GATT Server | Host 在 AP，Controller 在 CP |
 
+<a id="id2"></a>
 
-## 1. 工程概述
+## 1\. 工程概述
 
 上电后，工程会初始化 dm BLE GAP 和 GATT Server 框架，注册自定义 GATT 数据库并启动 legacy 可连接广播。中心设备连接后可以：
 
-
 - 发现广播名 `BKDMBLE-xxxxxx` 和主服务 `0xFA00`；
-
 - 读取通知特征 `0xEA01` 的默认值；
-
 - 写入 write-only 特征 `0xEA02`；
-
-- 对 N2 / N3 / N4 三个读写特征（`0xEA05` / `0xEA06` / `0xEA07`）执行写入后读回；
-
+- 对 N2 / N3 / N4 三个读写特征（`0xEA05` / `0xEA06` / `0xEA07` ）执行写入后读回；
 - 写 CCCD `0x2902` 后接收 `0xEA01` 上的 notification；
-
 - 通过共享 `ble_gatt_demo` CLI 验证广播开关、断开、配对、安全参数、白名单和连接参数更新等通用能力。
 
-![双模 GATT Server 系统架构](../../../_images/arch_cn1.png)
+![双模 GATT Server 系统架构](../../../../../_assets/4200a62633a07f4785e0-dm_ble_gatt_server_arch_cn.png)
 
 源码：`projects/bluetooth/dm_ble_gatt_server/ap/dm_ble_gatt_server_demo.c`
 
+<a id="id3"></a>
 
-## 2. 测试环境
+## 2\. 测试环境
 
 | 项目 | 要求 |
 | --- | --- |
 | 目标板 | BK7259 开发板 |
-| 中心设备 | 第二块烧录 [dm_ble_gatt_client](dm_ble_gatt_client.md "dm_ble_gatt_client.md") 的开发板，或手机 BLE 工具 |
+| 中心设备 | 第二块烧录 [dm\_ble\_gatt\_client](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/bluetooth/dm_ble_gatt_client) 的开发板，或手机 BLE 工具 |
 | 串口 | UART0 用于烧录、日志与 CLI |
 | 固件产物 | `build/bk7259/dm_ble_gatt_server/package/all-app.bin` |
 
+<a id="gatt"></a>
 
-## 3. 广播与 GATT 数据库
-
+## 3\. 广播与 GATT 数据库
 
 **广播数据**
 
@@ -57,8 +67,7 @@
 | Service UUID | `0xFA00` | 本工程自定义 GATT 主服务 UUID |
 | Manufacturer Company ID | `0x05F0` | Beken 厂商数据 |
 
-
-**GATT 属性表（主服务 ``0xFA00`**）`
+**GATT 属性表（主服务 \` \`0xFA00\`**）\`
 
 | UUID | 类型 | 属性 / 权限 | 说明 |
 | --- | --- | --- | --- |
@@ -72,9 +81,9 @@
 
 运行时 ATT handle 由协议栈分配。Client 测试时应以当前服务发现日志中的 `value_handle` 和 `desc_handle` 为准，不要硬编码 handle。
 
+<a id="id5"></a>
 
-## 4. 目录结构
-
+## 4\. 目录结构
 
 ```
 dm_ble_gatt_server/
@@ -89,14 +98,13 @@ dm_ble_gatt_server/
 │   └── config/bk7259_ap/defconfig
 ├── cp/                              # CP 侧：Controller-only 配置
 └── partitions/                      # Flash / RAM 分区表
-
 ```
 
+<a id="id6"></a>
 
-## 5. 配置说明
+## 5\. 配置说明
 
 AP 侧启用双模 Host 和 dm BLE GATT 组件：
-
 
 ```
 CONFIG_BLUETOOTH_AP=y
@@ -104,51 +112,46 @@ CONFIG_BLUETOOTH_HOST_ONLY=y
 CONFIG_BT=y
 CONFIG_BLE=y
 CONFIG_BLUETOOTH_BTDM_COMPONENT_BLE_GATT=y
-
 ```
 
 CP 侧启用双模 Controller：
 
-
 ```
 CONFIG_BT=y
 CONFIG_BTDM_CONTROLLER_ONLY=y
-
 ```
 
 CP 侧 `CONFIG_BLE` 默认已开启，无需在工程 defconfig 中显式配置。
 
 `CONFIG_BT=y` 用于使 dm BLE 组件菜单可选；本工程不启用 `CONFIG_BLUETOOTH_BTDM_COMPONENT_ENABLE`，因此不会编入 BT Classic profile 组件。
 
+<a id="id7"></a>
 
-## 6. 编译与烧录
+## 6\. 编译与烧录
 
 在 SDK 根目录编译：
 
-
 ```
 make bk7259 PROJECT=bluetooth/dm_ble_gatt_server
-
 ```
 
 烧录合并镜像：
 
-
 ```
 build/bk7259/dm_ble_gatt_server/package/all-app.bin
-
 ```
 
 正常启动后，设备会自动开始广播。串口日志中可看到 GATT Server 初始化、属性表注册和广播启动相关信息。
 
+<a id="id8"></a>
 
-## 7. 测试流程
+## 7\. 测试流程
 
 双板端到端流程如下图：
 
-![双模 GATT Server 测试流程](../../../_images/flow_cn1.png)
+![双模 GATT Server 测试流程](../../../../../_assets/de93c48821c2108965ee-dm_ble_gatt_server_flow_cn.png)
 
-以 [dm_ble_gatt_client](dm_ble_gatt_client.md "dm_ble_gatt_client.md") 作为中心设备：
+以 [dm\_ble\_gatt\_client](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/bluetooth/dm_ble_gatt_client) 作为中心设备：
 
 1. A 板烧录 `dm_ble_gatt_server`，B 板烧录 `dm_ble_gatt_client`。
 2. A 板上电后等待广播启动，广播名为 `BKDMBLE-xxxxxx`。
@@ -162,46 +165,41 @@ build/bk7259/dm_ble_gatt_server/package/all-app.bin
 
 项目 notify 命令：
 
-
 ```
 ap_cmd dm_ble_gatt_server gatts notify hello
-
 ```
 
 重新启动广播：
 
-
 ```
 ap_cmd ble_gatt_demo gatts enable_adv 1
-
 ```
 
+<a id="id10"></a>
 
 ### 绑定测试
 
-绑定前，**Server 和 Client 两端** 需先配置相同的安全参数（连接前执行）：
-
+绑定前， **Server 和 Client 两端** 需先配置相同的安全参数（连接前执行）：
 
 ```
 ap_cmd ble_gatt_demo security_method 3 1 3
-
 ```
 
 Client 连接并完成服务发现后，在 Client 侧执行 `create_bond`。Server 收到安全请求后会自动接受配对。成功时两端日志出现 `pairing success`，`show_bond` 可看到对端地址和 LTK。
 
+<a id="id11"></a>
 
 ### 连接参数更新
 
 Client 在已连接状态下执行（`interval` 和 `timeout` 使用十进制）：
 
-
 ```
 ap_cmd ble_gatt_demo update_param <client_addr> 40 400
-
 ```
 
+<a id="cli"></a>
 
-## 8. CLI 参考
+## 8\. CLI 参考
 
 BK7259 SMP 上，AP 侧蓝牙命令需要加 `ap_cmd` 前缀。本工程只保留 GATT Server 项目特有命令；连接、配对、安全、白名单等公共命令由共享 `ble_gatt_demo` 提供。
 
@@ -225,11 +223,11 @@ BK7259 SMP 上，AP 侧蓝牙命令需要加 `ap_cmd` 前缀。本工程只保�
 | `ap_cmd ble_gatt_demo remove_whitelist <peer_addr> <addr_type>` | 移除白名单 |
 | `ap_cmd ble_gatt_demo clear_whitelist` | 清空白名单 |
 
+<a id="id12"></a>
 
-## 9. 实现说明
+## 9\. 实现说明
 
 初始化流程：
-
 
 ```
 bk_dm_prf_gap_main(&param);
@@ -237,34 +235,24 @@ bk_dm_prf_gatts_main(&param);
 bk_dm_prf_gatts_add_gatts_callback(dm_ble_gatt_server_demo_gatts_cb);
 bk_dm_prf_gatts_reg_db(s_gatts_db, DM_GATTS_IDX_NB, s_attr_handles, dm_ble_gatt_server_demo_db_cb, 1);
 dm_ble_gatt_server_demo_start_adv();
-
 ```
 
-
 - `bk_dm_prf_gatts_main()` 会设置默认设备名并注册组件内部 GAP/GATTS callback。
-
 - `bk_dm_prf_gatts_add_gatts_callback()` 追加注册应用 callback，不替换组件 callback。
-
 - 本工程关闭组件内部测试属性表，由应用注册自己的 service `0xFA00`。
-
-- 广播配置使用 GAP completion event + semaphore 串行等待，避免连续下发异步 GAP 操作。
+- 广播配置使用 GAP completion event \+ semaphore 串行等待，避免连续下发异步 GAP 操作。
 
 完整交互时序：
 
-![双模 GATT Server 交互时序](../../../_images/gatt_seq_cn1.png)
+![双模 GATT Server 交互时序](../../../../../_assets/3c71d1e58b750682d5d6-dm_ble_gatt_server_gatt_seq_cn.png)
 
+<a id="id13"></a>
 
-## 10. 注意事项
-
+## 10\. 注意事项
 
 - `0xEA02` 为只写特征，读取会返回 Read Not Permitted，属正常现象。
-
 - `0xEA05` / `0xEA06` / `0xEA07` 写入前长度为 0；写入后读取同一个 value handle 才会返回新数据。读回时建议指定 `len`。
-
 - `0xEA01` 的 notification 需要对端先写 CCCD `0x2902` 使能。
-
 - 对端连接后广播会停止；断开后如需再次连接，可执行 `ap_cmd ble_gatt_demo gatts enable_adv 1`。
-
 - 绑定测试推荐使用 `security_method 3 1 3`；两端需在连接前配置相同参数。
-
 - 默认使用 GATT 组件日志等级。需要更详细日志时，可临时配置 `CONFIG_BLUETOOTH_BTDM_COMPONENT_BLE_GATT_LOG_LEVEL=4`。

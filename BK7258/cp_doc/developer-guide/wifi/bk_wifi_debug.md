@@ -1,0 +1,210 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7258/zh_CN/v3.1.1/developer-guide/wifi/bk_wifi_debug.html
+sdk_family: bk_avdk_smp
+chip: BK7258
+processor: CP
+sdk_version: v3.1.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="wi-fi"></a>
+
+# **Wi-Fi 问题定位指南**
+
+<a id="id1"></a>
+
+## **概述**
+
+本章节主要介绍Wi-Fi常见问题Log抓取和定位方法
+
+<a id="id2"></a>
+
+## **收发通路问题分析**
+
+收发通路常见的问题有：数据传输带宽偏低、数据传输丢包以及数据传输延迟高等问题。
+这类问题一般需要通过CLI命令查看一些统计信息，甚至需要收发通路Log配合Wi-Fi空口包进行分析。
+Armino SDK默认支持LWIP和Wi-Fi底层输出发送和接收相关log，这些log默认不开启，需要查看时可通过API接口开启。
+具体可参考cli\_pkt\_debug\_cmd函数实现。
+
+重要
+
+*LWIP和Wi-Fi通路log会影响系统性能，请确保在只在定位问题时开启*
+
+<a id="lwiplog"></a>
+
+### **LWIP相关log介绍**
+
+LWIP模块目前支持ICMP、IP和TCP子模块输出发送和接收关键log，如果需要查看相关Log，需要按照如下步骤操作
+
+1\. 首先需要在相应工程中通过CONFIG\_LWIP\_DEBUG\_LOG功能宏开启LWIP debug log代码编译，比如在/project/app/bk\*\*\*\*/config文件中将
+CONFIG\_LWIP\_DEBUG\_LOG\=y，即可在bk\*\*\*芯片app工程开启LWIP debug log代码编译。
+
+2. 可通过void lwip\_set\_pkt\_trx\_dbg\_cfg(uint32\_t cfg\_bit)接口针对性开启LWIP子模块的log。
+
+LWIP子模块log配置是cfg\_bit完成，cfg\_bit含义如下表所示：
+
+| **宏定义** | **数值** | **描述** |
+| --- | --- | --- |
+| LWIP\_TX\_DBG\_LOG\_SOCKET | 1\<\<16 | 开启lwip\_send函数中log |
+| LWIP\_TX\_DBG\_LOG\_IP | 1\<\<17 | 开启IP TX log |
+| LWIP\_TX\_DBG\_LOG\_TCP | 1\<\<18 | 开启TCP TX log |
+| LWIP\_RX\_DBG\_LOG\_SOCKET | 1\<\<20 | 开启lwip\_recvfrom函数中log |
+| LWIP\_RX\_DBG\_LOG\_IP | 1\<\<21 | 开启IP RX log |
+| LWIP\_RX\_DBG\_LOG\_TCP | 1\<\<22 | 开启TCP RX log |
+| LWIP\_TX\_DBG\_LOG\_PING | 1\<\<24 | 开启ICMP TX log |
+| LWIP\_RX\_DBG\_LOG\_PING | 1\<\<25 | 开启ICMP RX log |
+
+<a id="lwipdebug"></a>
+
+### **LWIP相关Debug命令**
+
+可通过lwip\_mem和lwip\_stats CLI命令辅助定位TCP/IP相关问题
+
+lwip\_mem \- 查看与lwip相关的内存使用情况，该命令返回如下：
+
+```
+$lwip_mem
+
+(76916):Name             total used addr       size  err      comment
+(76916):---------------------------------------------------------------
+(76916):RAW_PCB          4     0    0x2804ebbf 28    0     # 原始协议控制块，用于直接访问IP层
+(76916):UDP_PCB          10    1    0x2804fc07 40    0     # UDP协议控制块，管理UDP连接
+(76918):TCP_PCB          8     0    0x2804f0a1 164   0     # TCP协议控制块，管理TCP连接状态
+(76918):TCP_PCB_LISTEN   4     0    0x2804f01e 32    0     # TCP监听控制块，用于监听TCP连接
+(76918):TCP_SEG          80    0    0x2804f5c4 20    0     # TCP分段结构，管理TCP数据分段
+(76918):REASSDATA        5     0    0x2804ec32 32    0     # IP分片重组数据结构
+(76918):FRAG_PBUF        15    0    0x28049c2a 24    0     # 分片缓冲区，存储IP分片数据
+(76918):NETBUF           32    0    0x28049e18 16    0     # 网络缓冲区，用于数据包传输
+(76918):NETCONN          20    0    0x2804a01b 52    0     # 网络连接抽象，应用程序接口
+(76918):TCPIP_MSG_API    8     0    0x2804ed98 16    0     # TCP/IP API消息结构
+(76918):TCPIP_MSG_INPKT  32    0    0x2804ee1b 16    0     # 输入数据包消息结构
+(76918):ARP_QUEUE        4     0    0x28049c07 8     0     # ARP请求队列
+(76918):IGMP_GROUP       8     1    0x28049d95 16    0     # IGMP组管理结构
+(76920):SYS_TIMEOUT      12    6    0x2804ecd5 16    0     # 系统超时结构
+(76920):NETDB            4     0    0x2804a42e 308   0     # 网络数据库结构
+(76920):PBUF_REF/ROM     10    0    0x2804eb1c 16    0     # 引用/只读数据缓冲区
+(76920):PBUF_POOL        10    0    0x2804a901 1692  0     # 数据缓冲池
+(76920):===== MEMP_PBUF_POOL ======
+(76920):avail 10, used 0, max 0, err 0
+(76920):========== MEM ============
+(76920):avail 51200, used 60, max 1124, err 0
+(76920):tx avail 42666, rx avail 38400, tx used 60, rx used 0, tx max 544, rx max 1064, tx err 0, rx err 0
+```
+
+lwip\_stats \- 查看与lwip收发统计信息，该命令返回如下：
+
+```
+$lwip_stats
+(444938):
+ETHARP
+(444938):xmit:     2
+(444938):recv:     5
+(444938):fw:       0
+(444938):drop:     0
+
+$(444940):chkerr:   0
+(444940):lenerr:   0
+(444940):memerr:   0
+(444940):rterr:    0
+(444940):proterr:  0
+(444942):opterr:   0
+(444942):err:      0
+(444942):cachehit: 5
+(444942):
+IP
+(444942):xmit:     10
+(444942):recv:     16
+(444942):fw:       0
+(444942):drop:     5
+(444942):chkerr:   0
+(444942):lenerr:   0
+(444942):memerr:   0
+(444942):rterr:    0
+(444942):proterr:  0
+(444942):opterr:   0
+(444942):err:      0
+(444942):cachehit: 0
+(444942):
+UDP
+(444942):xmit:     4
+(444942):recv:     5
+(444944):fw:       0
+(444944):drop:     0
+(444944):chkerr:   0
+(444944):lenerr:   0
+(444944):memerr:   0
+(444944):rterr:    0
+(444944):proterr:  0
+(444944):opterr:   0
+(444944):err:      0
+(444944):cachehit: 4
+(444944):
+TCP
+(444944):xmit:     0
+(444944):recv:     0
+(444944):fw:       0
+(444944):drop:     0
+(444944):chkerr:   0
+(444944):lenerr:   0
+(444944):memerr:   0
+(444944):rterr:    0
+(444944):proterr:  0
+(444944):opterr:   0
+(444944):err:      0
+(444944):cachehit: 0
+```
+
+备注
+
+查看lwip CLI命令需要确保cli\_lwip.c模块参与编译
+
+<a id="wi-filog"></a>
+
+### **Wi-Fi相关log介绍**
+
+Wi-Fi模块目前支持TX/RX通路输出关键log，log开启可通过void bk\_wifi\_set\_pkt\_trx\_dbg\_cfg(uint32\_t cfg\_bit)
+API接口实现，cfg\_bit含义如下表所示：
+
+| **宏定义** | **数值** | **描述** |
+| --- | --- | --- |
+| WIFI\_TX\_DBG\_LOG\_DATA\_PKT | 1\<\<0 | 开启Wi-Fi数据帧发送完成log |
+| WIFI\_TX\_DBG\_LOG\_MGMT\_PKT | 1\<\<1 | 开启Wi-Fi管理帧发送完成log |
+| WIFI\_TX\_DBG\_LOG\_PUSH\_PKT | 1\<\<2 | 开启Wi-Fi发送组包log |
+| WIFI\_RX\_DBG\_LOG\_DATA\_PKT | 1\<\<8 | 开启Wi-Fi数据帧接收log |
+| WIFI\_RX\_DBG\_LOG\_MGMT\_PKT | 1\<\<9 | 开启Wi-Fi管理帧接收log |
+
+重要
+
+*通路log开启后，随着传输数据量的增加，log量会剧增，为了抓取完整log，需要提高串口波特率*
+
+<a id="wi-fidebug"></a>
+
+### **Wi-Fi通路Debug命令**
+
+Wi-Fi模块也提供了收发统计信息，这些信息可通过get mac\_trx status命令查询，该命令返回如下：
+
+```
+$get mac_trx status
+
+$wifid:I(1077306):======================= MAC RX INFO ========================
+wifid:I(1077308):rx data cnt:31, upload cnt:36, forward cnt:36, memerr cnt:0
+wifid:I(1077308):======================= MAC TX INFO ========================
+wifid:I(1077308):tx data dld cnt:12, retry cnt:0, single cnt:12, agg cnt:5, discard cnt:0, success cnt:12
+wifid:I(1077308):tx data tx time:269, avg time:22, max time:152
+CMDRSP:OK
+```
+
+备注
+
+查看Wi-Fi CLI命令需要确保cli\_wifi.c模块参与编译
+
+<a id="id3"></a>
+
+### **通路常见问题分析方法**
+
+- 传输带宽低：TCP传输带宽低需要关注上层应用发送数据是否频繁会遇到TCP buffer满的情况，如果存在类似问题，需要开启LWIP和Wi-Fi的log并配合Wi-Fi空口进行分析。
+- 传输丢包：首先通过lwip log确认收发是否正常，如果没有异常就需要开启lwip log和Wi-Fi log配合Wi-Fi空口包进行分析。
+- 传输延迟高：这类问题一般与环境相关，可首先通过ping程序确认与目标通信地址延迟是否符合预期。如果ping延迟正常，则需要开启lwip log和Wi-Fi log配合Wi-Fi空口包进行分析。

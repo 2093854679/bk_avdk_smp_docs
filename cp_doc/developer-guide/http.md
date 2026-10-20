@@ -1,17 +1,32 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/http/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="http-webclient"></a>
+
 # HTTP 组件webclient
 
 移植于RT-Thread的webclient开源组件
 
-
+<a id="id1"></a>
 
 ## 源码路径
 
 components/webclient
 
+<a id="id2"></a>
 
 ## 使用流程
 
-HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如下：
+HTTP GET/POST使用流程可参考测试代码test\_http(void)，详细流程如下：
 
 使用 WebClient 软件包发送 GET/POST 请求一般需要完成如下基本流程：
 
@@ -48,7 +63,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 > };
 > ```
 >
-> webclient_session 结构体用于存放当前建立的 HTTP 连接的部分信息，可用与 HTTP 数据交互整个流程。
+> webclient\_session 结构体用于存放当前建立的 HTTP 连接的部分信息，可用与 HTTP 数据交互整个流程。
 > 建立 HTTP 连接前需要创建并初始化该结构体，创建的方式示例如下:
 >
 > ```
@@ -72,7 +87,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 >   > 如果要使用默认的头部信息，则不需要拼接任何头部数据，可直接调用 GET 发送命令。默认头部数据一般只用于 GET 请求。
 > - 自定义头部数据
 >
-> 自定义头部数据使用 webclient_header_fields_add 函数添加头部信息，添加的头部信息位于客户端会话结构体中，在发送 GET/POST 请求时发送。
+> 自定义头部数据使用 webclient\_header\_fields\_add 函数添加头部信息，添加的头部信息位于客户端会话结构体中，在发送 GET/POST 请求时发送。
 >
 > 添加示例代码如下:
 >
@@ -85,7 +100,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 >
 > - 3. **发送 GET/POST 请求**
 >
-> 头部信息添加完成之后，就可以调用 webclient_get 函数或者 webclient_post 函数发送 GET/POST 请求命令了，函数中主要操作如下：
+> 头部信息添加完成之后，就可以调用 webclient\_get 函数或者 webclient\_post 函数发送 GET/POST 请求命令了，函数中主要操作如下：
 >
 > > - 通过传入的 URI 获取信息，建立 TCP 连接；
 > > - 发送默认或者拼接的头部信息；
@@ -108,7 +123,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 >
 > - 4. **接收响应的数据**
 >
-> 发送 GET/POST 请求之后，可以使用 webclient_read 函数接收响应的实际数据。因为响应的实际数据可能比较长，所以往往我们需要循环接收响应数据，指导数据接收完毕。
+> 发送 GET/POST 请求之后，可以使用 webclient\_read 函数接收响应的实际数据。因为响应的实际数据可能比较长，所以往往我们需要循环接收响应数据，指导数据接收完毕。
 > 如下所示为循环接收并打印响应数据方式:
 >
 > ```
@@ -137,7 +152,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 >
 > - 5. **关闭并释放客户端会话结构体**
 >
-> 请求发送并接收完成之后，需要使用 webclient_close 函数关闭并释放客户端会话结构体，完成整个 HTTP 数据交互流程。
+> 请求发送并接收完成之后，需要使用 webclient\_close 函数关闭并释放客户端会话结构体，完成整个 HTTP 数据交互流程。
 >
 > 使用方式如下:
 >
@@ -219,7 +234,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 > webclient_close(session)；
 > ```
 >
-> 使用 webclient_response 接收 GET 数据, 多用于接收数据长度较小的 GET 请求:
+> 使用 webclient\_response 接收 GET 数据, 多用于接收数据长度较小的 GET 请求:
 >
 > ```
 > struct webclient_session *session = NULL;
@@ -239,7 +254,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 > webclient_close(session);
 > ```
 >
-> 使用 webclient_request 函数发送并接收 GET 请求, 多用于接收数据长度较小，且头部信息已经拼接给出的 GET 请求:
+> 使用 webclient\_request 函数发送并接收 GET 请求, 多用于接收数据长度较小，且头部信息已经拼接给出的 GET 请求:
 >
 > ```
 > size_t length = 0;
@@ -304,7 +319,7 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 > webclient_close(session);
 > ```
 >
-> 使用 webclient_request 函数发送 POST 请求, 多用于上传文件较小且头头部信息已经拼接给出的 POST 请求:
+> 使用 webclient\_request 函数发送 POST 请求, 多用于上传文件较小且头头部信息已经拼接给出的 POST 请求:
 >
 > ```
 > char *post_data = "abcdefg";
@@ -317,9 +332,9 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 > webclient_request(URI, header, post_data, rt_strlen(post_data), NULL, NULL);
 > ```
 
+<a id="id3"></a>
 
 ## 常见问题
-
 
 - HTTPS 地址不支持:
 
@@ -329,7 +344,6 @@ HTTP GET/POST使用流程可参考测试代码test_http(void)，详细流程如�
 
 > - 原因：使用 HTTPS 地址但是没有开启 HTTPS 支持。
 > - 解决方法：在 WebClient 软件包 menuconfig 配置选项中 选择 Select TLS mode 选项为 MbedTLS support 或者 SAL TLS support。
-
 
 - 头部数据长度超出:
 

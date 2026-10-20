@@ -1,11 +1,26 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_sdio.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # 安全数字输入/输出接口
 
-
+<a id="id2"></a>
 
 ## 1 功能概述
 
 > SDIO既支持作为Host控制TF卡，又可以作为slave无线网卡收发数据。作为Host时，SDK工程中使用fatfs文件系统对TF卡进行文件管理，用户只需要进行简单的配置就可以使用SD卡，本文档对操作fatfs文件系统的cli命令进行介绍。
 
+<a id="id3"></a>
 
 ## 2 代码路径
 
@@ -18,153 +33,151 @@
 >
 >       `middleware\driver\sdio_host\sdio_host_driver.c`
 
+<a id="sdio"></a>
 
 ## 3 SDIO相关宏配置
 
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_FATFS | FATFS使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_FATFS_SDCARD | FATFS使能SD卡存储方式配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_SDCARD | SD卡使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_SDCARD_DEFAULT_CLOCK_FREQ | SD卡读写数据时钟配置sdio_host_clock_freq_t,14对应20M, 时钟数值可根据需求进行调整,最大支持40MHz | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | 14 |
-> | CONFIG_SDCARD_POWER_GPIO_CTRL | SD卡使能LDO低功耗投票配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_SDCARD_DEBUG_SUPPORT | SD卡使能DEBUG dump寄存器配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDCARD_BUSWIDTH_4LINE | SD卡使能四线配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_4LINES_EN | SDIO使能四线配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO | SDIO使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_V1P0 | SDIO使能V1P0版本配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_V2P0 | SDIO使能V2P0版本配置,通常建议Host使用v2p0 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_SDIO_V2P1 | SDIO使能V2P1版本配置,通常建议slave使用v2p1 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_GDMA_EN | SDIO使能DMA配置,建议slave使能,Host关闭 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_HOST | SDIO使能Host配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_SDIO_HOST_DEFAULT_CLOCK_FREQ | SD卡初始化时钟配置sdio_host_clock_freq_t，7对应100K | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | 7 |
-> | CONFIG_SDIO_HOST_CLR_WRITE_INT | 无效宏配置，老项目用 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_PM_CB_SUPPORT | SDIO Host使能低功耗投票配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_PIN_SDIO_GROUP_1 | SDIO Host使能PIN脚组合1配置，即P14~P19 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_SLAVE | SDIO使能Slave配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_CHANNEL_EN | SDIO Slave使能通道管理配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_BIDIRECT_CHANNEL_EN | SDIO Slave使能双向收发配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_GPIO_NOTIFY_TRANSACTION_EN | SDIO Slave使能GPIO中断配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_TEST_EN | SDIO Slave使能测试用例 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_SDIO_DEBUG_EN | SDIO Slave使能DEBUG配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_GPIO_1V8_EN | GPIO 切换至1.8V配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_GPIO_1V8_SRC_AUTO_SWITCH_EN | GPIO 1.8V低功耗相关配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-> | CONFIG_USR_GPIO_CFG_EN | GPIO 按照GPIO map表进行初始化 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
-
+> | CONFIG\_FATFS | FATFS使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_FATFS\_SDCARD | FATFS使能SD卡存储方式配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_SDCARD | SD卡使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_SDCARD\_DEFAULT\_CLOCK\_FREQ | SD卡读写数据时钟配置sdio\_host\_clock\_freq\_t,14对应20M, 时钟数值可根据需求进行调整,最大支持40MHz | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | 14 |
+> | CONFIG\_SDCARD\_POWER\_GPIO\_CTRL | SD卡使能LDO低功耗投票配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_SDCARD\_DEBUG\_SUPPORT | SD卡使能DEBUG dump寄存器配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDCARD\_BUSWIDTH\_4LINE | SD卡使能四线配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_4LINES\_EN | SDIO使能四线配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO | SDIO使能配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_V1P0 | SDIO使能V1P0版本配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_V2P0 | SDIO使能V2P0版本配置,通常建议Host使用v2p0 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_SDIO\_V2P1 | SDIO使能V2P1版本配置,通常建议slave使用v2p1 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_GDMA\_EN | SDIO使能DMA配置,建议slave使能,Host关闭 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_HOST | SDIO使能Host配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_SDIO\_HOST\_DEFAULT\_CLOCK\_FREQ | SD卡初始化时钟配置sdio\_host\_clock\_freq\_t，7对应100K | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | 7 |
+> | CONFIG\_SDIO\_HOST\_CLR\_WRITE\_INT | 无效宏配置，老项目用 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_PM\_CB\_SUPPORT | SDIO Host使能低功耗投票配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_PIN\_SDIO\_GROUP\_1 | SDIO Host使能PIN脚组合1配置，即P14\~P19 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_SLAVE | SDIO使能Slave配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_CHANNEL\_EN | SDIO Slave使能通道管理配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_BIDIRECT\_CHANNEL\_EN | SDIO Slave使能双向收发配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_GPIO\_NOTIFY\_TRANSACTION\_EN | SDIO Slave使能GPIO中断配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_TEST\_EN | SDIO Slave使能测试用例 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_SDIO\_DEBUG\_EN | SDIO Slave使能DEBUG配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_GPIO\_1V8\_EN | GPIO 切换至1.8V配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_GPIO\_1V8\_SRC\_AUTO\_SWITCH\_EN | GPIO 1.8V低功耗相关配置 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
+> | CONFIG\_USR\_GPIO\_CFG\_EN | GPIO 按照GPIO map表进行初始化 | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | n |
 
 ---
 
 > - 适配TF卡注意事项：
 >   :   1. 作为Host要加外部上拉，上拉电阻通常为10K；
 >       2. SDIO Host接TF卡时，建议关闭如下两个宏，前者是为了确保时序正确，后者宏已默认禁用 防止TF卡使用时自动下电；
->          :   CONFIG_SDIO_GDMA_EN
+>          :   CONFIG\_SDIO\_GDMA\_EN
 >
->              CONFIG_SDCARD_POWER_GPIO_CTRL_AUTO_POWERDOWN_WHEN_IDLE
-
+>              CONFIG\_SDCARD\_POWER\_GPIO\_CTRL\_AUTO\_POWERDOWN\_WHEN\_IDLE
 
 ---
 
 > - 作为Host搭载TF卡或SD Nand时宏配置示例：
 >
->   > #
+>   > \#
 >   >
->   > # SDIO Host config
+>   > \# SDIO Host config
 >   >
->   > #
+>   > \#
 >   >
->   > CONFIG_FATFS=y
+>   > CONFIG\_FATFS\=y
 >   >
->   > CONFIG_FATFS_SDCARD=y
+>   > CONFIG\_FATFS\_SDCARD\=y
 >   >
->   > CONFIG_SDCARD=y
+>   > CONFIG\_SDCARD\=y
 >   >
->   > CONFIG_SDCARD_DEFAULT_CLOCK_FREQ=14
+>   > CONFIG\_SDCARD\_DEFAULT\_CLOCK\_FREQ\=14
 >   >
->   > CONFIG_SDCARD_POWER_GPIO_CTRL=y
+>   > CONFIG\_SDCARD\_POWER\_GPIO\_CTRL\=y
 >   >
->   > CONFIG_SDCARD_DEBUG_SUPPORT=n
+>   > CONFIG\_SDCARD\_DEBUG\_SUPPORT\=n
 >   >
->   > CONFIG_SDCARD_BUSWIDTH_4LINE=n
+>   > CONFIG\_SDCARD\_BUSWIDTH\_4LINE\=n
 >   >
->   > CONFIG_SDIO_4LINES_EN=n
+>   > CONFIG\_SDIO\_4LINES\_EN\=n
 >   >
->   > CONFIG_SDIO=y
+>   > CONFIG\_SDIO\=y
 >   >
->   > CONFIG_SDIO_V1P0=n
+>   > CONFIG\_SDIO\_V1P0\=n
 >   >
->   > CONFIG_SDIO_V2P0=y
+>   > CONFIG\_SDIO\_V2P0\=y
 >   >
->   > CONFIG_SDIO_V2P1=n
+>   > CONFIG\_SDIO\_V2P1\=n
 >   >
->   > CONFIG_SDIO_GDMA_EN=n
+>   > CONFIG\_SDIO\_GDMA\_EN\=n
 >   >
->   > CONFIG_SDIO_HOST=y
+>   > CONFIG\_SDIO\_HOST\=y
 >   >
->   > CONFIG_SDIO_HOST_DEFAULT_CLOCK_FREQ=7
+>   > CONFIG\_SDIO\_HOST\_DEFAULT\_CLOCK\_FREQ\=7
 >   >
->   > CONFIG_SDIO_HOST_CLR_WRITE_INT=y
+>   > CONFIG\_SDIO\_HOST\_CLR\_WRITE\_INT\=y
 >   >
->   > CONFIG_SDIO_PM_CB_SUPPORT=y
+>   > CONFIG\_SDIO\_PM\_CB\_SUPPORT\=y
 >   >
->   > CONFIG_PIN_SDIO_GROUP_1=n
+>   > CONFIG\_PIN\_SDIO\_GROUP\_1\=n
 >   >
->   > CONFIG_SDIO_SLAVE=n
+>   > CONFIG\_SDIO\_SLAVE\=n
 >   >
->   > # end of SDIO
-
+>   > \# end of SDIO
 
 ---
 
 > - 作为Slave功能宏配置示例：
->   :   #
+>   :   \#
 >
->       # SDIO slave config
+>       \# SDIO slave config
 >
->       #
+>       \#
 >
->       CONFIG_FATFS=n
+>       CONFIG\_FATFS\=n
 >
->       CONFIG_FATFS_SDCARD=n
+>       CONFIG\_FATFS\_SDCARD\=n
 >
->       CONFIG_SDCARD=n
+>       CONFIG\_SDCARD\=n
 >
->       CONFIG_USR_GPIO_CFG_EN=y
+>       CONFIG\_USR\_GPIO\_CFG\_EN\=y
 >
->       CONFIG_SDIO=y
+>       CONFIG\_SDIO\=y
 >
->       CONFIG_SDIO_V1P0=n
+>       CONFIG\_SDIO\_V1P0\=n
 >
->       CONFIG_SDIO_V2P0=n
+>       CONFIG\_SDIO\_V2P0\=n
 >
->       CONFIG_SDIO_V2P1=y
+>       CONFIG\_SDIO\_V2P1\=y
 >
->       CONFIG_SDIO_HOST=n
+>       CONFIG\_SDIO\_HOST\=n
 >
->       CONFIG_SDIO_SLAVE=y
+>       CONFIG\_SDIO\_SLAVE\=y
 >
->       CONFIG_SDIO_CHANNEL_EN=y
+>       CONFIG\_SDIO\_CHANNEL\_EN\=y
 >
->       CONFIG_SDIO_BIDIRECT_CHANNEL_EN=y
+>       CONFIG\_SDIO\_BIDIRECT\_CHANNEL\_EN\=y
 >
->       CONFIG_SDIO_GDMA_EN=y
+>       CONFIG\_SDIO\_GDMA\_EN\=y
 >
->       CONFIG_GPIO_NOTIFY_TRANSACTION_EN=y
+>       CONFIG\_GPIO\_NOTIFY\_TRANSACTION\_EN\=y
 >
->       CONFIG_SDIO_4LINES_EN=n
+>       CONFIG\_SDIO\_4LINES\_EN\=n
 >
->       CONFIG_SDIO_TEST_EN=y
+>       CONFIG\_SDIO\_TEST\_EN\=y
 >
->       CONFIG_SDIO_DEBUG_EN=y
+>       CONFIG\_SDIO\_DEBUG\_EN\=y
 >
->       CONFIG_GPIO_1V8_EN=n
+>       CONFIG\_GPIO\_1V8\_EN\=n
 >
->       CONFIG_GPIO_1V8_SRC_AUTO_SWITCH_EN=n
+>       CONFIG\_GPIO\_1V8\_SRC\_AUTO\_SWITCH\_EN\=n
 >
->       # end of SDIO
-
+>       \# end of SDIO
 
 ---
 
+<a id="sdiopin"></a>
 
 ## 4 SDIO相关PIN脚描述
 
@@ -179,6 +192,7 @@
 >   > | Data2 | GPIO10 | GPIO18 |
 >   > | Data3 | GPIO11 | GPIO19 |
 
+<a id="cli"></a>
 
 ## 5 cli命令简介
 
@@ -188,29 +202,29 @@
 > >
 > > | Command | Param | Description |
 > > | --- | --- | --- |
-> > | fatfstest {M|U} {DISK_NUMBER} | {M|U}: mount|unmount | apply for or release the workspace for logical drivers |
-> > | {DISK_NUMBER}:logical driver number |
-> > | fatfstest G {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | get the size of remaining disk space |
-> > | fatfstest S {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | scan all files on disk |
-> > | fatfstest F {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | format disk |
-> > | fatfstest R {DISK_NUMBER}{file_name}  {length} | {DISK_NUMBER}:logical driver number | read specified length of data  from the file |
-> > | {file_name}:file to story read data |
+> > | fatfstest {M\|U} {DISK\_NUMBER} | {M\|U}: mount\|unmount | apply for or release the workspace for logical drivers |
+> > | {DISK\_NUMBER}:logical driver number |
+> > | fatfstest G {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | get the size of remaining disk space |
+> > | fatfstest S {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | scan all files on disk |
+> > | fatfstest F {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | format disk |
+> > | fatfstest R {DISK\_NUMBER}{file\_name}  {length} | {DISK\_NUMBER}:logical driver number | read specified length of data  from the file |
+> > | {file\_name}:file to story read data |
 > > | {length}: length to be read |
-> > | fatfstest W {DISK_NUMBER}{file_name}  {content_p}{content_len} | {DISK_NUMBER}:logical driver number | write data to a file |
-> > | {file_name}:file to be written |
-> > | {content_p}: pointer to the data to be written |
-> > | {content_len}:length to be written |
-> > | fatfstest D {DISK_NUMBER}{file_name}  {start_addr}{content_len} | {DISK_NUMBER}:logical driver number | read the specified length of data from the specified address and write it to the specified file |
-> > | {file_name}:file to be written |
-> > | {start_addr}: start address for reading |
-> > | {content_len}:length to be written |
-> > | fatfstest A {DISK_NUMBER}{file_name}  {content_len}{test_cnt} {start_addr} | {DISK_NUMBER}:logical driver number | auto test,write the data to the file and then read it, and compare the result  note: the data written to the SD card is read from the specified start_addr |
-> > | {file_name}:file to be written |
-> > | {content_len}: length of comparison |
-> > | {test_cnt}:number of cycle tests |
-> > | {start_addr}:start address for reading |
+> > | fatfstest W {DISK\_NUMBER}{file\_name}  {content\_p}{content\_len} | {DISK\_NUMBER}:logical driver number | write data to a file |
+> > | {file\_name}:file to be written |
+> > | {content\_p}: pointer to the data to be written |
+> > | {content\_len}:length to be written |
+> > | fatfstest D {DISK\_NUMBER}{file\_name}  {start\_addr}{content\_len} | {DISK\_NUMBER}:logical driver number | read the specified length of data from the specified address and write it to the specified file |
+> > | {file\_name}:file to be written |
+> > | {start\_addr}: start address for reading |
+> > | {content\_len}:length to be written |
+> > | fatfstest A {DISK\_NUMBER}{file\_name}  {content\_len}{test\_cnt} {start\_addr} | {DISK\_NUMBER}:logical driver number | auto test,write the data to the file and then read it, and compare the result  note: the data written to the SD card is read from the specified start\_addr |
+> > | {file\_name}:file to be written |
+> > | {content\_len}: length of comparison |
+> > | {test\_cnt}:number of cycle tests |
+> > | {start\_addr}:start address for reading |
 > >
-> > disk_number的定义：
+> > disk\_number的定义：
 >
 > ```
 >         typedef enum
@@ -223,6 +237,7 @@
 > } DISK_NUMBER;
 > ```
 
+<a id="id4"></a>
 
 ## 6 演示介绍
 

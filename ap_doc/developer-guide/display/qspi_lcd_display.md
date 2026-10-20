@@ -1,42 +1,50 @@
-# qspi_lcd_display
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/display/qspi_lcd_display.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="qspi-lcd-display"></a>
 
+# qspi\_lcd\_display
+
+<a id="id1"></a>
 
 ## 概述
 
 Display 模块为不同 LCD 接口提供统一的控制器生命周期。QSPI LCD 使用 `bk_display_qspi_panel_t` 屏描述结构，并通过 QSPI LCD 驱动发送寄存器初始化命令和原始像素帧。
 
-本节说明 BK7259 当前 QSPI LCD 通路的使用方式。API 细节请参考 [Display API](../../api-reference/multimedia/bk_display.md "../../api-reference/multimedia/bk_display.md")，可运行示例请参考 `projects/multimedia/qspi_lcd_example`。
+本节说明 BK7259 当前 QSPI LCD 通路的使用方式。QSPI 控制器基础说明见 [QSPI 使用指南](../peripheral/bk_qspi.md)。
+API 细节请参考 [Display API](../../api-reference/multimedia/bk_display.md)，可运行示例请参考 `projects/multimedia/qspi_lcd_example`。
 
+<a id="id2"></a>
 
 ## 配置项
 
 工程中需要使能 QSPI LCD 通路和具体屏驱动：
 
-
 - `CONFIG_BK_DISPLAY`：使能 Display 组件。
-
 - `CONFIG_FRAME_BUFFER`：使能帧缓冲区分配接口。
-
 - `CONFIG_BK_PERIPHERAL`：编译 LCD panel 描述。
-
 - `CONFIG_QSPI` 和 `CONFIG_QSPI_LINE_MODE=4`：使能 QSPI 四线模式。
-
 - `CONFIG_LCD_QSPI`：使能 QSPI LCD 驱动。
-
 - `CONFIG_LCD_QSPI_<PANEL>`：使能具体 QSPI panel，例如 `CONFIG_LCD_QSPI_SPD2010`。
-
 - `CONFIG_LCD_QSPI_TE`：当屏和板级硬件连接 TE 引脚时使能 TE 支持。
-
 - `CONFIG_LCD_QSPI_COLOR_DEPTH_BYTE`：输出像素字节数，用于 panel 的 `frame_len`。
 
 背光和电源 GPIO 与具体板级设计相关。SDK 示例使用 GPIO7 作为背光控制脚，实际应用应按硬件设计在打开显示前后自行配置。
 
+<a id="panel"></a>
 
 ## Panel 描述
 
 QSPI 屏使用 `bk_display_qspi_panel_t` 描述，并提供 `lcd_qspi_t` 总线配置：
-
 
 ```
 static uint8_t spd2010_cmd[] = {0x32, 0x00, 0x2c, 0x00};
@@ -64,11 +72,11 @@ const bk_display_qspi_panel_t lcd_device_spd2010 = {
 BK_LCD_PANEL_DEVICE_SECTION(lcd_device_spd2010,
                             "spd2010_qspi_412x412",
                             BK_LCD_PANEL_BUS_QSPI);
-
 ```
 
 新增 QSPI 屏时，可参考 `ap/components/bk_peripheral/src/lcd/qspi/` 下已有文件。至少需要确认寄存器读写命令、像素写命令、初始化命令表、像素时钟、刷新模式、有效宽高和 `frame_len`。
 
+<a id="qspi-panel"></a>
 
 ### 适配新 QSPI panel
 
@@ -81,13 +89,9 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_spd2010,
 
    在 `ap/components/bk_peripheral/src/lcd/qspi/` 下新增 `lcd_qspi_<name>.c`，并包含下面几个部分：
 
-
    - `static const lcd_qspi_init_cmd_t <name>_init_cmds[]`：按屏厂初始化表填写寄存器命令。sleep out、display on 等命令后的延时可参考已有文件中的延时写法。
-
    - `static uint8_t <name>_cmd[]`：填写整屏写像素时发送的命令序列，例如 SPD2010 使用 `{0x32, 0x00, 0x2c, 0x00}`。
-
    - `static const lcd_qspi_t lcd_qspi_<name>_config`：填写 `clk`、`refresh_method`、`reg_write_cmd`、`reg_read_cmd`、`reg_read_config`、`pixel_write_config`、`init_cmd`、`device_init_cmd_len` 和 `frame_len`。首版建议先使用保守时钟，点亮稳定后再逐步提高。
-
    - `const bk_display_qspi_panel_t lcd_device_<name>`：填写 `name`、`width`、`height` 和 `qspi` 指针。
 
    注册时必须使用 QSPI bus 类型：
@@ -107,14 +111,15 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_spd2010,
 
    先确认 reset、背光和电源时序，再确认 QSPI 四线模式、时钟、初始化命令和 pixel write 命令是否有波形输出。若有背光但黑屏，重点检查 `0x11` sleep out、`0x29` display on、寄存器写命令、RAM write 命令序列和窗口范围；若花屏或颜色异常，重点检查 `CONFIG_LCD_QSPI_COLOR_DEPTH_BYTE`、像素格式寄存器、RGB/BGR 方向寄存器、`frame_len` 和 `refresh_method`。
 
+<a id="id3"></a>
 
 ## 代码流程
 
+<a id="id4"></a>
 
-### 1. 创建控制器
+### 1\. 创建控制器
 
 使用 `bk_display_qspi_ctlr_new()` 创建 QSPI display 控制器。`lcd_panel` 必须指向有效的 QSPI `bk_display_qspi_panel_t` 描述，且其 `qspi` 成员不能为空。
-
 
 ```
 extern const bk_display_qspi_panel_t lcd_device_spd2010;
@@ -128,16 +133,15 @@ static bk_display_qspi_ctlr_config_t qspi_ctlr_config = {
 };
 
 avdk_err_t ret = bk_display_qspi_ctlr_new(&lcd_display_handle, &qspi_ctlr_config);
-
 ```
 
 `te_pin` 仅在使能 TE 并且硬件已连接 TE 引脚时使用。如果方案不使用 TE，应在板级配置中保持该引脚未使用，并避免开启依赖 TE 的行为。
 
+<a id="id5"></a>
 
-### 2. 初始化并打开
+### 2\. 初始化并打开
 
 调用 `bk_display_open()` 前需要先调用 `bk_display_init()`。初始化阶段会配置 QSPI LCD 通路，open 后控制器进入可刷帧状态。
-
 
 ```
 ret = bk_display_init(lcd_display_handle);
@@ -149,14 +153,13 @@ ret = bk_display_open(lcd_display_handle);
 if (ret != AVDK_ERR_OK) {
     goto fail;
 }
-
 ```
 
+<a id="id6"></a>
 
-### 3. 刷新帧
+### 3\. 刷新帧
 
 QSPI 控制器的 `bk_display_flush()` 参数是与 panel 配置匹配的原始像素 buffer。buffer 大小可按 `lcd_panel->qspi->frame_len` 或 `width * height * CONFIG_LCD_QSPI_COLOR_DEPTH_BYTE` 分配。
-
 
 ```
 uint32_t frame_size = qspi_ctlr_config.lcd_panel->qspi->frame_len;
@@ -166,25 +169,24 @@ ret = bk_display_flush(lcd_display_handle, disp_frame, display_frame_free_cb);
 if (ret != AVDK_ERR_OK) {
     display_frame_free_cb(disp_frame);
 }
-
 ```
 
 可选回调会在控制器不再使用该帧时被调用。如果使用固定复用 buffer，回调可以为空实现；如果每帧单独分配，应在回调中释放。
 
+<a id="id7"></a>
 
-### 4. 关闭和删除
+### 4\. 关闭和删除
 
 使用 `bk_display_close()` 停止输出。如果后续还要重新初始化，可调用 `bk_display_deinit()`；如果需要释放句柄，调用 `bk_display_delete()`。`bk_display_delete()` 会在控制器仍处于 active 状态时隐式反初始化。
-
 
 ```
 bk_display_close(lcd_display_handle);
 bk_display_deinit(lcd_display_handle);
 bk_display_delete(lcd_display_handle);
 lcd_display_handle = NULL;
-
 ```
 
+<a id="id8"></a>
 
 ## 注意事项
 

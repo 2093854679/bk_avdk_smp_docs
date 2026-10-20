@@ -1,41 +1,49 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/multimedia/uvc_example/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="uvc"></a>
+
 # UVC 摄像头示例工程
 
+<a id="id1"></a>
 
+## 1\. 项目概述
 
-## 1. 项目概述
+本工程演示 BK7259 **USB Host \+ UVC** 外接摄像头采集，提供高层 `uvc` 一键开流命令与底层 `uvc_api` 分步 API 调试入口。
 
-本工程演示 BK7259 **USB Host + UVC** 外接摄像头采集，提供高层 `uvc` 一键开流命令与底层 `uvc_api` 分步 API 调试入口。
-
-
-- 开发者指南： [UVC 摄像头](../../../developer-guide/camera/uvc.md "../../../developer-guide/camera/uvc.md")
-
+- 开发者指南：[UVC 摄像头](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/developer-guide/camera/uvc.html)
 - API 参考：
 
-  - [Camera API](../../../api-reference/multimedia/bk_camera.md "../../../api-reference/multimedia/bk_camera.md")
+  > - [Camera API](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/api-reference/multimedia/bk_camera.html)
+  > - [图像内存管理](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/api-reference/multimedia/bk_frame_buffer.html)
 
-  - [图像内存管理](../../../api-reference/multimedia/bk_frame_buffer.md "../../../api-reference/multimedia/bk_frame_buffer.md")
-
+<a id="id4"></a>
 
 ### 1.1 测试环境
 
-
 - 硬件配置
 
-  - 核心板：**BK7259_QF128_12.3X12.3_V4.0**
-
-  - PSRAM：32M
-
-  - **USB Host 口 + UVC 摄像头** （支持 MJPEG / YUV / H264 / H265，视设备能力）
-
-- 默认示例参数：port `1`，864×480@30fps，MJPEG（`MEDIA_UVC_MJPEG_864X480_30FPS_CONFIG()`）
+  > - 核心板： **BK7259\_QF128\_12.3X12.3\_V4.0**
+  > - PSRAM：32M
+  > - **USB Host 口 \+ UVC 摄像头** （支持 MJPEG / YUV / H264 / H265，视设备能力）
+- 默认示例参数：port `1`，864×480@30fps，MJPEG（`MEDIA_UVC_MJPEG_864X480_30FPS_CONFIG()` ）
 
 警告
 
 请使用支持所需格式的 UVC 设备。分辨率与格式须与摄像头实际能力匹配，否则 `uvc_checkout_port_info` 会失败。
 
+<a id="id5"></a>
 
-## 2. 目录结构
-
+## 2\. 目录结构
 
 ```
 uvc_example/
@@ -44,31 +52,30 @@ uvc_example/
 │   └── src/uvc_test.c       # uvc / uvc_api 全部逻辑
 ├── cp/
 └── partitions/
-
 ```
 
+<a id="id6"></a>
 
-## 3. 功能说明
+## 3\. 功能说明
 
+<a id="id7"></a>
 
 ### 3.1 `uvc` 高层命令
 
 一键完成 USB 上电、控制器创建与开流：
 
-
 ```
 uvc open <port> <width> <height> <h264|h265|mjpeg|yuv>
 uvc close <port>
-
 ```
 
 参数不足时使用默认 864×480@30 MJPEG、port 1。内部流程：`uvc_camera_power_on` → 端口能力检查 → `bk_uvc_ctrl_new/init/open`。
 
+<a id="uvc-api"></a>
 
 ### 3.2 `uvc_api` 分步命令
 
 用于逐步验证 `bk_uvc_*` 控制器 API：
-
 
 ```
 uvc_api power_on
@@ -81,39 +88,37 @@ uvc_api open <width> <height> <h264|h265|mjpeg|yuv>
 uvc_api close
 uvc_api suspend
 uvc_api resume
-
 ```
 
+<a id="id8"></a>
 
 ### 3.3 启动行为
 
-上电后:strong:无自动 demo，注册 CLI 后等待串口命令。
+上电后 **无自动 demo**，注册 CLI 后等待串口命令。
 
+<a id="id9"></a>
 
-## 4. 编译与运行
+## 4\. 编译与运行
 
+<a id="id10"></a>
 
 ### 4.1 编译
-
 
 ```
 cd <SDK_ROOT>
 make bk7259 PROJECT=multimedia/uvc_example -j$(nproc)
-
 ```
 
+<a id="id11"></a>
 
 ### 4.2 使用示例
-
 
 ```
 uvc open 1 864 480 mjpeg
 uvc close 1
-
 ```
 
 或分步调试：
-
 
 ```
 uvc_api power_on
@@ -124,12 +129,12 @@ uvc_api close
 uvc_api deinit
 uvc_api delete
 uvc_api power_off
-
 ```
 
+<a id="id12"></a>
 
-## 5. 注意事项
+## 5\. 注意事项
 
 1. Hub 端口数受 `CONFIG_USBHOST_HUB_MAX_EHPORTS` 限制，与 `UVC_PORT_MAX` 一致。
-2. 帧缓冲默认从 PSRAM 分配（`CONFIG_UVC_USE_PSRAM_ALLOC`）。
+2. 帧缓冲默认从 PSRAM 分配（`CONFIG_UVC_USE_PSRAM_ALLOC` ）。
 3. 端到端显示与 H264 编码流水线请参考 `uvc_display_example` 工程。

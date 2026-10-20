@@ -1,18 +1,34 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/platform/bk_pwr.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="power-manager"></a>
+
 # power manager
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 > 支持平台power manager（normal sleep、sleep mode 、deepsleep）。
 >
-> BK7259低功耗采用CP主控、AP从属的架构，整个低功耗控制流程在CP侧完成。系统开机后默认启动CP和AP；进入sleep mode或deepsleep前，CP会根据业务状态关闭AP，并在满足低功耗投票和唤醒源配置后进入低功耗状态。Wi-Fi、BLE保活场景下，周期性唤醒只需要CP参与，AP保持关闭；当业务需要音频、视频、LCD、多媒体等AP侧能力时，再通过 `pm_boot_ap` 或对应接口唤醒AP。整体架构和模块组成请参考 [低功耗整体架构](../../developer-guide/power_save/bk_lowpower_architecture.md "../../developer-guide/power_save/bk_lowpower_architecture.md") 。
+> BK7259低功耗采用CP主控、AP从属的架构，整个低功耗控制流程在CP侧完成。系统开机后默认启动CP和AP；进入sleep mode或deepsleep前，CP会根据业务状态关闭AP，并在满足低功耗投票和唤醒源配置后进入低功耗状态。Wi-Fi、BLE保活场景下，周期性唤醒只需要CP参与，AP保持关闭；当业务需要音频、视频、LCD、多媒体等AP侧能力时，再通过 `pm_boot_ap` 或对应接口唤醒AP。整体架构和模块组成请参考 [低功耗整体架构](../../developer-guide/power_save/bk_lowpower_architecture.md) 。
 
+<a id="id2"></a>
 
 ## 2 代码路径
 
 > demo路径：`components\bk_cli\cli_pwr.c`
 
+<a id="cli"></a>
 
 ## 3 cli命令简介
 
@@ -20,19 +36,20 @@ demo运行依赖的宏配置：
 
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_PM_ENABLE | enable pwr cli source compile | `components\bk_cli\CMakeLists.txt` | y |
-> | CLI_CFG_PWR | enable pwr cli init | `components\bk_cli\cli_main.c` | 1 |
+> | CONFIG\_PM\_ENABLE | enable pwr cli source compile | `components\bk_cli\CMakeLists.txt` | y |
+> | CLI\_CFG\_PWR | enable pwr cli init | `components\bk_cli\cli_main.c` | 1 |
 
 demo支持的命令如下：
 
 重要
 
-在SMP架构中，AP侧执行的命令前面需要加”ap_cmd”。例如：ap_cmd pm 2 0 8 9 12 8 0 1000000000。
+在SMP架构中，AP侧执行的命令前面需要加”ap\_cmd”。例如：ap\_cmd pm 2 0 8 9 12 8 0 1000000000。
 
+<a id="cmd-line-1"></a>
 
 ### cmd line 1:
 
-> pm [sleep_mode] [wake_source] [vote1] [vote2] [vote3] [param1] [param2] [param3]
+> pm \[sleep\_mode\] \[wake\_source\] \[vote1\] \[vote2\] \[vote3\] \[param1\] \[param2\] \[param3\]
 >
 > > ```
 > > sleep_mode：代表休眠模式(参数范围：0-3): 0:normal sleep; 1:sleep; 2:deep sleep;3:none
@@ -43,6 +60,7 @@ demo支持的命令如下：
 > > param3：BT休眠时间，该参数对于发送命令是兼容接口，建议设置的时间1000000000（100s）,设置这么大的值为了使用BT模块内部模块设置的时间为准
 > > ```
 
+<a id="example-1-gpiodeepsleep"></a>
 
 #### EXAMPLE 1: 使用GPIO作为唤醒源来唤醒deepsleep设备
 
@@ -68,6 +86,7 @@ demo支持的命令如下：
 > > 3）deepsleep之后的功耗符合预期为15ua-20ua左右。
 > > ```
 
+<a id="example-2-rtcdeepsleep"></a>
 
 #### EXAMPLE 2: 使用RTC设置唤醒时间来唤醒deepsleep设备
 
@@ -89,6 +108,7 @@ demo支持的命令如下：
 > > 3）deepsleep之后的功耗符合预期为15ua-20ua左右。
 > > ```
 
+<a id="example-3-gpio"></a>
 
 #### EXAMPLE 3: 使用GPIO来唤醒进入睡眠设备
 
@@ -115,6 +135,7 @@ demo支持的命令如下：
 > > 2）同时通过使用精密电源来测量整个sleep mode到唤醒过程的功耗。
 > > ```
 
+<a id="example-4-rtc"></a>
 
 #### EXAMPLE 4: 使用RTC作为唤醒源来唤醒进入睡眠设备
 
@@ -140,10 +161,11 @@ demo支持的命令如下：
 > > 2）同时通过使用精密电源来测量整个sleep到唤醒过程的功耗。
 > > ```
 
+<a id="cmd-line-2"></a>
 
 ### cmd line 2:
 
-> pm_vote [sleep_mode] [pm_vote] [pm_vote_value] [pm_sleep_time]
+> pm\_vote \[sleep\_mode\] \[pm\_vote\] \[pm\_vote\_value\] \[pm\_sleep\_time\]
 >
 > > ```
 > > sleep_mode：代表休眠模式(参数范围：0-3): 0:normal sleep; 1:sleep; 2:deep sleep;3:none
@@ -152,6 +174,7 @@ demo支持的命令如下：
 > > pm_sleep_time：BT休眠时间，该参数对于发送命令是兼容接口，建议设置的时间1000000000（100s）,设置这么大的值为了使用BT模块内部模块设置的时间为准
 > > ```
 
+<a id="example-1-wifi"></a>
 
 #### EXAMPLE 1: 使用WIFI保活来唤醒睡眠设备
 
@@ -173,26 +196,25 @@ demo支持的命令如下：
 
 备注
 
-pm_vote命令和pm命令差异:
+pm\_vote命令和pm命令差异:
 
-> - pm_vote命令是只投进睡眠的票，不配置唤醒源;使用场景是使用其他命令配置了唤醒源，例如wifi和路由器连接上之后，发该命令进入睡眠。
+> - pm\_vote命令是只投进睡眠的票，不配置唤醒源;使用场景是使用其他命令配置了唤醒源，例如wifi和路由器连接上之后，发该命令进入睡眠。
 > - pm命令不但投进睡眠的票，还配置RTC,GPIO,TOUCH唤醒源。
 
+<a id="cmd-line-3"></a>
 
 ### cmd line 3:
 
-pm_demo {init||cmd|config_data}
+pm\_demo {init\|\|cmd\|config\_data}
 
-init: 初始化pm_demo线程
+init: 初始化pm\_demo线程
 
-send_cmd: 发送命令给pm_demo线程，例如：
+send\_cmd: 发送命令给pm\_demo线程，例如：
 
+- 进入睡眠：ap\_cmd pm\_demo sleep 50000 1 8 2
+- 进入深度睡眠：ap\_cmd pm\_demo deep\_sleep 50000 1 8 2
 
-- 进入睡眠：ap_cmd pm_demo sleep 50000 1 8 2
-
-- 进入深度睡眠：ap_cmd pm_demo deep_sleep 50000 1 8 2
-
-config_data: 配置数据给pm_demo线程，格式如下:
+config\_data: 配置数据给pm\_demo线程，格式如下:
 
 5000：睡眠时间，以ms为单位，5000表示5s
 
@@ -202,26 +224,24 @@ config_data: 配置数据给pm_demo线程，格式如下:
 
 2:表示上升沿（0：低电平；1：高电平；2：上升沿；3：下降延）
 
+<a id="example-1-gpio-rtc"></a>
 
 #### EXAMPLE 1: 使用GPIO,RTC保活来唤醒睡眠设备
-
 
 ```
 ap_cmd pm_demo init
 ap_cmd pm_demo sleep 50000 1 8 2
-
 ```
 
 以上命令作用是配置进入睡眠时间为5s，使用GPIO8作为唤醒源，使用上升沿唤醒。
 
+<a id="example-2-gpio-rtcdeepsleep"></a>
 
 #### EXAMPLE 2: 使用GPIO,RTC保活来唤醒deepsleep设备
-
 
 ```
 ap_cmd pm_demo init
 ap_cmd pm_demo deep_sleep 50000 1 8 2
-
 ```
 
 以上命令作用是配置进入深度睡眠时间为5s，使用GPIO8作为唤醒源，使用上升沿唤醒。

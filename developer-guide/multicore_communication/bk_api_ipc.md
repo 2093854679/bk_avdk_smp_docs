@@ -1,12 +1,26 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/multicore_communication/bk_api_ipc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="ipc"></a>
+
 # 多核通讯-IPC通讯接口
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
-
 - IPC通讯接口基于Mailbox
 
+<a id="ap"></a>
 
 ## 2 AP侧代码路径
 
@@ -15,6 +29,7 @@
 > - 驱动源码路径：
 >   :   `ap\middleware\driver\mailbox\bk_api_ipc.c`
 
+<a id="cp"></a>
 
 ## 3 CP侧代码路径
 
@@ -23,9 +38,9 @@
 > - 驱动源码路径：
 >   :   `cp\middleware\driver\mailbox\bk_api_ipc.c`
 
+<a id="id2"></a>
 
 ## 4 IPC通讯接口
-
 
 ```
 #define MIPC_CHAN_SEND_FLAG_SYNC        (1 << 0)
@@ -52,19 +67,16 @@ typedef uint32_t (*bk_ipc_tx_cb)(ipc_obj_t ipc_obj);
 
 int bk_ipc_init(void);
 int bk_ipc_send(bk_ipc_t *ipc, void *data, uint32_t size, uint32_t flags, uint32_t *result);
-
 ```
 
 描述：
-:   - AP和CP子系统通过IPC接口通讯, 需要分别调用bk_ipc_init初始化
+:   - AP和CP子系统通过IPC接口通讯, 需要分别调用bk\_ipc\_init初始化
+    - 然后通过BK\_IPC\_CHANNEL\_DEF申明应用的逻辑通路
+    - 接着通过BK\_IPC\_CHANNEL\_REGISTER注册rx和tx的callback
 
-    - 然后通过BK_IPC_CHANNEL_DEF申明应用的逻辑通路
-
-    - 接着通过BK_IPC_CHANNEL_REGISTER注册rx和tx的callback
-
+<a id="id3"></a>
 
 ## 5 AP侧使用示例
-
 
 ```
 //0. 申明应用的逻辑通路, 定义rx, tx callback函数
@@ -96,12 +108,11 @@ ret = bk_ipc_send(&ui_ipc_test, (uint8_t *)data, sizeof(data), 0, 0);
 
 //3. 同步发送：
 ret = bk_ipc_send(&ui_ipc_test, (uint8_t *)data, sizeof(data), MIPC_CHAN_SEND_FLAG_SYNC, 0);
-
 ```
 
+<a id="id4"></a>
 
 ## 6 CP侧使用示例
-
 
 ```
 //0. 申明应用的逻辑通路
@@ -133,14 +144,13 @@ ret = bk_ipc_send(&ui_ipc_test, (uint8_t *)data, sizeof(data), 0, 0);
 
 //3. 同步发送：
 ret = bk_ipc_send(&ui_ipc_test, (uint8_t *)data, sizeof(data), MIPC_CHAN_SEND_FLAG_SYNC, 0);
-
 ```
 
+<a id="ut"></a>
 
 ## 7 UT测试用例
 
 以app工程为例, 可以通过ipc命令运行CP侧IPC通讯接口的单元测试用例:
-
 
 ```
 $ ipc
@@ -166,15 +176,12 @@ MIPC-UT:I(1072345):Rx: [Ack From CPU: 1, @time: 1072174], size: 128
 ap0:MIPC-UT:I(1072274):Rx: [Async Hello From CPU: 0, @time: 3758153728], size: 128
 MIPC-UT:I(1072445):Rx: [Ack From CPU: 1, @time: 1072274], size: 128
 
-
 -----------------------
 2 Tests 0 Failures 0 Ignored
 OK
-
 ```
 
-以app工程为例, 可以通过ap_cmd ipc命令运行AP侧IPC通讯接口的单元测试用例:
-
+以app工程为例, 可以通过ap\_cmd ipc命令运行AP侧IPC通讯接口的单元测试用例:
 
 ```
 $ ap_cmd ipc
@@ -190,9 +197,7 @@ MIPC-UT:I(1064899):Rx: [Async Hello From CPU: 1, @time: 3758153728], size: 128
 MIPC-UT:I(1064999):Rx: [Async Hello From CPU: 1, @time: 3758153728], size: 128
 MIPC-UT:I(1065099):Rx: [Async Hello From CPU: 1, @time: 3758153728], size: 128
 
-
 -----------------------
 2 Tests 0 Failures 0 Ignored
 OK
-
 ```

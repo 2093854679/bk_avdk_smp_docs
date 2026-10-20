@@ -1,12 +1,26 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/audio/asr_service/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # **语音识别服务**
 
+<a id="id2"></a>
 
-
-## **1. 简介**
+## **1\. 简介**
 
 > 语音识别服务组件是基于ADK语音开发框架设计实现的，提供语音识别(ASR)功能。
 >
-> 支持Wanson ASR引擎。
+> 支持 BEKEN\_KWS（TFLite-Micro \+ NPU）及 Wanson 等 ASR 引擎。
 >
 > 支持音频数据重采样功能，可根据不同ASR引擎的需求进行采样率转换。
 >
@@ -16,19 +30,16 @@
 
 1. 用户可以使用统一的API接口来配置和控制ASR服务，无需关注具体的ASR引擎实现。
 
-
 - 有关语音识别服务的API参考，请参阅：
 
-
-  - [语音识别服务API参考](../../ap_doc/api-reference/audio/asr_service.md "../../ap_doc/api-reference/audio/asr_service.md")
-
+  - [语音识别服务API参考](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/api-reference/audio/asr_service/index.html)
 - 有关语音识别服务的示例工程，请参阅：
 
+  - [语音识别服务示例工程](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/examples/projects/asr_service_example/index.html)
 
-  - 语音识别服务示例工程?????
+<a id="id4"></a>
 
-
-## **2. 软件框架**
+## **2\. 软件框架**
 
 > 语音识别服务主要功能包括：
 >
@@ -44,40 +55,44 @@
 备注
 
 1. 当前软件版本语音识别服务例举了两种工作模式：直接使用麦克风进行录音识别，或通过语音服务获取音频数据进行识别。用户可根据实际应用场景,对asr的工作模式进行其他配置。
-2. 不同的ASR引擎可能对音频数据的格式和采样率有特定要求，可通过配置进行适配,如Wanson ASR引擎要求音频数据为16位PCM格式，采样率为16000Hz。
+2. 不同的ASR引擎可能对音频数据的格式和采样率有特定要求，可通过配置进行适配；BEKEN\_KWS / Wanson 通常要求 16 位 PCM、采样率 16000Hz。
 
+<a id="id5"></a>
 
-## **3. 宏配置**
+## **3\. 宏配置**
 
 > 功能宏配置：
 >
 > |  |  |  |  |
 > | --- | --- | --- | --- |
 > | Kconfig | CPU | Format | Value |
-> | CONFIG_ASR_SERVICE | AP | bool | y |
+> | CONFIG\_ASR\_SERVICE | AP | bool | y |
 >
 > 依赖功能宏配置：
 >
 > |  |  |  |  |
 > | --- | --- | --- | --- |
 > | Kconfig | CPU | Format | Value |
-> | CONFIG_ADK | AP | bool | y |
-> | CONFIG_ADK_RAW_STREAM | AP | bool | y |
-> | CONFIG_ADK_ONBOARD_MIC_STREAM | AP | bool | y |
-> | CONFIG_WANSON_ARMINO_ASR | AP | bool | y |
-> | CONFIG_WANSON_ASR_GROUP_VERSION_WORDS_V1 | AP | bool | y |
+> | CONFIG\_ADK | AP | bool | y |
+> | CONFIG\_ADK\_RAW\_STREAM | AP | bool | y |
+> | CONFIG\_ADK\_ONBOARD\_MIC\_STREAM | AP | bool | y |
+> | CONFIG\_BEKEN\_KWS | AP | bool | y |
+> | CONFIG\_TFLITE\_MICRO | AP | bool | y |
+> | CONFIG\_NPU | AP | bool | y |
 
 备注
 
 1. 如果需要支持AEC及重采样等功能，参考音频开发框架中的组件模块说明，打开对应的功能宏以及对应的组件功能宏即可。
 
+<a id="id6"></a>
 
-## **4. 示例说明**
+## **4\. 示例说明**
 
-> 具体示例可参见asr_service_example工程。
+> 具体示例可参见asr\_service\_example工程。
 
+<a id="id7"></a>
 
-## **6. 常见问题**
+## **6\. 常见问题**
 
 > **Q: 采样率如何选择？**
 >

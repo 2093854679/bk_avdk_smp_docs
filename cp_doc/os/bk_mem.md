@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/os/bk_mem.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # 内存接口
 
-
+<a id="id2"></a>
 
 ## **内存管理介绍**
 
@@ -8,55 +22,41 @@
 > - BK7259 支持默认堆、专用 SRAM 堆与 PSRAM 分配
 > - 提供了内存操作相关的辅助函数（拷贝、设置、比较等）
 > - 支持内存调试功能，可以跟踪内存分配和泄漏
-> - 所有内存分配/释放函数**不能在中断上下文中调用**
+> - 所有内存分配/释放函数\*\*不能在中断上下文中调用\*\*
 
 警告
 
-
-- 在中断上下文中调用os_malloc/os_free会触发断言错误
-
+- 在中断上下文中调用os\_malloc/os\_free会触发断言错误
 - 内存分配失败时会返回NULL，使用前必须检查返回值
-
 - 释放内存后应将指针设置为NULL，避免野指针
-
 - 频繁的小内存分配可能导致内存碎片化
 
+<a id="id3"></a>
 
 ## **内存类型说明**
 
 Armino平台支持两种内存类型：
 
-
 **SRAM (Static RAM)**
 :   - 片上静态随机存储器，访问速度快
-
     - 容量相对较小（通常几百KB）
-
     - 适合存储频繁访问的数据和代码
-
     - 功耗相对较低
-
 
 **PSRAM (Pseudo Static RAM)**
 :   - 片外伪静态随机存储器，容量大
-
     - 访问速度相对SRAM较慢
-
     - 适合存储大块数据缓冲区
-
-    - 需要通过CONFIG_PSRAM_AS_SYS_MEMORY使能
-
+    - 需要通过CONFIG\_PSRAM\_AS\_SYS\_MEMORY使能
 
 **堆选择说明**
 :   - `os_malloc`：默认堆；配置 `CONFIG_USE_PSRAM_HEAP_AT_SRAM_OOM` 时 SRAM 不足可回落 PSRAM
-
     - `os_sram_malloc`：仅从专用 SRAM 堆分配
-
     - `psram_malloc`：仅从 PSRAM 堆分配
 
+<a id="sram"></a>
 
 ## **SRAM内存接口**
-
 
 - 分配SRAM内存:
 
@@ -66,15 +66,11 @@ Armino平台支持两种内存类型：
   从SRAM堆中分配指定大小的内存块
 
   参数说明：
-
   -size: 要分配的字节数
 
   返回值：
-
   -成功：返回分配的内存指针
-
   -失败：返回NULL
-
 
   **FreeRTOS对应接口**: pvPortMalloc()
   ```
@@ -82,7 +78,6 @@ Armino平台支持两种内存类型：
 注意
 
 不能在中断上下文中调用此函数
-
 
 - 分配并清零的SRAM内存:
 
@@ -92,18 +87,14 @@ Armino平台支持两种内存类型：
   从SRAM堆中分配内存并将其初始化为0
 
   参数说明：
-
   -size: 要分配的字节数
 
   返回值：
-
   -成功：返回分配的内存指针（内容已清零）
-
   -失败：返回NULL
 
   实现：内部调用os_malloc()后，使用os_memset()清零
   ```
-
 - 释放SRAM内存:
 
   ```
@@ -112,9 +103,7 @@ Armino平台支持两种内存类型：
   释放之前通过os_malloc()或os_zalloc()分配的内存
 
   参数说明：
-
   -ptr: 要释放的内存指针，可以为NULL（安全）
-
 
   **FreeRTOS对应接口**: vPortFree()
   ```
@@ -122,7 +111,6 @@ Armino平台支持两种内存类型：
 注意
 
 不能在中断上下文中调用此函数
-
 
 - 重新分配SRAM内存:
 
@@ -132,25 +120,21 @@ Armino平台支持两种内存类型：
   改变已分配内存块的大小
 
   参数说明：
-
   -ptr: 原内存指针，可以为NULL
-
   -size: 新的大小（字节）
 
   返回值：
-
   -成功：返回新的内存指针
-
   -失败：返回NULL，原内存保持不变
 
   实现：分配新内存，拷贝原数据，释放原内存
   ```
 
+<a id="id4"></a>
 
 ## **专用 SRAM 堆接口**
 
-以下接口**仅**从专用 SRAM 堆分配，不会在 SRAM 不足时自动申请 PSRAM。
-
+以下接口\*\*仅\*\*从专用 SRAM 堆分配，不会在 SRAM 不足时自动申请 PSRAM。
 
 - 分配专用 SRAM 内存:
 
@@ -159,13 +143,11 @@ Armino平台支持两种内存类型：
 
   参数与返回值同 ``os_malloc``；释放使用 ``os_free``。
   ```
-
 - 分配并清零:
 
   ```
   void *os_sram_zalloc(size_t size)
   ```
-
 - 按元素个数分配并清零:
 
   ```
@@ -174,9 +156,9 @@ Armino平台支持两种内存类型：
   等价于分配 ``a * b`` 字节并清零。
   ```
 
+<a id="psram"></a>
 
 ## **PSRAM内存接口**
-
 
 - 分配PSRAM内存:
 
@@ -186,26 +168,20 @@ Armino平台支持两种内存类型：
   从PSRAM堆中分配指定大小的内存块
 
   参数说明：
-
   -size: 要分配的字节数
 
   返回值：
-
   -成功：返回分配的内存指针
-
   -失败：返回NULL
 
   使用场景：
-
   - 大块数据缓冲区（如图像、音视频缓冲）
-
   - 不需要频繁访问的数据
   ```
 
 备注
 
-需要使能CONFIG_PSRAM_AS_SYS_MEMORY配置
-
+需要使能CONFIG\_PSRAM\_AS\_SYS\_MEMORY配置
 
 - 分配并清零的PSRAM内存:
 
@@ -215,16 +191,12 @@ Armino平台支持两种内存类型：
   从PSRAM堆中分配内存并将其初始化为0
 
   参数说明：
-
   -size: 要分配的字节数
 
   返回值：
-
   -成功：返回分配的内存指针（内容已清零）
-
   -失败：返回NULL
   ```
-
 - 释放PSRAM内存:
 
   ```
@@ -233,14 +205,12 @@ Armino平台支持两种内存类型：
   释放之前通过psram_malloc()或psram_zalloc()分配的内存
 
   参数说明：
-
   -ptr: 要释放的内存指针
   ```
 
 备注
 
-psram_free实际是os_free的宏定义，统一使用os_free释放内存
-
+psram\_free实际是os\_free的宏定义，统一使用os\_free释放内存
 
 - 重新分配PSRAM内存:
 
@@ -250,21 +220,17 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   改变已分配PSRAM内存块的大小
 
   参数说明：
-
   -ptr: 原PSRAM内存指针
-
   -size: 新的大小（字节）
 
   返回值：
-
   -成功：返回新的内存指针
-
   -失败：返回NULL
   ```
 
+<a id="id5"></a>
 
 ## **内存操作接口**
-
 
 - 内存拷贝:
 
@@ -274,21 +240,15 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   将源地址的n个字节拷贝到目标地址
 
   参数说明：
-
   -out: 目标地址
-
   -in: 源地址（不能为NULL）
-
   -n: 拷贝的字节数
 
   返回值：
-
   -返回目标地址指针
-
 
   **标准C接口**: memcpy()
   ```
-
 - 内存拷贝（字对齐优化）:
 
   ```
@@ -297,20 +257,14 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   按字（4字节）拷贝内存，比os_memcpy()更高效
 
   参数说明：
-
   -out: 目标地址（uint32_t指针）
-
   -in: 源地址（uint32_t指针）
-
   -n: 拷贝的字节数（建议4字节对齐）
 
   使用场景：
-
   - PSRAM数据拷贝（建议使用）
-
   - 大块数据传输
   ```
-
 - 内存设置:
 
   ```
@@ -319,21 +273,15 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   将指定内存区域设置为特定值
 
   参数说明：
-
   -b: 目标地址
-
   -c: 要设置的值（通常为0）
-
   -len: 设置的字节数
 
   返回值：
-
   -返回目标地址指针
-
 
   **标准C接口**: memset()
   ```
-
 - 内存设置（字对齐优化）:
 
   ```
@@ -342,14 +290,10 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   按字（4字节）设置内存，比os_memset()更高效
 
   参数说明：
-
   -b: 目标地址（uint32_t指针）
-
   -c: 要设置的值
-
   -n: 设置的字节数
   ```
-
 - 内存比较:
 
   ```
@@ -358,25 +302,17 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   比较两块内存区域的内容
 
   参数说明：
-
   -s1: 第一块内存地址
-
   -s2: 第二块内存地址
-
   -n: 比较的字节数
 
   返回值：
-
   -0: 两块内存内容相同
-
   -<0: s1 < s2
-
   ->0: s1 > s2
-
 
   **标准C接口**: memcmp()
   ```
-
 - 内存移动:
 
   ```
@@ -385,30 +321,25 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   将源地址的n个字节移动到目标地址，支持内存重叠
 
   参数说明：
-
   -out: 目标地址
-
   -in: 源地址（不能为NULL）
-
   -n: 移动的字节数
 
   返回值：
-
   -返回目标地址指针
-
 
   **标准C接口**: memmove()
   ```
 
 备注
 
-当源地址和目标地址有重叠时，应使用os_memmove()而不是os_memcpy()
+当源地址和目标地址有重叠时，应使用os\_memmove()而不是os\_memcpy()
 
+<a id="id6"></a>
 
 ## **内存调试接口**
 
-当使能CONFIG_MEM_DEBUG或CONFIG_MALLOC_STATIS配置时，内存分配函数会自动记录调用位置，用于内存泄漏检测。
-
+当使能CONFIG\_MEM\_DEBUG或CONFIG\_MALLOC\_STATIS配置时，内存分配函数会自动记录调用位置，用于内存泄漏检测。
 
 - 调试版内存分配:
 
@@ -416,40 +347,28 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   void *os_malloc_debug(const char *func_name, int line, size_t size, int need_zero)
 
   参数说明：
-
   -func_name: 调用函数名（通常使用__FUNCTION__）
-
   -line: 调用行号（通常使用__LINE__）
-
   -size: 分配大小
-
   -need_zero: 是否需要清零（0：不清零，1：清零）
 
   返回值：
-
   -成功：返回分配的内存指针
-
   -失败：返回NULL
   ```
-
 - 调试版内存释放:
 
   ```
   void *os_free_debug(const char *func_name, int line, void *pv)
 
   参数说明：
-
   -func_name: 调用函数名
-
   -line: 调用行号
-
   -pv: 要释放的内存指针
 
   返回值：
-
   -返回NULL
   ```
-
 - 导出内存统计信息:
 
   ```
@@ -458,17 +377,14 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
   导出内存使用统计信息，用于分析内存泄漏
 
   参数说明：
-
   -start_tick: 起始tick
-
   -ticks_since_malloc: 从分配到现在的tick数
-
   -task: 任务名称过滤
   ```
 
+<a id="id7"></a>
 
 ## **特殊用途接口**
-
 
 - 显示内存配置信息:
 
@@ -477,7 +393,6 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
 
   打印当前系统的内存配置和使用情况
   ```
-
 - 查询 PSRAM 堆用量:
 
   ```
@@ -487,18 +402,17 @@ psram_free实际是os_free的宏定义，统一使用os_free释放内存
 
   void bk_psram_heap_dump_data(void)
   ```
-
 - Wi-Fi 缓冲区分配:
 
   ```
   void *os_malloc_wifi_buffer(size_t size)
   ```
 
+<a id="id8"></a>
 
 ## **使用示例**
 
 基本内存分配示例:
-
 
 ```
 #include <os/mem.h>
@@ -523,11 +437,9 @@ void memory_basic_example(void)
     os_free(buffer);
     buffer = NULL;  // 避免野指针
 }
-
 ```
 
 分配并清零的内存:
-
 
 ```
 void *buffer = os_zalloc(512);  // 分配512字节并清零
@@ -535,11 +447,9 @@ if (buffer) {
     // 使用buffer
     os_free(buffer);
 }
-
 ```
 
 PSRAM内存分配示例:
-
 
 ```
 #include <os/mem.h>
@@ -561,11 +471,9 @@ void psram_example(void)
     // 释放PSRAM内存
     psram_free(large_buffer);  // 等同于os_free()
 }
-
 ```
 
 内存重新分配示例:
-
 
 ```
 void realloc_example(void)
@@ -588,11 +496,9 @@ void realloc_example(void)
 
     os_free(buffer);
 }
-
 ```
 
 内存操作示例:
-
 
 ```
 void memory_operations_example(void)
@@ -613,11 +519,9 @@ void memory_operations_example(void)
     // 内存移动（支持重叠）
     os_memmove(src + 10, src, 50);
 }
-
 ```
 
 结构体内存管理示例:
-
 
 ```
 typedef struct {
@@ -649,38 +553,29 @@ void struct_memory_example(void)
     }
     os_free(obj);
 }
-
 ```
 
 备注
 
-
 - **内存释放原则**：
-  :   - 使用os_malloc分配的内存，使用os_free释放
-
-      - 使用psram_malloc分配的内存，使用psram_free（即os_free）释放
-
+  :   - 使用os\_malloc分配的内存，使用os\_free释放
+      - 使用psram\_malloc分配的内存，使用psram\_free（即os\_free）释放
       - 释放后立即将指针设置为NULL
-
 - **性能考虑**：
   :   - SRAM访问速度快，适合频繁访问
-
       - PSRAM容量大但访问慢，适合大块缓冲
-
-      - 使用os_memcpy_word进行字对齐拷贝可提高性能
-
+      - 使用os\_memcpy\_word进行字对齐拷贝可提高性能
 - **调试支持**：
-  :   - 使能 CONFIG_MEM_DEBUG 或 CONFIG_MALLOC_STATIS 可跟踪分配位置并调用 os_dump_memory_stats
-
+  :   - 使能 CONFIG\_MEM\_DEBUG 或 CONFIG\_MALLOC\_STATIS 可跟踪分配位置并调用 os\_dump\_memory\_stats
       - 使用 memshow 等 CLI 查看堆状态（见问题定位文档）
 
+<a id="id9"></a>
 
 ## **内存管理宏定义**
 
 `CONFIG_MEM_DEBUG` 或 `CONFIG_MALLOC_STATIS` 开启时，`os_malloc`、`os_sram_malloc`、`psram_malloc` 等宏展开为 `*_debug` 实现；关闭时调用 `os_malloc`、`os_sram_malloc` 等 release 函数。
 
 调试模式下典型展开:
-
 
 ```
 #if (CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG)
@@ -691,13 +586,11 @@ void struct_memory_example(void)
 #endif
 
 #define psram_free             os_free
-
 ```
 
+<a id="id10"></a>
 
 ## **参考信息**
 
-
 - API头文件：`include/os/mem.h`
-
 - 实现文件：`components/bk_rtos/freertos/mem_arch.c`

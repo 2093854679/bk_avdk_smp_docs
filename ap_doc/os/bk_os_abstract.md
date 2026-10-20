@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/os/bk_os_abstract.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="os"></a>
+
 # OS 抽象层
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -9,20 +23,19 @@ OS 抽象层用于在 Armino 平台上屏蔽不同 RTOS 的差异，对应用提
 > - 当前 AP 侧基于 FreeRTOS SMP，实现文件为 `components/bk_rtos/freertos/v10/rtos_pub_smp.c`
 > - 支持 SMP：任务可在 AP 子系统多个逻辑核上运行；栈可分配在 SRAM / PSRAM / HSRAM；核心绑定请使用 `rtos_core0_create_*` / `rtos_core1_create_*` 系列接口（`include/os/os.h`）
 > - POSIX 接口基于 FreeRTOS V10，默认关闭，使用需开启 `CONFIG_FREERTOS_POSIX`
-> - 内存相关接口见 [内存接口](bk_mem.md "bk_mem.md")；FreeRTOS SMP 背景见 [FreeRTOS 操作系统](bk_freertos.md "bk_freertos.md")
+> - 内存相关接口见 [内存接口](bk_mem.md)；FreeRTOS SMP 背景见 [FreeRTOS 操作系统](bk_freertos.md)
 
 备注
 
-
 - 使用 FreeRTOS POSIX 功能时，须在引用其他 POSIX 头文件之前先包含 `FreeRTOS_POSIX.h`
-
 - 可在 `components/bk_rtos/freertos/posix/freertos_impl/include/portable/bk/FreeRTOS_POSIX_portable.h` 中自定义配置
-
 - 移植 POSIX 时若与编译器自带头文件冲突，请优先检查以上两点
 
+<a id="freertos"></a>
 
 ## 与原生 FreeRTOS 的主要差别
 
+<a id="id2"></a>
 
 ### 优先级
 
@@ -31,6 +44,7 @@ FreeRTOS 原生接口中数值越大优先级越高；抽象层为便于统一�
 > - 抽象层优先级：数值越小越高（0 最高，9 最低）
 > - 转换公式：`原生优先级 = RTOS_HIGHEST_PRIORITY - 抽象层优先级`
 
+<a id="id3"></a>
 
 ### 句柄类型
 
@@ -42,6 +56,7 @@ FreeRTOS 原生接口中数值越大优先级越高；抽象层为便于统一�
 > - `beken_mutex_t`：互斥锁句柄
 > - `beken_timer_t`：定时器句柄
 
+<a id="id4"></a>
 
 ### 错误码
 
@@ -50,15 +65,17 @@ FreeRTOS 原生接口中数值越大优先级越高；抽象层为便于统一�
 > - `kTimeoutErr`：超时
 > - `kUnsupportedErr`：不支持
 
+<a id="id5"></a>
 
 ### 超时参数
 
 抽象层以毫秒为单位，提供 `BEKEN_WAIT_FOREVER`、`BEKEN_NO_WAIT` 等宏；内部自动转换为 FreeRTOS tick。
 
+<a id="id6"></a>
 
 ### 任务名处理
 
-BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存储（见 `components/bk_rtos/freertos/FreeRTOSConfig.h`）。BK7259 AP 侧该宏固定为 `1`，仅支持**指针模式**：
+BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存储（见 `components/bk_rtos/freertos/FreeRTOSConfig.h`）。BK7259 AP 侧该宏固定为 `1`，仅支持\*\*指针模式\*\*：
 
 创建任务时（`xTaskCreate()` / `rtos_create_thread()` 等），TCB 只保存 `char *pcTaskName` 指针，不在 TCB 内拷贝字符串，可节省 TCB 内存。`name` 参数须指向持久有效字符串（字面量或 static/全局区），不可使用栈上临时缓冲区。
 
@@ -68,14 +85,15 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
 `rtos_create_thread(..., name, ...)` 的 `name` 不能与创建函数栈上的局部字符数组绑定。若运行时需要可变任务名，应使用 static/堆上等在任务存活期内有效的持久缓冲区。
 
+<a id="api"></a>
 
 ## 抽象层 API
 
+<a id="id7"></a>
 
 ### **任务创建:**
 
 下列接口均声明于 `include/os/os.h`，实现在 `rtos_pub_smp.c`。`stack_size` 单位为字节；内部会按 `portSTACK_TYPE` 换算为栈深度。`affinity` / `core_id` 参数使用 AP SMP **逻辑核编号** （0、1 或 `tskNO_AFFINITY`），与 `rtos_get_core_id()` 返回的物理 CPU ID（CPU2/CPU3）不同。
-
 
 - 在 SRAM 中创建任务（不绑定核）:
 
@@ -89,7 +107,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   任务栈从默认 SRAM 堆分配，``affinity = tskNO_AFFINITY``，由调度器在逻辑 Core0/Core1 间负载均衡。
   ```
-
 - 在 PSRAM 中创建任务（不绑定核）:
 
   ```
@@ -102,7 +119,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   任务栈从 PSRAM 分配（``xTaskCreateInPsram``，``affinity = tskNO_AFFINITY``）。需开启 PSRAM 作为系统内存；若 ``priority > RTOS_HIGHEST_PRIORITY`` 会被截断。
   ```
-
 - 在 HSRAM 中创建任务（不绑定核）:
 
   ```
@@ -115,7 +131,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   任务栈从 HSRAM 分配（``xTaskCreateInHsram``，``affinity = tskNO_AFFINITY``）。适用于需要低延迟栈访问、且 HSRAM 有足够余量的场景。
   ```
-
 - 创建任务（默认入口）:
 
   ```
@@ -127,50 +142,32 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
                               beken_thread_arg_t arg )
 
   参数说明：
-
   -thread: 指向创建任务的句柄指针。如果传入NULL，则不保存任务句柄
-
   -priority: 任务优先级，取值范围0-9
       需要注意的是：对于freertos操作系统内核，任务对应的优先级数字越大，则实际的优先级越大。
       而对于应用层而言则相反，创建任务时配置的优先级数字越大，实际的优先级越小。
       这是因为在SDK中，操作系统适配层做了统一的管理。所以用户视角看到的最大优先级为0，最小优先级为9。
 
       优先级表:
-
           * 0: 最高优先级（系统保留）
-
           * 1-5: 库任务和SDK内部任务
-
           * 6-8: 应用任务（推荐使用范围）
-
           * 9: 最低优先级（接近空闲任务）
 
       推荐值：
-
           * BEKEN_APPLICATION_PRIORITY (7): 普通应用任务
-
           * BEKEN_DEFAULT_WORKER_PRIORITY (6): 工作任务
-
   -name :创建的任务名称字符串
-
   -function：任务体入口函数指针，函数原型为 void function(beken_thread_arg_t arg)
-
   -stack_size：任务堆栈的大小，单位为字节。推荐值：
-
       * 0x400 (1024字节): 简单任务
-
       * 0x800 (2048字节): 一般任务
-
       * 0x1000 (4096字节): 复杂任务
-
   -arg：传递给任务函数体的参数，可以为NULL
 
   返回值：
-
   -kNoErr：任务创建成功
-
   -kGeneralErr: 任务创建失败
-
 
   **FreeRTOS对应接口**: xTaskCreate()
 
@@ -208,11 +205,8 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
 重要
 
-
 - `rtos_create_thread()` 为便捷封装：当 `CONFIG_TASK_STACK_IN_PSRAM` 与 `CONFIG_PSRAM_AS_SYS_MEMORY` 同时开启时转调 `rtos_create_psram_thread()`，否则转调 `rtos_create_sram_thread()` （均为不绑定核）。
-
 - 需要 HSRAM 栈时请直接调用 `rtos_create_hsram_thread()` 或 `rtos_core*_create_hsram_thread()`，`rtos_create_thread()` 不会自动选择 HSRAM。
-
 
 - 静态创建任务（指定栈缓冲与 TCB 缓冲）:
 
@@ -232,15 +226,12 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
 备注
 
-
 - 任务创建后会立即进入就绪态，等待调度器调度运行
-
-- 任务函数一般设计为无限循环，如果需要退出应调用rtos_delete_thread()
-
+- 任务函数一般设计为无限循环，如果需要退出应调用rtos\_delete\_thread()
 - 建议在任务中使用延时函数，避免长时间占用CPU
-
 - 栈空间不足会导致任务运行异常，需要根据实际使用情况设置合适的栈大小
 
+<a id="smp"></a>
 
 ### **SMP（对称多处理）任务创建接口:**
 
@@ -250,7 +241,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 | --- | --- | --- | --- |
 | 逻辑 Core0 | `rtos_core0_create_thread` | `rtos_core0_create_psram_thread` | `rtos_core0_create_hsram_thread` |
 | 逻辑 Core1 | `rtos_core1_create_thread` | `rtos_core1_create_psram_thread` | `rtos_core1_create_hsram_thread` |
-
 
 - 在逻辑 Core0 上创建任务（SRAM 栈）:
 
@@ -264,7 +254,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   等价于 ``affinity = 0`` 的 ``xTaskCreateAffinitySet`` / ``xTaskCreatePinnedToCore``。
   ```
-
 - 在逻辑 Core0 上创建任务（PSRAM 栈）:
 
   ```
@@ -272,7 +261,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   栈在 PSRAM，固定运行在逻辑 Core0（``xTaskCreateInPsram(..., core_id=0)``）。
   ```
-
 - 在逻辑 Core0 上创建任务（HSRAM 栈）:
 
   ```
@@ -280,7 +268,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   栈在 HSRAM，固定运行在逻辑 Core0。
   ```
-
 - 在逻辑 Core1 上创建任务（需 `CONFIG_CPU_CNT > 1`）:
 
   ```
@@ -290,7 +277,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   分别绑定逻辑 Core1，栈分配方式与 Core0 对应接口相同。
   ```
-
 - SMP 默认创建（与不绑定核的 `rtos_create_thread` 行为一致）:
 
   ```
@@ -306,18 +292,14 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
 备注
 
-
 - SMP 中 `core0` / `core1` 指 AP 子系统逻辑核编号，不是 SoC 物理 CPU2/CPU3；物理 ID 请用 `rtos_get_core_id()`
-
 - 不绑定核时由调度器负载均衡；绑定后任务仅能在指定逻辑核运行
-
 - PSRAM/HSRAM 栈接口依赖对应内存区域已初始化且有余量
-
 - 核心绑定有利于提高 cache 局部性，减少跨核迁移开销
 
+<a id="id8"></a>
 
 ### **任务挂起与恢复:**
-
 
 - 挂起某个任务:
 
@@ -325,10 +307,8 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   void rtos_suspend_thread(beken_thread_t* thread)
 
   参数说明：
-
   -thread：任务的句柄，如果传入的参数为NULL，代表是挂起或恢复自身
   ```
-
 - 在挂起调度器:
 
   ```
@@ -336,13 +316,11 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
   在SMP系统中，该函数只能挂起当前CPU核心的调度器，无法挂起其他核心的调度器。
   ```
-
 - 恢复某个任务:
 
   ```
   void rtos_resume_thread(beken_thread_t* thread)
   ```
-
 - 恢复调度器:
 
   ```
@@ -351,11 +329,11 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   在SMP系统中，该函数只能恢复当前CPU核心的调度器，无法恢复其他核心的调度器。
   ```
 
+<a id="id9"></a>
 
 ### **其他任务相关接口:**
 
 除了对底层标准的任务接口进行封装外，适配层还提供了以下和任务相关的接口.
-
 
 - 任务删除:
 
@@ -363,15 +341,11 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   bk_err_t rtos_delete_thread( beken_thread_t* thread )
 
   参数说明：
-
   -thread: 要删除的任务句柄指针。如果传入NULL，则删除当前任务自身
 
   返回值：
-
   -kNoErr：任务删除成功
-
   -kGeneralErr: 任务删除失败
-
 
   **FreeRTOS对应接口**: vTaskDelete()
 
@@ -390,39 +364,30 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
           rtos_delete_thread(NULL);
       }
   ```
-
 - 判断指定的线程是否为当前正在运行的线程:
 
   ```
   bool rtos_is_current_thread(beken_thread_t *thread)
 
   参数说明：
-
   -thread：指定的任务句柄指针
 
   返回值：
-
   -true：是当前任务
-
   -false: 不是当前任务
-
 
   **FreeRTOS对应接口**: xTaskGetCurrentTaskHandle()
   ```
-
 - 获取当前正在运行的任务句柄:
 
   ```
   beken_thread_t* rtos_get_current_thread(void)
 
   返回值：
-
   -返回当前任务句柄指针
-
 
   **FreeRTOS对应接口**: xTaskGetCurrentTaskHandle()
   ```
-
 - 设置指定任务的优先级:
 
   ```
@@ -431,47 +396,35 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
               int priority)
 
   参数说明：
-
   -thread: 要设置优先级的任务句柄指针
-
   -priority: 新的优先级，取值范围0-9
 
   返回值：
-
   -kNoErr：设置成功
-
   -kGeneralErr: 设置失败
-
 
   **FreeRTOS对应接口**: vTaskPrioritySet()
   ```
-
 - 将一个任务挂起指定的时间，单位为秒:
 
   ```
   void rtos_thread_sleep(uint32_t seconds)
 
   参数说明：
-
   -seconds: 休眠时间，单位为秒
-
 
   **FreeRTOS对应接口**: vTaskDelay()
   ```
-
 - 将一个任务挂起指定的毫秒时间:
 
   ```
   bk_err_t rtos_delay_milliseconds(uint32_t num_ms )
 
   参数说明：
-
   -num_ms: 延时时间，单位为毫秒
 
   返回值：
-
   -kNoErr：延时成功
-
 
   **FreeRTOS对应接口**: vTaskDelay()
 
@@ -491,13 +444,9 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
 
 备注
 
-
 - 任务延时会触发系统调度，让出CPU给其他任务运行
-
 - 延时精度与系统时钟节拍（tick）有关，默认为1ms
-
 - 实际延时时间可能略大于设置值，这是正常现象
-
 
 - 等待线程结束:
 
@@ -507,30 +456,21 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   阻塞等待指定的线程执行完成。该函数会持续轮询直到线程结束。
 
   参数说明：
-
   -thread: 要等待的线程句柄指针
 
   返回值：
-
   -kNoErr：等待成功（线程已结束）
 
-
   **使用场景**：
-
   - 等待后台线程完成后再继续执行
-
   - 线程同步和资源清理
-
   - 确保线程完全结束后再释放相关资源
   ```
 
 备注
 
-
 - 该函数会阻塞当前任务，直到指定线程结束
-
 - 函数内部使用轮询方式检查线程状态，轮询间隔为10ms
-
 
 - 强制唤醒任务:
 
@@ -540,31 +480,24 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   强制唤醒处于阻塞状态的任务，使其立即返回并继续执行。
 
   参数说明：
-
   -thread: 要唤醒的任务句柄指针
 
   返回值：
-
   -kNoErr：唤醒成功
-
 
   **FreeRTOS对应接口**: xTaskAbortDelay()
 
-
   **使用场景**：
-
   - 需要立即中断任务的阻塞等待
-
   - 实现超时或取消机制
-
   - 紧急唤醒任务处理事件
   ```
 
+<a id="id10"></a>
 
 ### **队列:**
 
 队列是任务间通信的重要机制，用于在任务之间传递消息。
-
 
 - 初始化一个队列:
 
@@ -574,21 +507,14 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
                           uint32_t message_size,
                           uint32_t number_of_messages )
   参数说明：
-
   -queue：队列句柄指针
-
   -name: 队列的名称字符串，可以为NULL
-
   -message_size: 队列中每条消息的大小（字节数）
-
   -number_of_messages：队列深度，即队列中最多可以存放的消息数量
 
   返回值：
-
   -kNoErr：队列创建成功
-
   -kGeneralErr: 队列创建失败
-
 
   **FreeRTOS对应接口**: xQueueCreate()
 
@@ -607,7 +533,6 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
                            sizeof(msg_t),
                            10);
   ```
-
 - 往队列尾部发送消息:
 
   ```
@@ -618,31 +543,20 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   内部会判断当前是处于中断上下文还是任务上下文，从而调用不同的内核接口实现对应的功能
 
   参数说明：
-
   -queue: 队列句柄指针
-
   -message: 指向要发送的消息数据的指针
-
   -timeout_ms：超时时间（毫秒），可配置为：
-
       * 0: 不等待，如果队列满立即返回
-
       * BEKEN_WAIT_FOREVER: 一直阻塞等待直到发送成功
-
       * 其他值: 等待指定的超时时间（毫秒）
 
   返回值：
-
   -kNoErr：消息发送成功
-
   -kTimeoutErr: 超时，队列满
-
   -kGeneralErr: 发送失败
-
 
   **FreeRTOS对应接口**: xQueueSend() / xQueueSendFromISR()
   ```
-
 - 往队列头部发送消息:
 
   ```
@@ -655,17 +569,12 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   参数说明：与rtos_push_to_queue相同
 
   返回值：
-
   -kNoErr：消息发送成功
-
   -kTimeoutErr: 超时
-
   -kGeneralErr: 发送失败
-
 
   **FreeRTOS对应接口**: xQueueSendToFront() / xQueueSendToFrontFromISR()
   ```
-
 - 从队列接收消息:
 
   ```
@@ -676,50 +585,34 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   内部调用的是xQueueReceive，仅支持在任务上下文使用
 
   参数说明：
-
   -queue: 队列句柄指针
-
   -message: 指向接收消息缓冲区的指针
-
   -timeout_ms：超时时间（毫秒），可配置为：
-
       * 0: 不等待，如果队列空立即返回
-
       * BEKEN_WAIT_FOREVER: 一直阻塞等待直到接收成功
-
       * 其他值: 等待指定的超时时间（毫秒）
 
   返回值：
-
   -kNoErr：消息接收成功
-
   -kTimeoutErr: 超时，队列空
-
   -kGeneralErr: 接收失败
-
 
   **FreeRTOS对应接口**: xQueueReceive()
   ```
-
 - 删除一个队列:
 
   ```
   bk_err_t rtos_deinit_queue( beken_queue_t* queue )
 
   参数说明：
-
   -queue: 队列句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: vQueueDelete()
   ```
-
 - 判断一个队列是否为空:
 
   ```
@@ -728,19 +621,14 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   仅能在中断上下文中调用
 
   参数说明：
-
   -queue: 队列句柄指针
 
   返回值：
-
   -true: 队列为空
-
   -false: 队列不为空
-
 
   **FreeRTOS对应接口**: xQueueIsQueueEmptyFromISR()
   ```
-
 - 判断一个队列是否已满:
 
   ```
@@ -749,21 +637,16 @@ BK SDK 在 FreeRTOS 内核 TCB 中通过 `configBK_FREERTOS` 扩展任务名存�
   仅能在中断上下文中调用
 
   参数说明：
-
   -queue: 队列句柄指针
 
   返回值：
-
   -true: 队列已满
-
   -false: 队列未满
-
 
   **FreeRTOS对应接口**: xQueueIsQueueFullFromISR()
   ```
 
-完整使用示例（参考components/demos/os/os_queue/os_queue.c）:
-
+完整使用示例（参考components/demos/os/os\_queue/os\_queue.c）:
 
 ```
 #include <os/os.h>
@@ -825,25 +708,20 @@ void queue_demo_start(void)
     rtos_create_thread(NULL, BEKEN_APPLICATION_PRIORITY,
                       "receiver", receiver_thread, 0x500, NULL);
 }
-
 ```
 
 备注
 
-
 - 队列传递的是消息的拷贝，不是指针
-
 - 队列满时发送会阻塞，队列空时接收会阻塞
-
-- 可以在中断中使用rtos_push_to_queue和rtos_push_to_queue_front，函数内部会自动判断上下文
-
+- 可以在中断中使用rtos\_push\_to\_queue和rtos\_push\_to\_queue\_front，函数内部会自动判断上下文
 - 队列可用于任务间同步和数据传递
 
+<a id="id11"></a>
 
 ### **信号量:**
 
 信号量用于任务间同步和资源计数。
-
 
 - 创建一个计数信号量，设置初始值为0:
 
@@ -852,24 +730,18 @@ void queue_demo_start(void)
                                 int maxCount )
 
   参数说明：
-
   -semaphore: 信号量句柄指针
-
   -maxCount: 最大计数值，通常设置为1或更大值
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
 
   .. note::
       此函数创建的信号量初始值为0，如需设置初始值请使用rtos_init_semaphore_ex
 
-
   **FreeRTOS对应接口**: xSemaphoreCreateCounting()
   ```
-
 - 创建一个计数信号量，可设置初始值:
 
   ```
@@ -879,42 +751,30 @@ void queue_demo_start(void)
                                    int init_count )
 
   参数说明：
-
   -semaphore: 信号量句柄指针
-
   -name: 信号量名称，可以为NULL
-
   -maxCount: 最大计数值
-
   -init_count: 初始计数值
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xSemaphoreCreateCounting()
   ```
-
 - 获取当前的信号量计数值:
 
   ```
   int rtos_get_semaphore_count( beken_semaphore_t* semaphore )
 
   参数说明：
-
   -semaphore: 信号量句柄指针
 
   返回值：
-
   -返回当前信号量的计数值
-
 
   **FreeRTOS对应接口**: uxSemaphoreGetCount()
   ```
-
 - 释放信号量:
 
   ```
@@ -923,19 +783,14 @@ void queue_demo_start(void)
   支持在中断上下文或任务上下文使用，函数内部会自动判断
 
   参数说明：
-
   -semaphore: 信号量句柄指针
 
   返回值：
-
   -kNoErr：释放成功
-
   -kGeneralErr: 释放失败
-
 
   **FreeRTOS对应接口**: xSemaphoreGive() / xSemaphoreGiveFromISR()
   ```
-
 - 获取信号量:
 
   ```
@@ -945,50 +800,35 @@ void queue_demo_start(void)
   仅支持在任务上下文使用
 
   参数说明：
-
   -semaphore： 信号量句柄指针
-
   -timeout_ms: 超时时间（毫秒），可配置为：
-
       * 0: 不等待，立即返回
-
       * BEKEN_WAIT_FOREVER: 一直阻塞等待直到获取成功
-
       * 其他值: 等待指定的超时时间（毫秒）
 
   返回值：
-
   -kNoErr：获取成功
-
   -kTimeoutErr: 超时
-
   -kGeneralErr: 获取失败
-
 
   **FreeRTOS对应接口**: xSemaphoreTake()
   ```
-
 - 删除一个已创建的信号量:
 
   ```
   bk_err_t rtos_deinit_semaphore( beken_semaphore_t* semaphore )
 
   参数说明：
-
   -semaphore: 信号量句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: vSemaphoreDelete()
   ```
 
-完整使用示例（参考components/demos/os/os_sem/os_sem.c）:
-
+完整使用示例（参考components/demos/os/os\_sem/os\_sem.c）:
 
 ```
 #include <os/os.h>
@@ -1045,27 +885,21 @@ void semaphore_demo_start(void)
     rtos_create_thread(NULL, BEKEN_APPLICATION_PRIORITY,
                       "set_sem", set_semaphore_thread, 0x500, NULL);
 }
-
 ```
 
 备注
 
-
 - 计数信号量常用于资源计数
-
 - 信号量不具有所有权概念，任何任务都可以释放或获取
-
 - 获取信号量会将计数值减1，释放信号量会将计数值加1
-
 - 信号量计数值不会超过maxCount
-
 - 可以在中断中释放信号量，但不能在中断中获取信号量
 
+<a id="id12"></a>
 
 ### **互斥锁:**
 
 互斥锁用于保护共享资源，防止多个任务同时访问。互斥锁具有优先级继承机制，可以防止优先级反转问题。
-
 
 - 初始化一个互斥锁:
 
@@ -1073,95 +907,70 @@ void semaphore_demo_start(void)
   bk_err_t rtos_init_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 互斥锁句柄指针
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xSemaphoreCreateMutex()
   ```
-
 - 尝试获取一个互斥锁，超时时间为0:
 
   ```
   bk_err_t rtos_trylock_mutex(beken_mutex_t *mutex)
 
   参数说明：
-
   -mutex: 互斥锁句柄指针
 
   返回值：
-
   -kNoErr：获取成功
-
   -kGeneralErr: 获取失败（互斥锁已被占用）
-
 
   **FreeRTOS对应接口**: xSemaphoreTake(mutex, 0)
   ```
-
 - 无限等待获取一个互斥锁:
 
   ```
   bk_err_t rtos_lock_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 互斥锁句柄指针
 
   返回值：
-
   -kNoErr：获取成功
-
   -kGeneralErr: 获取失败
-
 
   **FreeRTOS对应接口**: xSemaphoreTake(mutex, portMAX_DELAY)
   ```
-
 - 释放一个互斥锁:
 
   ```
   bk_err_t rtos_unlock_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 互斥锁句柄指针
 
   返回值：
-
   -kNoErr：释放成功
-
   -kGeneralErr: 释放失败
-
 
   **FreeRTOS对应接口**: xSemaphoreGive()
   ```
-
 - 删除一个互斥锁:
 
   ```
   bk_err_t rtos_deinit_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 互斥锁句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: vSemaphoreDelete()
   ```
-
 - 初始化一个递归互斥锁:
 
   ```
@@ -1170,78 +979,58 @@ void semaphore_demo_start(void)
   递归互斥锁允许同一任务多次获取同一互斥锁，需要对应次数的释放操作
 
   参数说明：
-
   -mutex: 递归互斥锁句柄指针
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xSemaphoreCreateRecursiveMutex()
   ```
-
 - 获取一个递归互斥锁:
 
   ```
   bk_err_t rtos_lock_recursive_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 递归互斥锁句柄指针
 
   返回值：
-
   -kNoErr：获取成功
-
   -kGeneralErr: 获取失败
-
 
   **FreeRTOS对应接口**: xSemaphoreTakeRecursive()
   ```
-
 - 释放一个递归互斥锁:
 
   ```
   bk_err_t rtos_unlock_recursive_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 递归互斥锁句柄指针
 
   返回值：
-
   -kNoErr：释放成功
-
   -kGeneralErr: 释放失败
-
 
   **FreeRTOS对应接口**: xSemaphoreGiveRecursive()
   ```
-
 - 删除一个递归互斥锁:
 
   ```
   bk_err_t rtos_deinit_recursive_mutex( beken_mutex_t* mutex )
 
   参数说明：
-
   -mutex: 递归互斥锁句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: vSemaphoreDelete()
   ```
 
-完整使用示例（参考components/demos/os/os_mutex/os_mutex.c）:
-
+完整使用示例（参考components/demos/os/os\_mutex/os\_mutex.c）:
 
 ```
 #include <os/os.h>
@@ -1308,37 +1097,27 @@ void mutex_demo_start(void)
     rtos_create_thread(NULL, BEKEN_APPLICATION_PRIORITY,
                       "task2", task2_entry, 0x400, NULL);
 }
-
 ```
 
 备注
 
-
 - 互斥锁具有所有权概念，只有获取互斥锁的任务才能释放它
-
 - 互斥锁支持优先级继承，可以避免优先级反转问题
-
 - 不能在中断中使用互斥锁
-
 - 获取互斥锁后应尽快释放，避免长时间持有
-
 - 互斥锁和信号量的区别：
   :   - 互斥锁有所有权，信号量没有
-
       - 互斥锁支持优先级继承，信号量不支持
-
       - 互斥锁用于资源保护，信号量用于同步和计数
-
 - 递归互斥锁允许同一任务多次获取，需要相同次数的释放操作
 
+<a id="id13"></a>
 
 ### **软件定时器:**
 
 软件定时器运行在定时器服务任务中，可以在指定时间后执行回调函数。分为单次定时器和周期定时器。
 
-
 **单次定时器相关接口:**
-
 
 - 初始化一个单次软件定时器:
 
@@ -1350,65 +1129,46 @@ void mutex_demo_start(void)
                                     void* rarg )
 
   参数说明：
-
   -timer: 定时器句柄指针
-
   -time_ms: 定时时间（毫秒）
-
   -function: 定时器回调函数，原型为 void function(void *larg, void *rarg)
-
   -larg: 回调函数的左参数
-
   -rarg: 回调函数的右参数
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xTimerCreate()
   ```
-
 - 开启单次软件定时器:
 
   ```
   bk_err_t rtos_start_oneshot_timer( beken2_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：启动成功
-
   -kGeneralErr: 启动失败
-
 
   **FreeRTOS对应接口**: xTimerStart()
   ```
-
 - 停止单次软件定时器:
 
   ```
   bk_err_t rtos_stop_oneshot_timer( beken2_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：停止成功
-
   -kGeneralErr: 停止失败
-
 
   **FreeRTOS对应接口**: xTimerStop()
   ```
-
 - 复位单次软件定时器:
 
   ```
@@ -1417,19 +1177,14 @@ void mutex_demo_start(void)
   重新启动定时器，从当前时间重新计时
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：复位成功
-
   -kGeneralErr: 复位失败
-
 
   **FreeRTOS对应接口**: xTimerReset()
   ```
-
 - 复位单次软件定时器，并重新设置定时时间与回调:
 
   ```
@@ -1442,66 +1197,49 @@ void mutex_demo_start(void)
   参数说明：与rtos_init_oneshot_timer相同
 
   返回值：
-
   -kNoErr：复位成功
-
   -kGeneralErr: 复位失败
   ```
-
 - 判断单次软件定时器是否初始化:
 
   ```
   bool rtos_is_oneshot_timer_init( beken2_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -true: 已初始化
-
   -false: 未初始化
   ```
-
 - 判断单次软件定时器是否在运行:
 
   ```
   bool rtos_is_oneshot_timer_running( beken2_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -true: 正在运行
-
   -false: 未运行
   ```
-
 - 删除单次软件定时器:
 
   ```
   bk_err_t rtos_deinit_oneshot_timer( beken2_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: xTimerDelete()
   ```
 
-
 **周期定时器相关接口:**
-
 
 - 创建周期软件定时器:
 
@@ -1512,63 +1250,45 @@ void mutex_demo_start(void)
                             void* arg )
 
   参数说明：
-
   -timer: 定时器句柄指针
-
   -time_ms: 定时周期（毫秒）
-
   -function: 定时器回调函数，原型为 void function(void *arg)
-
   -arg: 回调函数的参数
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xTimerCreate()
   ```
-
 - 开启周期软件定时器:
 
   ```
   bk_err_t rtos_start_timer( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：启动成功
-
   -kGeneralErr: 启动失败
-
 
   **FreeRTOS对应接口**: xTimerStart()
   ```
-
 - 停止周期软件定时器:
 
   ```
   bk_err_t rtos_stop_timer( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：停止成功
-
   -kGeneralErr: 停止失败
-
 
   **FreeRTOS对应接口**: xTimerStop()
   ```
-
 - 复位周期软件定时器:
 
   ```
@@ -1577,19 +1297,14 @@ void mutex_demo_start(void)
   重新启动定时器，从当前时间重新计时
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：复位成功
-
   -kGeneralErr: 复位失败
-
 
   **FreeRTOS对应接口**: xTimerReset()
   ```
-
 - 修改周期软件定时器定时时间:
 
   ```
@@ -1597,94 +1312,70 @@ void mutex_demo_start(void)
                                uint32_t time_ms)
 
   参数说明：
-
   -timer: 定时器句柄指针
-
   -time_ms: 新的定时周期（毫秒）
 
   返回值：
-
   -kNoErr：修改成功
-
   -kGeneralErr: 修改失败
-
 
   **FreeRTOS对应接口**: xTimerChangePeriod()
   ```
-
 - 删除周期软件定时器:
 
   ```
   bk_err_t rtos_deinit_timer( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: xTimerDelete()
   ```
-
 - 获取周期软件定时器到期时间:
 
   ```
   uint32_t rtos_get_timer_expiry_time( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -返回定时器到期的系统时间（tick）
-
 
   **FreeRTOS对应接口**: xTimerGetExpiryTime()
   ```
-
 - 判断周期软件定时器是否初始化:
 
   ```
   bool rtos_is_timer_init( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -true: 已初始化
-
   -false: 未初始化
   ```
-
 - 判断周期软件定时器是否在运行:
 
   ```
   bool rtos_is_timer_running( beken_timer_t* timer )
 
   参数说明：
-
   -timer: 定时器句柄指针
 
   返回值：
-
   -true: 正在运行
-
   -false: 未运行
-
 
   **FreeRTOS对应接口**: xTimerIsTimerActive()
   ```
 
-完整使用示例（参考components/demos/os/os_timer/os_timer.c）:
-
+完整使用示例（参考components/demos/os/os\_timer/os\_timer.c）:
 
 ```
 #include <os/os.h>
@@ -1731,63 +1422,43 @@ void timer_demo_start(void)
     // 启动单次定时器
     rtos_start_oneshot_timer(&timer_handle2);
 }
-
 ```
 
 备注
 
-
 - 当前软件定时器服务任务的优先级已被设置为系统最高优先级，以确保定时器回调能够及时执行
-
 - 软件定时器的精度与系统时钟节拍周期有关，如果配置的系统节拍数为1000，也就是节拍时钟为1ms
-
 - 软件定时器的回调函数运行在定时器服务任务上下文中，不是中断上下文
-
 - 定时器回调函数中应快进快出，不允许使用任何可能引起软件定时器任务挂起或者阻塞的API接口
-
 - 在回调函数中不能出现死循环
-
 - 不建议在定时器回调中执行耗时操作，可以使用信号量或队列通知其他任务处理
-
 - 单次定时器只触发一次后自动停止，周期定时器会持续周期性触发
-
 - 定时器的实际触发时间可能会有轻微延迟，这取决于定时器服务任务的调度情况
 
 重要
-
 
 **定时器删除后继续使用的常见问题：**
 
 实际应用中经常遇到软件定时器已经被删除后又继续使用的问题，常见场景包括：
 
-
 - **在定时器回调函数中删除定时器后继续使用**：在回调函数中调用删除接口后，如果继续使用该定时器句柄进行操作（如启动、停止等），会导致系统异常
-
-- **删除定时器后未检查状态**：调用删除接口后没有检查返回值或使用状态检查接口（如rtos_is_timer_init()）确认删除成功，直接继续使用定时器句柄
-
+- **删除定时器后未检查状态**：调用删除接口后没有检查返回值或使用状态检查接口（如rtos\_is\_timer\_init()）确认删除成功，直接继续使用定时器句柄
 - **多任务环境下竞争使用**：一个任务删除定时器，另一个任务仍在尝试使用该定时器句柄，导致未定义行为
-
 - **删除后句柄未置NULL**：删除定时器后，定时器句柄指针没有置为NULL，后续代码可能误判定时器仍有效
-
 
 **使用建议：**
 
-
 - 删除定时器前，先停止定时器（如果正在运行），然后调用删除接口
-
 - 删除定时器后，将定时器句柄置为NULL，避免后续误用
-
-- 在使用定时器句柄前，使用rtos_is_timer_init()或rtos_is_timer_running()检查定时器状态
-
+- 在使用定时器句柄前，使用rtos\_is\_timer\_init()或rtos\_is\_timer\_running()检查定时器状态
 - 在多任务环境下，使用互斥锁或其他同步机制保护定时器的创建、使用和删除操作
-
 - 避免在定时器回调函数中删除自身定时器，建议通过信号量或队列通知其他任务执行删除操作
 
+<a id="id14"></a>
 
 ### **事件:**
 
 事件组用于任务间的事件同步，一个事件组包含多个事件标志位，任务可以等待一个或多个事件标志位。
-
 
 - 创建事件:
 
@@ -1795,19 +1466,14 @@ void timer_demo_start(void)
   bk_err_t rtos_init_event_flags( beken_event_t* event_flags )
 
   参数说明：
-
   -event_flags: 事件句柄指针
 
   返回值：
-
   -kNoErr：创建成功
-
   -kGeneralErr: 创建失败
-
 
   **FreeRTOS对应接口**: xEventGroupCreate()
   ```
-
 - 等待事件标志:
 
   ```
@@ -1818,76 +1484,51 @@ void timer_demo_start(void)
                                   uint32_t timeout_ms )
 
   参数说明：
-
   -event_flags: 事件句柄指针
-
   -flags_to_wait_for: 一个按位或的值，指定需要等待事件组中的哪些位置1
       例如：0x01 | 0x04 表示等待第0位和第2位
-
   -clear_set_flags: 是否自动清除事件标志位
-
       * 1 (pdTRUE): 等待成功后自动清除指定的事件标志位
-
       * 0 (pdFALSE): 不清除事件标志位
-
   -wait_option: 等待选项
-
       * WAIT_FOR_ALL_EVENTS (pdTRUE): 逻辑与，flags_to_wait_for指定的所有位都置位时才返回
-
       * WAIT_FOR_ANY_EVENT (pdFALSE): 逻辑或，flags_to_wait_for指定的任意位置位时就返回
-
   -timeout_ms：超时等待时间（毫秒）
-
       * 0: 不等待，立即返回
-
       * BEKEN_WAIT_FOREVER: 永久等待
-
       * 其他值: 等待指定时间
 
   返回值：
-
   -返回事件组中当前置位的标志位值，需要判断是否是期望的事件位
-
   -如果超时，返回值可能不包含期望的事件位
-
 
   **FreeRTOS对应接口**: xEventGroupWaitBits()
   ```
-
 - 设置事件标志:
 
   ```
   void rtos_set_event_flags( beken_event_t* event_flags, uint32_t flags_to_set )
 
   参数说明：
-
   -event_flags: 事件句柄指针
-
   -flags_to_set：指定要置位的事件标志位，例如 0x01 | 0x04 表示设置第0位和第2位
-
 
   **FreeRTOS对应接口**: xEventGroupSetBits()
   ```
-
 - 清除事件标志:
 
   ```
   beken_event_flags_t rtos_clear_event_flags( beken_event_t* event_flags, uint32_t flags_to_clear )
 
   参数说明：
-
   -event_flags: 事件句柄指针
-
   -flags_to_clear：指定要清除的事件标志位
 
   返回值：
-
   -返回清除前的事件标志位值
-
 
   **FreeRTOS对应接口**: xEventGroupClearBits()
   ```
-
 - 同步事件标志:
 
   ```
@@ -1899,44 +1540,32 @@ void timer_demo_start(void)
   原子地设置事件组中的位，然后等待同一事件组中的位组合被设置。常用于多任务同步点。
 
   参数说明：
-
   -event_flags: 事件句柄指针
-
   -flags_to_set：要设置的事件标志位
-
   -flags_to_wait_for：要等待的事件标志位（通常是所有任务需要同步的位）
-
   -timeout_ms：超时时间（毫秒）
 
   返回值：
-
   -返回事件组中当前置位的标志位值
-
 
   **FreeRTOS对应接口**: xEventGroupSync()
   ```
-
 - 删除事件:
 
   ```
   bk_err_t rtos_deinit_event_flags( beken_event_t* event_flags )
 
   参数说明：
-
   -event_flags: 事件句柄指针
 
   返回值：
-
   -kNoErr：删除成功
-
   -kGeneralErr: 删除失败
-
 
   **FreeRTOS对应接口**: vEventGroupDelete()
   ```
 
-完整使用示例（参考components/demos/os/os_event/os_event_group.c）:
-
+完整使用示例（参考components/demos/os/os\_event/os\_event\_group.c）:
 
 ```
 #include <os/os.h>
@@ -2069,38 +1698,31 @@ void os_event_demo_start(void)
     rtos_create_thread(NULL, BEKEN_APPLICATION_PRIORITY - 1,
                       "thread3", thread3_function, 0x1000, NULL);
 }
-
 ```
-
 
 **示例说明：**
 
 此示例展示了事件组的多种使用场景：
 
-1. **中断中设置事件**：定时器中断中设置EVENT_BIT_0
-2. **逻辑与等待**：thread2等待EVENT_BIT_0和EVENT_BIT_3同时置位
-3. **逻辑或等待**：thread3等待EVENT_BIT_0或EVENT_BIT_3任一置位
-4. **事件同步**：三个线程使用rtos_sync_event_flags实现同步点
+1. **中断中设置事件**：定时器中断中设置EVENT\_BIT\_0
+2. **逻辑与等待**：thread2等待EVENT\_BIT\_0和EVENT\_BIT\_3同时置位
+3. **逻辑或等待**：thread3等待EVENT\_BIT\_0或EVENT\_BIT\_3任一置位
+4. **事件同步**：三个线程使用rtos\_sync\_event\_flags实现同步点
 5. **自动清除与手动清除**：thread2使用自动清除，thread3不自动清除
 
 备注
 
-
 - 事件组最多支持24位事件标志（FreeRTOS限制）
-
 - 事件标志位可以组合使用，支持逻辑与/或等待
-
 - 可以在中断中设置事件标志
-
 - 事件组适合一对多或多对多的任务同步场景
+- rtos\_sync\_event\_flags常用于实现多任务同步点（屏障）
 
-- rtos_sync_event_flags常用于实现多任务同步点（屏障）
-
+<a id="id15"></a>
 
 ### **时间管理:**
 
-时间相关的接口以系统时钟为基础，提供给应用程序所有和时间有关的服务。基准时间为单个tick的时间，由宏``CONFIG_FREERTOS_TICK_RATE_HZ``配置，该值默认为1000，即1ms一个tick。
-
+时间相关的接口以系统时钟为基础，提供给应用程序所有和时间有关的服务。基准时间为单个tick的时间，由宏\`\`CONFIG\_FREERTOS\_TICK\_RATE\_HZ\`\`配置，该值默认为1000，即1ms一个tick。
 
 - 获取系统tick计数:
 
@@ -2110,16 +1732,13 @@ void os_event_demo_start(void)
   获取自系统启动以来的tick计数值，可用于精确的时间测量和超时判断
 
   返回值：
-
   -返回系统启动以来的tick总数（64位）
-
 
   **FreeRTOS对应接口**: xTaskGetTickCount() / xTaskGetTickCountFromISR()
 
   .. note::
       此函数会自动判断调用上下文（任务或中断），可以在任务和中断中安全调用
   ```
-
 - 获取系统运行秒数:
 
   ```
@@ -2128,18 +1747,13 @@ void os_event_demo_start(void)
   获取系统启动以来运行的秒数，相当于 bk_get_tick() / bk_get_ticks_per_second()
 
   返回值：
-
   -返回系统运行的秒数（32位）
 
   使用场景：
-
   - 记录系统运行时间
-
   - 简单的时间戳
-
   - 超时判断（秒级精度）
   ```
-
 - 获取系统tick频率:
 
   ```
@@ -2148,13 +1762,10 @@ void os_event_demo_start(void)
   获取系统每秒的tick数，即configTICK_RATE_HZ的值
 
   返回值：
-
   -返回每秒tick数（默认1000，即每秒1000个tick）
-
 
   **对应FreeRTOS配置**: configTICK_RATE_HZ
   ```
-
 - 获取tick周期（毫秒）:
 
   ```
@@ -2163,18 +1774,14 @@ void os_event_demo_start(void)
   获取每个tick对应的毫秒数，相当于 1000 / configTICK_RATE_HZ
 
   返回值：
-
   -返回每个tick的毫秒数（默认1ms）
 
   使用场景：
-
   - tick到毫秒的转换
-
   - 时间计算
   ```
 
 使用示例:
-
 
 ```
 #include <components/system.h>
@@ -2230,30 +1837,25 @@ bool wait_with_timeout(uint32_t timeout_ms)
     }
     return true;
 }
-
 ```
 
 备注
 
-
 - tick计数会在系统运行过程中持续增加，不会复位
-
 - 使用64位tick计数可以避免溢出问题（在1000Hz时可运行约584年）
-
 - 时间精度受系统tick频率限制，默认为1ms
-
-- 可以通过修改CONFIG_FREERTOS_TICK_RATE_HZ来调整tick频率（例如1000表示1ms精度）
-
+- 可以通过修改CONFIG\_FREERTOS\_TICK\_RATE\_HZ来调整tick频率（例如1000表示1ms精度）
 - tick频率越高，定时器精度越高，但系统开销也越大
 
+<a id="id16"></a>
 
 ### **系统内存信息:**
 
 系统提供了获取堆内存使用情况的接口，可以用于内存监控、调试和优化。系统支持SRAM堆和PSRAM堆两种堆内存。
 
+<a id="sram"></a>
 
 ### **SRAM堆内存信息:**
-
 
 - 获取SRAM堆总大小:
 
@@ -2263,13 +1865,10 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取SRAM堆的总大小（字节数）
 
   返回值：
-
   -返回SRAM堆的总大小（字节数）
-
 
   **FreeRTOS对应接口**: prvHeapGetTotalSize()
   ```
-
 - 获取SRAM堆空闲大小:
 
   ```
@@ -2278,21 +1877,15 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取SRAM堆当前空闲内存大小（字节数）。该值会随着内存的分配和释放动态变化。
 
   返回值：
-
   -返回SRAM堆当前空闲内存大小（字节数）
-
 
   **FreeRTOS对应接口**: xPortGetFreeHeapSize()
 
   使用场景：
-
   - 内存使用监控
-
   - 内存泄漏检测
-
   - 动态调整内存分配策略
   ```
-
 - 获取SRAM堆历史最小空闲大小:
 
   ```
@@ -2301,24 +1894,19 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取系统运行以来SRAM堆的最小空闲内存大小（字节数）。该值记录了历史最低点，可用于评估系统的最坏内存使用情况。
 
   返回值：
-
   -返回SRAM堆历史最小空闲内存大小（字节数）
-
 
   **FreeRTOS对应接口**: xPortGetMinimumEverFreeHeapSize()
 
   使用场景：
-
   - 评估系统内存配置是否合理
-
   - 发现内存泄漏趋势
-
   - 确定系统内存需求的下限
   ```
 
+<a id="psram"></a>
 
 ### **PSRAM堆内存信息:**
-
 
 - 获取PSRAM堆总大小:
 
@@ -2328,13 +1916,10 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取PSRAM堆的总大小（字节数）
 
   返回值：
-
   -返回PSRAM堆的总大小（字节数）
-
 
   **FreeRTOS对应接口**: xPortGetPsramTotalHeapSize()
   ```
-
 - 获取PSRAM堆空闲大小:
 
   ```
@@ -2343,21 +1928,15 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取PSRAM堆当前空闲内存大小（字节数）。该值会随着内存的分配和释放动态变化。
 
   返回值：
-
   -返回PSRAM堆当前空闲内存大小（字节数）
-
 
   **FreeRTOS对应接口**: xPortGetPsramFreeHeapSize()
 
   使用场景：
-
   - PSRAM内存使用监控
-
   - PSRAM内存泄漏检测
-
   - 动态调整PSRAM内存分配策略
   ```
-
 - 获取PSRAM堆历史最小空闲大小:
 
   ```
@@ -2366,23 +1945,17 @@ bool wait_with_timeout(uint32_t timeout_ms)
   获取系统运行以来PSRAM堆的最小空闲内存大小（字节数）。该值记录了历史最低点，可用于评估PSRAM的最坏内存使用情况。
 
   返回值：
-
   -返回PSRAM堆历史最小空闲内存大小（字节数）
-
 
   **FreeRTOS对应接口**: xPortGetPsramMinimumFreeHeapSize()
 
   使用场景：
-
   - 评估PSRAM内存配置是否合理
-
   - 发现PSRAM内存泄漏趋势
-
   - 确定系统PSRAM内存需求的下限
   ```
 
 使用示例:
-
 
 ```
 #include <os/os.h>
@@ -2436,34 +2009,25 @@ void memory_monitor_task(beken_thread_arg_t arg)
         rtos_delay_milliseconds(1000);  // 每秒检查一次
     }
 }
-
 ```
 
 备注
 
-
 - SRAM堆和PSRAM堆是独立的内存池，分别用于不同的用途
-
 - 空闲内存大小是动态变化的，会随着内存分配和释放实时更新
-
 - 历史最小空闲大小从系统启动开始记录，不会自动重置
-
 - 这些接口可以在任务和中断上下文中安全调用
-
 - 建议定期监控内存使用情况，特别是长时间运行的应用程序
-
 - 如果空闲内存持续减少，可能存在内存泄漏问题
-
 - PSRAM堆仅在配置了PSRAM支持时可用
 
+<a id="id17"></a>
 
 ### **中断与临界区:**
 
 中断与临界区是操作系统中的重要概念，用于保护共享资源和实现原子操作。抽象层提供了统一的中断控制和临界区管理接口。
 
-
 **中断控制接口:**
-
 
 - 禁用中断:
 
@@ -2475,36 +2039,26 @@ void memory_monitor_task(beken_thread_arg_t arg)
   底层实现机制：
 
       使用PRIMASK寄存器实现中断控制
-
       * 设置PRIMASK寄存器值为1：禁止除NMI和硬fault外的所有中断
-
       * 设置PRIMASK寄存器值为0：使能中断
-
       * 通过CPSID I指令设置PRIMASK，通过CPSIE I指令清除PRIMASK
 
+
   返回值：
-
   -返回禁用前的中断状态标志，需要保存此值用于后续恢复中断
-
 
   **FreeRTOS对应接口**: port_disable_interrupts_flag() / vPortEnterCritical()
 
   使用场景：
-
   - 保护非常短的临界代码段（建议使用临界区接口）
-
   - 需要精确控制中断使能/禁用的场合
   ```
 
 警告
 
-
 - 禁用中断期间不能调用任何可能引起任务切换的API
-
 - 应尽快恢复中断，避免影响系统实时性
-
 - 禁用时间过长会导致中断丢失和看门狗复位
-
 
 - 启用中断:
 
@@ -2514,13 +2068,10 @@ void memory_monitor_task(beken_thread_arg_t arg)
   恢复之前保存的中断状态
 
   参数说明：
-
   -int_level: 由rtos_disable_int()返回的中断状态标志
-
 
   **FreeRTOS对应接口**: port_enable_interrupts_flag() / vPortExitCritical()
   ```
-
 - 检查中断是否禁用:
 
   ```
@@ -2529,15 +2080,11 @@ void memory_monitor_task(beken_thread_arg_t arg)
   检查当前中断是否被禁用
 
   返回值：
-
   -true: 中断已禁用
-
   -false: 中断未禁用
-
 
   **FreeRTOS对应接口**: platform_local_irq_disabled()
   ```
-
 - 检查是否在中断上下文中:
 
   ```
@@ -2546,24 +2093,17 @@ void memory_monitor_task(beken_thread_arg_t arg)
   判断当前代码是否运行在中断服务程序（ISR）中
 
   返回值：
-
   -true: 在中断上下文中
-
   -false: 在任务上下文中
-
 
   **FreeRTOS对应接口**: platform_is_in_interrupt_context()
 
   使用场景：
-
   - 编写可以在任务和中断中调用的通用函数
-
   - 根据上下文选择不同的API调用方式
   ```
 
-
 **临界区接口:**
-
 
 - 进入临界区:
 
@@ -2574,23 +2114,16 @@ void memory_monitor_task(beken_thread_arg_t arg)
   临界区可以嵌套使用，内部通过计数器管理嵌套层级。
 
   实现机制：
-
   - 首先禁用全局中断（调用rtos_disable_int()）
-
   - 然后获取自旋锁（spinlock），防止其他CPU核心同时进入临界区
-
   - 在单核系统中，主要依赖中断禁用实现互斥
-
   - 在SMP系统中，需要同时禁用中断和获取自旋锁，防止跨核心竞争
 
   返回值：
-
   -返回进入临界区前的中断状态标志
-
 
   **FreeRTOS对应接口**: vPortEnterCritical() / taskENTER_CRITICAL()
   ```
-
 - 退出临界区:
 
   ```
@@ -2599,21 +2132,16 @@ void memory_monitor_task(beken_thread_arg_t arg)
   退出临界区，释放自旋锁并恢复之前保存的中断状态。必须与rtos_enter_critical()成对使用。
 
   实现机制：
-
   - 首先释放自旋锁（spinlock）
-
   - 然后恢复中断状态（调用rtos_enable_int()）
 
   参数说明：
-
   -int_level: 由rtos_enter_critical()返回的中断状态标志
-
 
   **FreeRTOS对应接口**: vPortExitCritical() / taskEXIT_CRITICAL()
   ```
 
 使用示例:
-
 
 ```
 #include <os/os.h>
@@ -2672,81 +2200,51 @@ void macro_example(void)
     shared_data = new_value;
     GLOBAL_INT_RESTORE();
 }
-
 ```
 
 备注
 
-
 - **临界区 vs 互斥锁**：
   :   - 临界区：通过禁用中断和自旋锁实现，保护时间极短的代码段（微秒级）
-
       - 互斥锁：通过任务调度实现，保护时间较长的代码段（毫秒级），支持优先级继承
-
 - **SMP系统中的临界区**：
-  :   - 在SMP系统中，临界区使用中断禁用+自旋锁双重保护机制
-
+  :   - 在SMP系统中，临界区使用中断禁用\+自旋锁双重保护机制
       - 中断禁用防止同一核心的中断打断临界代码
-
       - 自旋锁防止其他CPU核心同时访问临界资源
-
       - 自旋锁会持续轮询直到获取到锁，因此临界区代码必须非常短小
-
 - 临界区中禁用了中断，不能调用任何可能引起任务切换或阻塞的API
-
 - 临界区代码应该尽可能短小，通常只用于保护几条汇编指令
-
 - 临界区嵌套使用时，必须保证进入和退出成对调用
-
 - 临界区时间过长会影响系统实时性和中断响应时间，在SMP系统中还会导致其他核心长时间自旋等待
-
-- 不建议在临界区中调用BK_LOGI等可能耗时的函数
-
+- 不建议在临界区中调用BK\_LOGI等可能耗时的函数
 - 在SMP系统中，跨核心的共享资源访问应优先考虑使用互斥锁而非临界区
 
+<a id="id18"></a>
 
 ## **参考示例代码**
 
 完整的OS抽象层使用示例可以在以下路径找到：
 
-
 - API头文件：`includeos/os.h`
-
 - 任务示例：`components/demos/os/os_thread/os_thread.c`
-
 - 队列示例：`components/demos/os/os_queue/os_queue.c`
-
 - 信号量示例：`components/demos/os/os_sem/os_sem.c`
-
 - 互斥锁示例：`components/demos/os/os_mutex/os_mutex.c`
-
 - 定时器示例：`components/demos/os/os_timer/os_timer.c`
-
 - 事件组示例：`components/demos/os/os_event/os_event_group.c`
 
 这些示例展示了OS抽象层API的典型使用方法，建议开发者参考学习。
 
-
 **示例代码特点：**
 
-
 - `os_thread`: 展示任务创建、删除和线程间协作
-
 - `os_queue`: 展示队列的创建、发送和接收消息
-
 - `os_sem`: 展示二值信号量用于任务同步
-
 - `os_mutex`: 展示互斥锁保护共享资源
-
 - `os_timer`: 展示单次定时器和周期定时器的使用
-
 - `os_event`: 展示事件组的多种等待模式和同步机制，包括：
   :   - 中断中设置事件标志
-
       - 逻辑与等待（所有事件都满足）
-
       - 逻辑或等待（任一事件满足）
-
       - 多任务事件同步点
-
       - 自动清除和手动清除事件标志

@@ -1,5 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/multicore_communication/bk_ap_cp_dump_handoff.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="ap-cp-dump"></a>
+
 # AP/CP 异常 Dump 协同机制
 
+<a id="id1"></a>
 
 ## 1 功能概述
 
@@ -8,7 +23,6 @@ BK7259 的 AP/CP 异常 Dump 采用协同方式处理 AP 异常场景。AP 异�
 该机制主要解决 AP Dump 时间较长时，CP 因 AP 心跳超时或 AON WDT 超时提前复位单板的问题。
 
 整体流程如下：
-
 
 ```
 AP exception
@@ -28,9 +42,9 @@ CP receives IPC_AP_TRAP_HANDLE_END
     |-- dump AP memory windows
     |-- unlock UART0 HSPL
     |-- bk_wdt_force_reboot()
-
 ```
 
+<a id="ap"></a>
 
 ## 2 AP 侧处理流程
 
@@ -52,6 +66,7 @@ AP 异常后的主要顺序为：
 
 AP 异常路径中不再调用 `bk_coredump_memory()`，因此 AP 不再直接输出 AP 全内存 Dump。
 
+<a id="cp"></a>
 
 ## 3 CP 侧处理流程
 
@@ -81,6 +96,7 @@ AP 内存窗口 Dump 逻辑位于：
 > - `cp/components/coredump/bk_coredump_mem.c`
 > - `cp/middleware/soc/bk7259/memory.c`
 
+<a id="uart0-hspl"></a>
 
 ## 4 UART0 HSPL 管理
 
@@ -100,6 +116,7 @@ AP 和 CP 的 coredump UART writer 都使用 `BK_HSPL_RES_UART_LOG` 保护 UART0
 > - CP 在 `IPC_AP_TRAP_HANDLE_END` 后再获取 UART0 HSPL，输出 AP 内存。
 > - CP Dump 完成后释放 UART0 HSPL，再触发 WDT reboot。
 
+<a id="ap-dump"></a>
 
 ## 5 AP 内存 Dump 范围
 
@@ -107,7 +124,7 @@ CP 接管后 Dump 的 AP 内存窗口对齐 AP `CONFIG_MEMDUMP_ALL` 的语义，
 
 当前 CP 接管 AP Dump 的顺序为：
 
-> - AP SRAM bank：按 `bk7259_sram_info` 顺序 Dump `SRAM0` ~ `SRAM6`
+> - AP SRAM bank：按 `bk7259_sram_info` 顺序 Dump `SRAM0` \~ `SRAM6`
 > - AP runtime 注册的额外 Dump 内存：`AP_EXTRA_MEM`
 > - AP 实际使用的 PSRAM 窗口：
 >
@@ -120,6 +137,7 @@ CP 接管后 Dump 的 AP 内存窗口对齐 AP `CONFIG_MEMDUMP_ALL` 的语义，
 
 AP PSRAM data/bss 不按 `CONFIG_AP_PSRAM_DATA_SECTION_SIZE` 整段 Dump，而是由 AP 在异常时发布实际使用窗口，CP 只按共享窗口输出，减少空数据。
 
+<a id="id2"></a>
 
 ## 6 共享寄存器
 
@@ -146,6 +164,7 @@ CP 读取共享窗口后会做最小范围检查：
 > - 地址范围没有溢出。
 > - 窗口位于 CP 可访问的 AP SRAM、AP PSRAM 或外设寄存器范围内。
 
+<a id="id3"></a>
 
 ## 7 维护注意事项
 

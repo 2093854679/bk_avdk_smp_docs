@@ -1,16 +1,32 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/platform/bk_log_set.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="set-log"></a>
+
 # set log
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 > 通过串口工具和BK72XX芯片的开发板连接，在串口工具的输入窗口，可以给开发板发cli命令来控制内部软件的动作，以及查询内部状态。可通过cli命令设置log输出等级和模式。
 
+<a id="id2"></a>
 
 ## 2 代码路径
 
 > demo路径：`components\bk_cli\cli_main.c`
 
+<a id="logcli"></a>
 
 ## 3 log设置相关cli命令简介
 
@@ -18,21 +34,21 @@
 >
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_SHELL_ASYNCLOG | support async log | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> | CONFIG\_SHELL\_ASYNCLOG | support async log | `middleware\soc\bk7236\bk7236.defconfig` | y |
 >
 > demo支持的命令如下表：
 >
 > | Command | Param | Description |
 > | --- | --- | --- |
 > | help | none | output all support command lines |
-> | log [echo(0,1)] [level(0~5)]  [sync(0,1)] {Whitelist(0,1)] | none: if param none,show current log setting | set whether input command echo set output level of the log set the log sync or asyn output set the log white list mechanism to control the log output of the module |
-> | [echo(0,1)]: 1:log echo open 0:log echo close |
-> | [level(0~5)]:log level 0-5 |
-> | [sync(0,1)]:1:sync log; 0:async log |
-> | [Whitelist(0,1)]: 1:while list 0:black list |
-> | modlog [tag_name] [on/off] | none: show current while/black list | add/remove tag to/from the list  note: if param is none, show current while/black list |
-> | [tag_name]:function module tag |
-> | [on/off]: add/remove tag to/from the list |
+> | log \[echo(0,1)\] \[level(0\~5)\]  \[sync(0,1)\] {Whitelist(0,1)\] | none: if param none,show current log setting | set whether input command echo set output level of the log set the log sync or asyn output set the log white list mechanism to control the log output of the module |
+> | \[echo(0,1)\]: 1:log echo open 0:log echo close |
+> | \[level(0\~5)\]:log level 0-5 |
+> | \[sync(0,1)\]:1:sync log; 0:async log |
+> | \[Whitelist(0,1)\]: 1:while list 0:black list |
+> | modlog \[tag\_name\] \[on/off\] | none: show current while/black list | add/remove tag to/from the list  note: if param is none, show current while/black list |
+> | \[tag\_name\]:function module tag |
+> | \[on/off\]: add/remove tag to/from the list |
 > | loginfo | none | log statistics |
 
 log 命令详细说明：
@@ -66,6 +82,7 @@ log 等级的含义:
 > #define BK_LOG_VERBOSE 5 /*!< Extra information which is not necessary for normal use (values, pointers, sizes, etc). */
 > ```
 
+<a id="id3"></a>
 
 ## 4 演示介绍
 

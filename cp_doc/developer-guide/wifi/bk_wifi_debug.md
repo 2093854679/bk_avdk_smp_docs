@@ -1,54 +1,78 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/wifi/bk_wifi_debug.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="wi-fi"></a>
+
 # **Wi-Fi 问题定位指南**
 
-
+<a id="id1"></a>
 
 ## **概述**
 
-本章节主要介绍Wi-Fi常见问题Log抓取和定位方法
+本章节介绍 **CP 侧** Wi-Fi 驱动与 LMAC 的 Log 抓取、统计 CLI 及问题定位方法。
 
+<a id="cp-cli"></a>
+
+## **CP 平台调试 CLI（节选）**
+
+- `get mac_trx status` — MAC 收发统计
+- `pkt_dbg` — 报文通路 debug
+- `wifi_diag` — Wi-Fi 诊断
+- `filter` / `rc` / `capa` — 过滤、速率、能力查询
+
+<a id="id2"></a>
 
 ## **收发通路问题分析**
 
 收发通路常见的问题有：数据传输带宽偏低、数据传输丢包以及数据传输延迟高等问题。
 这类问题一般需要通过CLI命令查看一些统计信息，甚至需要收发通路Log配合Wi-Fi空口包进行分析。
 Armino SDK默认支持LWIP和Wi-Fi底层输出发送和接收相关log，这些log默认不开启，需要查看时可通过API接口开启。
-具体可参考cli_pkt_debug_cmd函数实现。
+具体可参考cli\_pkt\_debug\_cmd函数实现。
 
 重要
 
-
 *LWIP和Wi-Fi通路log会影响系统性能，请确保在只在定位问题时开启*
 
+<a id="lwiplog"></a>
 
 ### **LWIP相关log介绍**
 
 LWIP模块目前支持ICMP、IP和TCP子模块输出发送和接收关键log，如果需要查看相关Log，需要按照如下步骤操作
 
-1. 首先需要在相应工程中通过CONFIG_LWIP_DEBUG_LOG功能宏开启LWIP debug log代码编译，比如在/project/app/bk****/config文件中将
-CONFIG_LWIP_DEBUG_LOG=y，即可在bk***芯片app工程开启LWIP debug log代码编译。
+1\. 首先需要在相应工程中通过CONFIG\_LWIP\_DEBUG\_LOG功能宏开启LWIP debug log代码编译，比如在/project/app/bk\*\*\*\*/config文件中将
+CONFIG\_LWIP\_DEBUG\_LOG\=y，即可在bk\*\*\*芯片app工程开启LWIP debug log代码编译。
 
-2. 可通过void lwip_set_pkt_trx_dbg_cfg(uint32_t cfg_bit)接口针对性开启LWIP子模块的log。
+2. 可通过void lwip\_set\_pkt\_trx\_dbg\_cfg(uint32\_t cfg\_bit)接口针对性开启LWIP子模块的log。
 
-LWIP子模块log配置是cfg_bit完成，cfg_bit含义如下表所示：
+LWIP子模块log配置是cfg\_bit完成，cfg\_bit含义如下表所示：
 
 | **宏定义** | **数值** | **描述** |
 | --- | --- | --- |
-| LWIP_TX_DBG_LOG_SOCKET | 1<<16 | 开启lwip_send函数中log |
-| LWIP_TX_DBG_LOG_IP | 1<<17 | 开启IP TX log |
-| LWIP_TX_DBG_LOG_TCP | 1<<18 | 开启TCP TX log |
-| LWIP_RX_DBG_LOG_SOCKET | 1<<20 | 开启lwip_recvfrom函数中log |
-| LWIP_RX_DBG_LOG_IP | 1<<21 | 开启IP RX log |
-| LWIP_RX_DBG_LOG_TCP | 1<<22 | 开启TCP RX log |
-| LWIP_TX_DBG_LOG_PING | 1<<24 | 开启ICMP TX log |
-| LWIP_RX_DBG_LOG_PING | 1<<25 | 开启ICMP RX log |
+| LWIP\_TX\_DBG\_LOG\_SOCKET | 1\<\<16 | 开启lwip\_send函数中log |
+| LWIP\_TX\_DBG\_LOG\_IP | 1\<\<17 | 开启IP TX log |
+| LWIP\_TX\_DBG\_LOG\_TCP | 1\<\<18 | 开启TCP TX log |
+| LWIP\_RX\_DBG\_LOG\_SOCKET | 1\<\<20 | 开启lwip\_recvfrom函数中log |
+| LWIP\_RX\_DBG\_LOG\_IP | 1\<\<21 | 开启IP RX log |
+| LWIP\_RX\_DBG\_LOG\_TCP | 1\<\<22 | 开启TCP RX log |
+| LWIP\_TX\_DBG\_LOG\_PING | 1\<\<24 | 开启ICMP TX log |
+| LWIP\_RX\_DBG\_LOG\_PING | 1\<\<25 | 开启ICMP RX log |
 
+<a id="lwipdebug"></a>
 
 ### **LWIP相关Debug命令**
 
-可通过lwip_mem和lwip_stats CLI命令辅助定位TCP/IP相关问题
+可通过lwip\_mem和lwip\_stats CLI命令辅助定位TCP/IP相关问题
 
-lwip_mem - 查看与lwip相关的内存使用情况，该命令返回如下：
-
+lwip\_mem \- 查看与lwip相关的内存使用情况，该命令返回如下：
 
 ```
 $lwip_mem
@@ -77,11 +101,9 @@ $lwip_mem
 (76920):========== MEM ============
 (76920):avail 51200, used 60, max 1124, err 0
 (76920):tx avail 42666, rx avail 38400, tx used 60, rx used 0, tx max 544, rx max 1064, tx err 0, rx err 0
-
 ```
 
-lwip_stats - 查看与lwip收发统计信息，该命令返回如下：
-
+lwip\_stats \- 查看与lwip收发统计信息，该命令返回如下：
 
 ```
 $lwip_stats
@@ -142,37 +164,36 @@ TCP
 (444944):opterr:   0
 (444944):err:      0
 (444944):cachehit: 0
-
 ```
 
 备注
 
-查看lwip CLI命令需要确保cli_lwip.c模块参与编译
+查看lwip CLI命令需要确保cli\_lwip.c模块参与编译
 
+<a id="wi-filog"></a>
 
 ### **Wi-Fi相关log介绍**
 
-Wi-Fi模块目前支持TX/RX通路输出关键log，log开启可通过void bk_wifi_set_pkt_trx_dbg_cfg(uint32_t cfg_bit)
-API接口实现，cfg_bit含义如下表所示：
+Wi-Fi模块目前支持TX/RX通路输出关键log，log开启可通过void bk\_wifi\_set\_pkt\_trx\_dbg\_cfg(uint32\_t cfg\_bit)
+API接口实现，cfg\_bit含义如下表所示：
 
 | **宏定义** | **数值** | **描述** |
 | --- | --- | --- |
-| WIFI_TX_DBG_LOG_DATA_PKT | 1<<0 | 开启Wi-Fi数据帧发送完成log |
-| WIFI_TX_DBG_LOG_MGMT_PKT | 1<<1 | 开启Wi-Fi管理帧发送完成log |
-| WIFI_TX_DBG_LOG_PUSH_PKT | 1<<2 | 开启Wi-Fi发送组包log |
-| WIFI_RX_DBG_LOG_DATA_PKT | 1<<8 | 开启Wi-Fi数据帧接收log |
-| WIFI_RX_DBG_LOG_MGMT_PKT | 1<<9 | 开启Wi-Fi管理帧接收log |
+| WIFI\_TX\_DBG\_LOG\_DATA\_PKT | 1\<\<0 | 开启Wi-Fi数据帧发送完成log |
+| WIFI\_TX\_DBG\_LOG\_MGMT\_PKT | 1\<\<1 | 开启Wi-Fi管理帧发送完成log |
+| WIFI\_TX\_DBG\_LOG\_PUSH\_PKT | 1\<\<2 | 开启Wi-Fi发送组包log |
+| WIFI\_RX\_DBG\_LOG\_DATA\_PKT | 1\<\<8 | 开启Wi-Fi数据帧接收log |
+| WIFI\_RX\_DBG\_LOG\_MGMT\_PKT | 1\<\<9 | 开启Wi-Fi管理帧接收log |
 
 重要
 
-
 *通路log开启后，随着传输数据量的增加，log量会剧增，为了抓取完整log，需要提高串口波特率*
 
+<a id="wi-fidebug"></a>
 
 ### **Wi-Fi通路Debug命令**
 
-Wi-Fi模块也提供了收发统计信息，这些信息可通过get mac_trx status命令查询，该命令返回如下：
-
+Wi-Fi模块也提供了收发统计信息，这些信息可通过get mac\_trx status命令查询，该命令返回如下：
 
 ```
 $get mac_trx status
@@ -183,19 +204,16 @@ wifid:I(1077308):======================= MAC TX INFO ========================
 wifid:I(1077308):tx data dld cnt:12, retry cnt:0, single cnt:12, agg cnt:5, discard cnt:0, success cnt:12
 wifid:I(1077308):tx data tx time:269, avg time:22, max time:152
 CMDRSP:OK
-
 ```
 
 备注
 
-查看Wi-Fi CLI命令需要确保cli_wifi.c模块参与编译
+查看Wi-Fi CLI命令需要确保cli\_wifi.c模块参与编译
 
+<a id="id3"></a>
 
 ### **通路常见问题分析方法**
 
-
 - 传输带宽低：TCP传输带宽低需要关注上层应用发送数据是否频繁会遇到TCP buffer满的情况，如果存在类似问题，需要开启LWIP和Wi-Fi的log并配合Wi-Fi空口进行分析。
-
 - 传输丢包：首先通过lwip log确认收发是否正常，如果没有异常就需要开启lwip log和Wi-Fi log配合Wi-Fi空口包进行分析。
-
 - 传输延迟高：这类问题一般与环境相关，可首先通过ping程序确认与目标通信地址延迟是否符合预期。如果ping延迟正常，则需要开启lwip log和Wi-Fi log配合Wi-Fi空口包进行分析。

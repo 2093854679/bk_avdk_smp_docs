@@ -1,17 +1,32 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/lvgl/widgets_v9/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="lvgl-widgets-v9"></a>
+
 # LVGL Widgets V9 示例工程说明
 
+<a id="id1"></a>
 
-
-## 1. 工程简介
+## 1\. 工程简介
 
 `widgets_v9` 是 BK7259 SDK 中的 LVGL 官方 Widgets Demo 参考工程，使用 **LVGL V9.3.0**，用于演示按钮、滑条、列表、图表、图片、字体等常见 UI 控件。
 
 简单理解：
 
 1. **它是 LVGL V9 的上手工程**，适合验证 LVGL V9 在 BK7259 上的显示和触摸流程。
-2. **它跑通了 MIPI DSI 屏、DPU、frame buffer、LVGL vendor 适配层和触摸输入**。
-3. **它适合作为新 UI 项目的参考模板**：保留底层初始化流程，把官方 Demo 页面换成自己的页面即可。
+2. **它跑通了 MIPI DSI 屏、DPU、frame buffer、LVGL vendor 适配层和触摸输入** 。
+3. **它适合作为新 UI 项目的参考模板** ：保留底层初始化流程，把官方 Demo 页面换成自己的页面即可。
 
+<a id="id2"></a>
 
 ### 1.1 默认硬件与显示参数
 
@@ -31,11 +46,11 @@
 
 > 如果你的屏幕型号、分辨率或 GPIO 与默认配置不同，需要先适配显示硬件，再调 LVGL UI。否则即使 LVGL 正常启动，也可能因为 LCD 配置不匹配而黑屏。
 
+<a id="id3"></a>
 
-## 2. 目录结构
+## 2\. 目录结构
 
-工程采用 AP + CP 双核结构。新手主要看 `ap/` 目录。
-
+工程采用 AP \+ CP 双核结构。新手主要看 `ap/` 目录。
 
 ```
 widgets_v9/
@@ -55,7 +70,6 @@ widgets_v9/
 │   ├── cp_main.c
 │   └── config/bk7259/
 └── partitions/                    # Flash/RAM 分区配置
-
 ```
 
 建议阅读顺序：
@@ -66,8 +80,9 @@ widgets_v9/
 4. `ap/config/bk7259_ap/defconfig`：看功能开关。
 5. `ap/lv_conf_custom.h`：看本工程额外打开了哪些 LVGL 功能。
 
+<a id="id4"></a>
 
-## 3. 运行效果
+## 3\. 运行效果
 
 固件启动后，AP 侧会自动初始化显示链路并调用 `lv_demo_widgets()`，屏幕上会出现 LVGL 官方 Widgets Demo 界面。
 
@@ -82,9 +97,11 @@ widgets_v9/
 | 字体 | 工程额外启用了 Montserrat 12/16/18/20/24 字号 |
 | 性能监视 | `CONFIG_LV_USE_PERF_MONITOR=y` 时可查看 FPS/CPU 等信息 |
 
+<a id="id5"></a>
 
-## 4. 快速上手
+## 4\. 快速上手
 
+<a id="id6"></a>
 
 ### 4.1 准备环境
 
@@ -94,27 +111,25 @@ widgets_v9/
 2. 编译环境已经配置好。
 3. 开发板连接了与工程匹配的 MIPI 屏和触摸屏。
 
+<a id="id7"></a>
 
 ### 4.2 编译
 
 在 SDK 根目录执行：
 
-
 ```
 make bk7259 PROJECT=lvgl/widgets_v9
-
 ```
 
 也可以按 CI 使用的方式执行：
 
-
 ```
 ./dbuild.sh make bk7259 PROJECT=lvgl/widgets_v9
-
 ```
 
 编译成功后，固件会生成在 `build/` 目录下。
 
+<a id="id8"></a>
 
 ### 4.3 烧录
 
@@ -122,6 +137,7 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 如果你使用项目内已有烧录脚本或自动化工具，请选择 `lvgl/widgets_v9` 这个工程。
 
+<a id="id9"></a>
 
 ### 4.4 运行
 
@@ -132,8 +148,9 @@ make bk7259 PROJECT=lvgl/widgets_v9
 3. LCD 打开后显示 LVGL Widgets Demo。
 4. 如果触摸屏与默认配置匹配，可以直接点击、滑动 Demo 界面。
 
+<a id="id10"></a>
 
-## 5. 启动流程
+## 5\. 启动流程
 
 `ap/ap_main.c` 是理解本工程的核心入口。
 
@@ -141,10 +158,9 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 1. `main()` 调用 `bk_init()` 初始化系统。
 2. 调用 `media_service_init()` 初始化多媒体服务。
-3. 调用 `bk_lodoen_enable()` 配置相关电源寄存器。
-4. 调用 `bk_frame_buffer_init()` 初始化帧缓冲。
-5. 注册 `widgets` CLI 命令。
-6. 调用 `lvgl_app_widgets_init()` 初始化显示、触摸和 LVGL。
+3. 调用 `bk_frame_buffer_init()` 初始化帧缓冲。
+4. 注册 `widgets` CLI 命令。
+5. 调用 `lvgl_app_widgets_init()` 初始化显示、触摸和 LVGL。
 
 `lvgl_app_widgets_init()` 内部主要做这些事：
 
@@ -161,9 +177,11 @@ make bk7259 PROJECT=lvgl/widgets_v9
 11. 加锁后调用 `lv_demo_widgets()` 创建 UI
 12. 调用 `lv_vendor_start()` 启动 LVGL 线程
 
+<a id="id11"></a>
 
-## 6. 关键配置说明
+## 6\. 关键配置说明
 
+<a id="id12"></a>
 
 ### 6.1 功能开关
 
@@ -183,6 +201,7 @@ make bk7259 PROJECT=lvgl/widgets_v9
 | `CONFIG_LVGL_USE_GPU_ROTATE=y` | 启用 LVGL GPU 旋转相关支持 |
 | `CONFIG_LVGL_TASK_STACK_SIZE=8192` | LVGL 线程栈大小 |
 
+<a id="lvgl"></a>
 
 ### 6.2 LVGL 工程级配置
 
@@ -199,6 +218,7 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 如果你想启用更多 LVGL 功能，优先在这个文件里做工程级覆盖，不建议直接修改 LVGL 组件的公共配置。
 
+<a id="argb8888"></a>
 
 ### 6.3 ARGB8888 与压缩输出
 
@@ -213,9 +233,11 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 这部分是 `widgets_v9` 和 `widgets_v8` 的主要差异之一。新手如果只是改 UI，通常不需要动这些参数；如果要改显示格式、压缩策略或性能调优，再重点看这一段代码。
 
+<a id="id13"></a>
 
-## 7. 常见修改
+## 7\. 常见修改
 
+<a id="id14"></a>
 
 ### 7.1 修改屏幕型号
 
@@ -227,13 +249,12 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 如果分辨率变化，还要同步修改：
 
-
 ```
 #define WIDTH (1080)
 #define HEIGHT (1920)
-
 ```
 
+<a id="gpio"></a>
 
 ### 7.2 修改背光和复位 GPIO
 
@@ -243,6 +264,7 @@ make bk7259 PROJECT=lvgl/widgets_v9
 | LCD Reset | `GPIO_60` | `ap/ap_main.c` 中 `panel_config.reset_pin` |
 | TP Reset/INT/I2C | `GPIO_5/6/1/0` | `ap/config/bk7259_ap/defconfig` |
 
+<a id="ui"></a>
 
 ### 7.3 替换成自己的 UI
 
@@ -254,14 +276,13 @@ make bk7259 PROJECT=lvgl/widgets_v9
 
 示例：
 
-
 ```
 lv_vendor_disp_lock();
 my_ui_create();
 lv_vendor_disp_unlock();
-
 ```
 
+<a id="id15"></a>
 
 ### 7.4 添加图片资源
 
@@ -281,9 +302,11 @@ lv_vendor_disp_unlock();
 | `assets/img_demo_widgets_needle.c` | 指针图片资源 |
 | `assets/img_lvgl_logo.c` | LVGL logo |
 
+<a id="id16"></a>
 
-## 8. 常见问题
+## 8\. 常见问题
 
+<a id="lvgl-demo"></a>
 
 ### 8.1 编译失败，提示找不到 LVGL Demo、字体或图片
 
@@ -294,6 +317,7 @@ lv_vendor_disp_unlock();
 3. 新增源码或资源是否加入 `ap/CMakeLists.txt`。
 4. V8/V9 Demo 代码不要混用，`widgets_v9` 应使用 LVGL V9 对应的 API 和 Demo 文件。
 
+<a id="id17"></a>
 
 ### 8.2 屏幕黑屏
 
@@ -305,6 +329,7 @@ lv_vendor_disp_unlock();
 4. `GPIO_60` 是否真的是当前硬件的 LCD reset 脚。
 5. `defconfig` 中是否打开了对应 LCD 驱动。
 
+<a id="id18"></a>
 
 ### 8.3 触摸无反应
 
@@ -315,21 +340,21 @@ lv_vendor_disp_unlock();
 3. 当前触摸 IC 是否在 `defconfig` 中开启。
 4. `drv_tp_open()` 是否被执行。
 
+<a id="id19"></a>
 
 ### 8.4 UI 偶发异常或死机
 
 LVGL 默认不是线程安全的。凡是在 LVGL 线程以外创建或修改 UI，都要加锁：
 
-
 ```
 lv_vendor_disp_lock();
 /* LVGL API calls */
 lv_vendor_disp_unlock();
-
 ```
 
 如果 UI 很复杂，出现栈溢出或异常，可以适当增大 `CONFIG_LVGL_TASK_STACK_SIZE`。
 
+<a id="lvgl-v8-v9"></a>
 
 ### 8.5 从 LVGL V8 迁移到 V9 要注意什么
 
@@ -340,8 +365,9 @@ LVGL V9 相比 V8 有 API 和对象模型差异。迁移时建议：
 3. 按 LVGL V9 API 逐个页面迁移。
 4. 每迁移一个页面就编译、烧录验证一次。
 
+<a id="widgets-v8-widgets-v9"></a>
 
-## 9. widgets_v8 与 widgets_v9 的区别
+## 9\. widgets\_v8 与 widgets\_v9 的区别
 
 | 对比项 | `widgets_v8` | `widgets_v9` |
 | --- | --- | --- |

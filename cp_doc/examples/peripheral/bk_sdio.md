@@ -1,16 +1,32 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_sdio.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="fatfssd"></a>
+
 # fatfs文件系统和SD卡读写
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 > SDK工程中使用fatfs文件系统对SD卡进行文件管理，用户只需要进行简单的配置就可以使用SD卡，本文档对操作fatfs文件系统的cli命令进行介绍。
 
+<a id="id2"></a>
 
 ## 2 代码路径
 
 > demo路径：`components\bk_cli\cli_fatfs.c` `components\fatfs\test_fatfs.c`
 
+<a id="cli"></a>
 
 ## 3 cli命令简介
 
@@ -20,62 +36,62 @@
 > >
 > > | NAME | Description | File | value |
 > > | --- | --- | --- | --- |
-> > | CONFIG_SDIO_V1P0 | support SDIO version V1P0,unused | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_V2P0 | support SDIO version V2P0,current version | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> > | CONFIG_SDIO_HOST | set to host mode for connecting SD card | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> > | CONFIG_SDIO_SLAVE | support SDIO slave mode,unused | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_CHANNEL_EN | support SDIO logical channel,depend on CONFIG_SDIO_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_BIDIRECT_CHANNEL_EN | support SDIO bidirect channel,depend on CONFIG_SDIO_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_GDMA_EN | support SDIO GDMA,unsuport,depend on CONFIG_SDIO_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_GPIO_NOTIFY_TRANSACTION_EN | support notify transaction,,depend on CONFIG_SDIO_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_4LINES_EN | support SDIO 4 line,if no,support 1 line | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_TEST_EN | support SDIO testself | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_DEBUG_EN | support SDIO debug | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDIO_HOST_DEFAULT_CLOCK_FREQ=7 | set SDIO host clk,default 100k | `middleware\soc\bk7236\bk7236.defconfig` | 7 |
+> > | CONFIG\_SDIO\_V1P0 | support SDIO version V1P0,unused | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_V2P0 | support SDIO version V2P0,current version | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_SDIO\_HOST | set to host mode for connecting SD card | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_SDIO\_SLAVE | support SDIO slave mode,unused | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_CHANNEL\_EN | support SDIO logical channel,depend on CONFIG\_SDIO\_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_BIDIRECT\_CHANNEL\_EN | support SDIO bidirect channel,depend on CONFIG\_SDIO\_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_GDMA\_EN | support SDIO GDMA,unsuport,depend on CONFIG\_SDIO\_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_GPIO\_NOTIFY\_TRANSACTION\_EN | support notify transaction,,depend on CONFIG\_SDIO\_SLAVE | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_4LINES\_EN | support SDIO 4 line,if no,support 1 line | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_TEST\_EN | support SDIO testself | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_DEBUG\_EN | support SDIO debug | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDIO\_HOST\_DEFAULT\_CLOCK\_FREQ\=7 | set SDIO host clk,default 100k | `middleware\soc\bk7236\bk7236.defconfig` | 7 |
 > >
 > > SD card demo运行依赖的宏配置：
 > >
 > > | NAME | Description | File | value |
 > > | --- | --- | --- | --- |
-> > | CONFIG_SDCARD_HOST | support SD card,host mode | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> > | CONFIG_SDCARD_V2P0 | support SD version V2P0 | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> > | CONFIG_SDCARD_V1P0 | support SD version V1P0 | `middleware\soc\bk7236\bk7236.defconfig` | n |
-> > | CONFIG_SDCARD_BUSWIDTH_4LINE | support SD card 4 line | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDCARD\_HOST | support SD card,host mode | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_SDCARD\_V2P0 | support SD version V2P0 | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_SDCARD\_V1P0 | support SD version V1P0 | `middleware\soc\bk7236\bk7236.defconfig` | n |
+> > | CONFIG\_SDCARD\_BUSWIDTH\_4LINE | support SD card 4 line | `middleware\soc\bk7236\bk7236.defconfig` | n |
 > >
 > > fatfs demo运行依赖的宏配置：
 > >
 > > | NAME | Description | File | value |
 > > | --- | --- | --- | --- |
-> > | CONFIG_FATFS | support fatfs | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> > | CONFIG_FATFS_SDCARD | SD card support fatfs | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_FATFS | support fatfs | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> > | CONFIG\_FATFS\_SDCARD | SD card support fatfs | `middleware\soc\bk7236\bk7236.defconfig` | y |
 > >
 > > demo支持的cli命令如下表：
 > >
 > > | Command | Param | Description |
 > > | --- | --- | --- |
-> > | fatfstest {M|U} {DISK_NUMBER} | {M|U}: mount|unmount | apply for or release the workspace for logical drivers |
-> > | {DISK_NUMBER}:logical driver number |
-> > | fatfstest G {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | get the size of remaining disk space |
-> > | fatfstest S {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | scan all files on disk |
-> > | fatfstest F {DISK_NUMBER} | {DISK_NUMBER}:logical driver number | format disk |
-> > | fatfstest R {DISK_NUMBER}{file_name}  {length} | {DISK_NUMBER}:logical driver number | read specified length of data  from the file |
-> > | {file_name}:file to story read data |
+> > | fatfstest {M\|U} {DISK\_NUMBER} | {M\|U}: mount\|unmount | apply for or release the workspace for logical drivers |
+> > | {DISK\_NUMBER}:logical driver number |
+> > | fatfstest G {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | get the size of remaining disk space |
+> > | fatfstest S {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | scan all files on disk |
+> > | fatfstest F {DISK\_NUMBER} | {DISK\_NUMBER}:logical driver number | format disk |
+> > | fatfstest R {DISK\_NUMBER}{file\_name}  {length} | {DISK\_NUMBER}:logical driver number | read specified length of data  from the file |
+> > | {file\_name}:file to story read data |
 > > | {length}: length to be read |
-> > | fatfstest W {DISK_NUMBER}{file_name}  {content_p}{content_len} | {DISK_NUMBER}:logical driver number | write data to a file |
-> > | {file_name}:file to be written |
-> > | {content_p}: pointer to the data to be written |
-> > | {content_len}:length to be written |
-> > | fatfstest D {DISK_NUMBER}{file_name}  {start_addr}{content_len} | {DISK_NUMBER}:logical driver number | read the specified length of data from the specified address and write it to the specified file |
-> > | {file_name}:file to be written |
-> > | {start_addr}: start address for reading |
-> > | {content_len}:length to be written |
-> > | fatfstest A {DISK_NUMBER}{file_name}  {content_len}{test_cnt} {start_addr} | {DISK_NUMBER}:logical driver number | auto test,write the data to the file and then read it, and compare the result  note: the data written to the SD card is read from the specified start_addr |
-> > | {file_name}:file to be written |
-> > | {content_len}: length of comparison |
-> > | {test_cnt}:number of cycle tests |
-> > | {start_addr}:start address for reading |
+> > | fatfstest W {DISK\_NUMBER}{file\_name}  {content\_p}{content\_len} | {DISK\_NUMBER}:logical driver number | write data to a file |
+> > | {file\_name}:file to be written |
+> > | {content\_p}: pointer to the data to be written |
+> > | {content\_len}:length to be written |
+> > | fatfstest D {DISK\_NUMBER}{file\_name}  {start\_addr}{content\_len} | {DISK\_NUMBER}:logical driver number | read the specified length of data from the specified address and write it to the specified file |
+> > | {file\_name}:file to be written |
+> > | {start\_addr}: start address for reading |
+> > | {content\_len}:length to be written |
+> > | fatfstest A {DISK\_NUMBER}{file\_name}  {content\_len}{test\_cnt} {start\_addr} | {DISK\_NUMBER}:logical driver number | auto test,write the data to the file and then read it, and compare the result  note: the data written to the SD card is read from the specified start\_addr |
+> > | {file\_name}:file to be written |
+> > | {content\_len}: length of comparison |
+> > | {test\_cnt}:number of cycle tests |
+> > | {start\_addr}:start address for reading |
 > >
-> > disk_number的定义：
+> > disk\_number的定义：
 >
 > ```
 >         typedef enum
@@ -88,6 +104,7 @@
 > } DISK_NUMBER;
 > ```
 
+<a id="id3"></a>
 
 ## 4 演示介绍
 
@@ -134,7 +151,7 @@ fatfstest S 1 //扫描SD卡
 > Fatfs:I(532886):----- scan_file_system 1 over  -----
 > ```
 
-fatfstest W 1 test.txt acl_bk7236_write_to_test 24 //向文件test.txt中写入字符串”acl_bk7236_write_to_test”
+fatfstest W 1 test.txt acl\_bk7236\_write\_to\_test 24 //向文件test.txt中写入字符串”acl\_bk7236\_write\_to\_test”
 
 > ```
 > [16:15:02.687]发→◇fatfstest W 1 test.txt acl_bk7236_write_to_test 24

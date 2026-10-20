@@ -1,16 +1,31 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_wdt.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="watchdog"></a>
+
 # Watchdog 使用指南
 
-
+<a id="id1"></a>
 
 ## 概述
 
 watchdog 实际上是一个硬件定时器，定时器超时会触发系统 watchdog 重启。
 
-BK7259 AP 侧没有独立的 AON_WDT 硬件驱动，AON_WDT 由 CP 侧管理。AP 侧 watchdog 相关能力分为两类：
+BK7259 AP 侧没有独立的 AON\_WDT 硬件驱动，AON\_WDT 由 CP 侧管理。AP 侧 watchdog 相关能力分为两类：
 
 > - `wwdt`：与 CPU 核绑定的硬件 Window Watchdog，承担 **Interrupt Watchdog** 角色。
-> - `task_wdt`：软件实现的 **Task Watchdog**，不依赖 `bk_wdt_start()` / `bk_wdt_feed()` 这类 AON_WDT 兼容接口。
+> - `task_wdt`：软件实现的 **Task Watchdog**，不依赖 `bk_wdt_start()` / `bk_wdt_feed()` 这类 AON\_WDT 兼容接口。
 
+<a id="id2"></a>
 
 ## watchdog 使用方法
 
@@ -19,6 +34,7 @@ watchdog 有两种常见的使用方式：
 > - 在周期性中断中喂狗，如在 OS SysTick 中断中喂 `wwdt`。当软件出现关中断过长、SysTick 未能及时喂狗等问题时，`wwdt` 超时会触发 watchdog 重启，用于及时发现中断层面的异常。这类用法通常称为 **interrupt watchdog**。
 > - 在周期性任务中喂狗，如在 idle task 中调用 `bk_task_wdt_feed()`。idle task 一般为系统中优先级最低的任务；当某个任务长期占用 CPU、idle 无法得到调度时，`task_wdt` 会检测到喂狗超时。这类用法通常称为 **task watchdog**。
 
+<a id="armino-interrupt-watchdog-wwdt"></a>
 
 ## ARMINO Interrupt Watchdog（`wwdt`）
 
@@ -30,7 +46,7 @@ BK7259 AP 使用 `wwdt` 实现 Interrupt Watchdog。`wwdt` 与 CPU 核一一绑�
 
 备注
 
-`wwdt` 触发超时（默认约 2 s）后，CPU 会进入 **NMI** 异常，随后从 Flash 复位启动。默认复位起始地址为 Flash `0x0`；该起始地址可通过 SYS 模块 reg4 的 bit[31:8]（`cpu0_offset` 字段）配置，实际启动地址为 `cpu0_offset * 256`。
+`wwdt` 触发超时（默认约 2 s）后，CPU 会进入 **NMI** 异常，随后从 Flash 复位启动。默认复位起始地址为 Flash `0x0`；该起始地址可通过 SYS 模块 reg4 的 bit\[31:8\]（`cpu0_offset` 字段）配置，实际启动地址为 `cpu0_offset * 256`。
 
 备注
 
@@ -44,6 +60,7 @@ BK7259 AP 使用 `wwdt` 实现 Interrupt Watchdog。`wwdt` 与 CPU 核一一绑�
 
 AP 侧没有 `wdt` / `aon_wdt` 测试命令。`wwdt` 测试代码位于 `ap/middleware/driver/wwdt/wwdt_test.c`。在 CP shell 下访问 AP 侧命令时需添加 `ap_cmd` 前缀。
 
+<a id="armino-task-watchdog-task-wdt"></a>
 
 ## ARMINO Task Watchdog（`task_wdt`）
 
@@ -57,6 +74,7 @@ ARMINO 在 AP 侧也实现了 Task Watchdog，但并不是基于真正硬件 Wat
 
 通常应用应使能 task watchdog。除非应用自行实现 task watchdog，可通过 menuconfig 中 `CONFIG_TASK_WDT` 关闭系统默认的 task watchdog。
 
+<a id="id3"></a>
 
 ## 相关代码路径
 
@@ -69,6 +87,7 @@ ARMINO 在 AP 侧也实现了 Task Watchdog，但并不是基于真正硬件 Wat
 > - `wwdt` 类型定义：`ap/include/driver/wwdt_types.h`、`ap/include/driver/hal/hal_wwdt_types.h`
 > - 默认配置：`ap/middleware/soc/bk7259_ap/bk7259_ap.defconfig`
 
+<a id="id4"></a>
 
 ## 配置宏
 
@@ -81,9 +100,10 @@ ARMINO 在 AP 侧也实现了 Task Watchdog，但并不是基于真正硬件 Wat
 | `CONFIG_INT_WWDT_PERIOD_MS` | `2000` | `wwdt` 默认中断看门狗周期，单位 ms。 |
 | `CONFIG_WWDT_TEST` | `y` | 在 `CONFIG_CLI` 和 `DRIVER_TEST` 使能时编译 `wwdt_test.c`。 |
 
+<a id="id5"></a>
 
 ## 测试与示例
 
 AP 侧 CLI 测试命令在 CP shell 下需加 `ap_cmd` 前缀（例如 `ap_cmd task_wdt status`）。命令依赖 `CONFIG_CLI`、`DRIVER_TEST`，以及 `CONFIG_TASK_WDT_TEST`、`CONFIG_WWDT_TEST`。
 
-完整命令列表、参数说明和串口演示见 [Watchdog](../../examples/peripheral/bk_wdt.md "../../examples/peripheral/bk_wdt.md")。`wwdt` API 参考见 [Watchdog](../../api-reference/peripheral/bk_wdt.md "../../api-reference/peripheral/bk_wdt.md")。
+完整命令列表、参数说明和串口演示见 [Watchdog](../../examples/peripheral/bk_wdt.md)。`wwdt` API 参考见 [Watchdog](../../api-reference/peripheral/bk_wdt.md)。

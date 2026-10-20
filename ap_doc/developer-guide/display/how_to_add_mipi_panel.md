@@ -1,30 +1,44 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/display/how_to_add_mipi_panel.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="mipi-dsi-panel-bk7259"></a>
+
 # 如何新增 MIPI DSI Panel（BK7259）
 
-
 面向 **新增 MIPI 屏驱动** 的开发者。RGB 屏见同目录
-:   [如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md "how_to_add_rgb_panel.md") 。 整个过程：**1 个 .c 文件 + 1 个
-    Kconfig 入口 + 1 个 cmake 入口 + 应用层引用 1 个符号**。 无需修改
+:   [如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md) 。 整个过程：**1 个 .c 文件 \+ 1 个
+    Kconfig 入口 \+ 1 个 cmake 入口 \+ 应用层引用 1 个符号**。 无需修改
     `bk_display` / 链接脚本 / 寄存器。
 
 目录
 
-1. [总流程](#1-总流程 "#1-总流程")
-2. [Step 1：从 datasheet 收集字段](#2-step-1从-datasheet-收集字段 "#2-step-1从-datasheet-收集字段")
-3. [Step 2：新建 panel 驱动文件](#3-step-2新建-panel-驱动文件 "#3-step-2新建-panel-驱动文件")
-4. [Step 3：Kconfig 声明](#4-step-3kconfig-声明 "#4-step-3kconfig-声明")
-5. [Step 4：config.cmake 加入构建](#5-step-4configcmake-加入构建 "#5-step-4configcmake-加入构建")
-6. [Step 5：工程启用 + 应用层使用](#6-step-5工程启用--应用层使用 "#6-step-5工程启用--应用层使用")
-7. [描述符字段速查表](#7-描述符字段速查表 "#7-描述符字段速查表")
-8. [init_cmds 编写规则](#8-init_cmds-编写规则 "#8-init_cmds-编写规则")
-9. [custom_reset / custom_init /
-   reset_timing](#9-custom_reset--custom_init--reset_timing "#9-custom_reset--custom_init--reset_timing")
-10. [桥接芯片（LT8912B）说明](#10-桥接芯片lt8912b说明 "#10-桥接芯片lt8912b说明")
-11. [现有 panel 一览](#11-现有-panel-一览 "#11-现有-panel-一览")
-12. [应用代码模板](#12-应用代码模板 "#12-应用代码模板")
-13. [验证清单 & FAQ](#13-验证清单--faq "#13-验证清单--faq")
+1. [总流程](#1-总流程)
+2. [Step 1：从 datasheet 收集字段](#2-step-1从-datasheet-收集字段)
+3. [Step 2：新建 panel 驱动文件](#3-step-2新建-panel-驱动文件)
+4. [Step 3：Kconfig 声明](#4-step-3kconfig-声明)
+5. [Step 4：config.cmake 加入构建](#5-step-4configcmake-加入构建)
+6. [Step 5：工程启用 \+ 应用层使用](#6-step-5工程启用--应用层使用)
+7. [描述符字段速查表](#7-描述符字段速查表)
+8. [init\_cmds 编写规则](#8-init_cmds-编写规则)
+9. [custom\_reset / custom\_init /
+   reset\_timing](#9-custom_reset--custom_init--reset_timing)
+10. [桥接芯片（LT8912B）说明](#10-桥接芯片lt8912b说明)
+11. [现有 panel 一览](#11-现有-panel-一览)
+12. [应用代码模板](#12-应用代码模板)
+13. [验证清单 \& FAQ](#13-验证清单--faq)
+
+<a id="id1"></a>
 
 1. 总流程
-
 
 ```
 1) ap/components/bk_peripheral/src/lcd/dsi/lcd_mipi_<vendor>_<WxH>.c
@@ -33,10 +47,11 @@
 3) dsi/config.cmake    条件加入源文件
 4) 工程 defconfig      CONFIG_LCD_<VENDOR>_MIPI_<WxH>=y
 5) 应用层              extern 该 panel 描述符，喂给 bk_lcd_mipi_panel_new()
-
 ```
 
 参考工程：`projects/multimedia/doorbell/`、`projects/multimedia/mipi_lcd_example/`。
+
+<a id="step-1-datasheet"></a>
 
 2. Step 1：从 datasheet 收集字段
 
@@ -44,7 +59,7 @@
 | --- | --- |
 | 分辨率 W×H | `timing.h_size` / `timing.v_size` |
 | 帧率 | `fps` |
-| MIPI lane 数 | `n_lanes`（`DSI_ACTIVE_LANES_1` ~ `_4`） |
+| MIPI lane 数 | `n_lanes`（`DSI_ACTIVE_LANES_1` \~ `_4`） |
 | H 时序 (脉宽/后沿/前沿) | `timing.hsync_pulse_width` / `hsync_back_porch` / `hsync_front_porch` |
 | V 时序 (脉宽/后沿/前沿) | `timing.vsync_pulse_width` / `vsync_back_porch` / `vsync_front_porch` |
 | 初始化命令序列 | `init_cmds` |
@@ -52,36 +67,32 @@
 
 经验估算：
 
-
 - DPI 像素时钟 ≈
   `(h_size + h_porch_sum) × (v_size + v_porch_sum) × fps`
-
 - DSI 单 lane bit-rate ≈
   `DPI clock × bits_per_pixel / n_lanes`，必须落在屏 spec 范围内
 
-> **DSI 屏不需要填任何像素时钟字段**——DPI 时钟由 fps +
+> **DSI 屏不需要填任何像素时钟字段**——DPI 时钟由 fps \+
 > 总像素数自动算；RGB 屏才需在描述符里填 `pixel_clock_hz`。
+
+<a id="step-2-panel"></a>
 
 3. Step 2：新建 panel 驱动文件
 
 路径规范：
 
-
 ```
 ap/components/bk_peripheral/src/lcd/dsi/lcd_mipi_<vendor>_<WxH>.c
-
 ```
 
+<a id="vendor"></a>
 
 ```
 // Copyright 2020-2021 Beken
 
 /**
-
  * @file lcd_mipi_<vendor>_<WxH>.c
-
  * @brief <Vendor> MIPI DSI Panel Driver (<W>x<H>)
-
  */
 
 #include <components/bk_lcd_panel.h>
@@ -140,9 +151,9 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_<vendor>_mipi_<WxH>,
                             BK_LCD_PANEL_BUS_DSI);
 
 #endif /* CONFIG_LCD_<VENDOR>_MIPI_<WxH> */
-
 ```
 
+<a id="id2"></a>
 
 ## 命名规范（强烈建议）
 
@@ -155,81 +166,81 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_<vendor>_mipi_<WxH>,
 | 段注册 name | `"<vendor>_mipi_<WxH>"` |
 | Kconfig 项 | `CONFIG_LCD_<VENDOR>_MIPI_<WxH>` |
 
+<a id="step-3kconfig"></a>
+
 4. Step 3：Kconfig 声明
 
 文件：`ap/components/bk_peripheral/src/lcd/dsi/Kconfig`
-
 
 ```
 config LCD_<VENDOR>_MIPI_<WxH>
     depends on LCD_DSI
     bool "Enable LCD_<VENDOR>_MIPI_<WxH> API"
     default n
-
 ```
 
 `depends on LCD_DSI` 必填，否则 menuconfig 中看不到。
+
+<a id="step-4configcmake"></a>
 
 5. Step 4：config.cmake 加入构建
 
 文件：`ap/components/bk_peripheral/src/lcd/dsi/config.cmake`
 
-
 ```
 if (CONFIG_LCD_<VENDOR>_MIPI_<WxH>)
     list(APPEND DSI_LCD_DEVICE_FILES ${DSI_LCD_PATH}/lcd_mipi_<vendor>_<WxH>.c)
 endif()
-
 ```
 
-6. Step 5：工程启用 + 应用层使用
+<a id="step-5"></a>
 
+6. Step 5：工程启用 \+ 应用层使用
+
+<a id="id3"></a>
+
+<a id="id4"></a>
 
 ## 6.1 启用
 
 工程 defconfig 中加：
 
-
 ```
 CONFIG_LCD_<VENDOR>_MIPI_<WxH>=y
-
 ```
 
-或在 build 目录 `make menuconfig` → BK_PERIPHERAL → DSI LCD 勾选。
+或在 build 目录 `make menuconfig` → BK\_PERIPHERAL → DSI LCD 勾选。
 
+<a id="id5"></a>
+
+<a id="id6"></a>
 
 ## 6.2 应用层引用
 
-
 **方式 A：固定单屏 — 直接 extern**
-
 
 ```
 extern const bk_display_dsi_panel_t lcd_device_<vendor>_mipi_<WxH>;
 const bk_display_dsi_panel_t *panel = &lcd_device_<vendor>_mipi_<WxH>;
-
 ```
 
-
 **方式 B：CLI/可换屏 — 段注册按 name 查找**
-
 
 ```
 const bk_display_dsi_panel_t *panel =
     bk_lcd_find_mipi_panel_by_name("<vendor>_mipi_<WxH>");
-
 ```
 
 或枚举：
 
-
 ```
 const bk_display_dsi_panel_t *list[16];
 uint32_t n = bk_lcd_get_mipi_panel_list(list, 16);
-
 ```
 
 完整 bring-up 链见 §12。
+
+<a id="id7"></a>
 
 7. 描述符字段速查表
 
@@ -241,15 +252,15 @@ uint32_t n = bk_lcd_get_mipi_panel_list(list, 16);
 | --- | --- | --- | --- |
 | `id` | `uint32_t` | 推荐 | IC ID，调试用 `bk_lcd_panel_read_id()` 校验 |
 | `name` | `const char *` | **必填** | CLI / 日志 / 段查找标识；建议 `<vendor>_mipi_<WxH>` |
-| `n_lanes` | `uint8_t` | **必填** | `DSI_ACTIVE_LANES_1` ~ `_4` |
+| `n_lanes` | `uint8_t` | **必填** | `DSI_ACTIVE_LANES_1` \~ `_4` |
 | `fps` | `uint8_t` | **必填** | 期望帧率，与 timing 一起决定 PHY bit-rate |
 | `timing.h_size` / `.v_size` | `uint16_t` | **必填** | 水平/垂直有效像素，可用 `PIXEL_480` / `PIXEL_854` 等宏 |
 | `timing.hsync_*` | `uint16_t` | **必填** | hsync 脉宽/后沿/前沿（单位 pclk） |
 | `timing.vsync_*` | `uint16_t` | **必填** | vsync 脉宽/后沿/前沿（单位 line） |
 | `init_cmds` | `const lcd_mipi_init_cmd_t *` | **必填** | 命令序列，**必须**以 `{0x00, NULL, 0}` 结尾 |
 | `read_id_regs` | `const uint8_t *` | 可选 | ID 寄存器地址数组，以 `0` 结尾 |
-| `read_id_bytes` | `uint8_t` | 与 `read_id_regs` 配套 | 1~3 字节 |
-| `reset_active_level` | `bool` | 推荐 | RST 有效电平：`true` = 高有效，`false` = 低有效 |
+| `read_id_bytes` | `uint8_t` | 与 `read_id_regs` 配套 | 1\~3 字节 |
+| `reset_active_level` | `bool` | 推荐 | RST 有效电平：`true` \= 高有效，`false` \= 低有效 |
 | `reset_timing` | `bk_display_reset_timing_t` | 可选 | 三段（`idle_ms`/`active_ms`/`release_ms`），零字段回落到 `BK_DISPLAY_RESET_*_MS_DEFAULT` |
 | `reset` | `bk_err_t (*)(bk_avdk_lcd_panel_t *)` | 推荐 | reset 钩子；填 `bk_lcd_mipi_default_reset` 走通用 H/L/H，`NULL` 跳过，或自定义，见 §9 |
 | `init` | `bk_err_t (*)(bk_avdk_lcd_panel_t *)` | 推荐 | init 钩子；填 `bk_lcd_mipi_default_init` 下发 `init_cmds`，`NULL` 跳过，或自定义（桥接 IC），见 §9/§10 |
@@ -265,10 +276,11 @@ uint32_t n = bk_lcd_get_mipi_panel_list(list, 16);
 已移到 panel 描述符；历史的 `vendor_config` / `clk_src` / `clk_pin` /
 `csx_pin` / `sda_pin` / `bits_per_pixel` 等字段已**全部移除**。
 
+<a id="init-cmds"></a>
+
 8. `init_cmds` 编写规则
 
 `lcd_mipi_init_cmd_t`：
-
 
 ```
 typedef struct {
@@ -276,9 +288,11 @@ typedef struct {
     const void   *data;      /* 参数指针，无参传 NULL */
     uint8_t       data_len;  /* 参数长度（字节）；0xFF 时表示这是 delay */
 } lcd_mipi_init_cmd_t;
-
 ```
 
+<a id="id8"></a>
+
+<a id="id9"></a>
 
 ## 4 种合法形式
 
@@ -289,32 +303,33 @@ typedef struct {
 | 延迟 N ms | `{0x00, (const uint8_t []){N}, 0xFF}` |
 | 结束标记（必填） | `{0x00, NULL, 0}` |
 
+<a id="id10"></a>
 
 ## 常见误用
 
-
-- ❌ `{0x11, (const uint8_t []){120}, 0xFF}`——驱动不会解析”命令 +
+- ❌ `{0x11, (const uint8_t []){120}, 0xFF}`——驱动不会解析”命令 \+
   延时”复合形式；拆成两条：
 
   ```
   {0x11, NULL, 0},
   {0x00, (const uint8_t []){120}, 0xFF},
   ```
-
 - ❌ delay 的 `data` 不能是 `NULL`；`cmd` 必须是 `0x00`
-
 - ❌ 普通命令的 `data_len` 不能等于 `0xFF`（会被当 delay）
+
+<a id="custom-reset-custom-init-reset-timing"></a>
 
 9. `custom_reset` / `custom_init` / `reset_timing`
 
+<a id="panel-common"></a>
+
+<a id="id11"></a>
 
 ## 9.1 panel-common 的执行顺序
 
 这里说的 `custom_reset` / `custom_init` 就是 panel 描述符里的
 `.reset` / `.init` 函数指针字段，由 `bk_display_init()` 内部依次驱动，
-
 **应用层无需手动调用**：
-
 
 ```
 bk_display_init(ctlr) 内部依次执行：
@@ -325,18 +340,19 @@ bk_display_init(ctlr) 内部依次执行：
     descriptor.init:
         .init  != NULL ?  调用 .init()（默认 bk_lcd_mipi_default_init 逐条派发 init_cmds[]）
                    NULL : 跳过 init
-
 ```
 
-> **重要**：自定义 `.init` **替换** init_cmds
+> **重要**：自定义 `.init` **替换** init\_cmds
 > 派发流程，而**不是**追加在其后。桥接芯片把整个 bring-up 写在
 > `.init` 里时，`init_cmds` 通常留 NULL 或不被使用。
 
+<a id="reset-timing"></a>
+
+<a id="id12"></a>
 
 ## 9.2 何时用 `reset_timing`
 
 只想换默认 reset 时序、不想写函数：填 `reset_timing`：
-
 
 ```
 .reset_timing = {
@@ -344,16 +360,17 @@ bk_display_init(ctlr) 内部依次执行：
     .active_ms  = 20,   /* 默认 BK_DISPLAY_RESET_ACTIVE_MS_DEFAULT=10 */
     .release_ms = 200,  /* 默认 BK_DISPLAY_RESET_RELEASE_MS_DEFAULT=120 */
 },
-
 ```
 
 任意字段填 0 都使用默认值。
 
+<a id="custom-reset"></a>
+
+<a id="id13"></a>
 
 ## 9.3 何时用 `custom_reset`
 
 仅当 reset 波形不是 H/L/H 三段（例如双脉冲、需要异步 IO 控制）时：
-
 
 ```
 /* 赋给描述符的 .reset 字段；签名只有 panel 一个参数 */
@@ -367,9 +384,11 @@ static bk_err_t my_reset(bk_avdk_lcd_panel_t *panel)
     rtos_delay_milliseconds(200);
     return BK_OK;
 }
-
 ```
 
+<a id="custom-init"></a>
+
+<a id="id14"></a>
 
 ## 9.4 何时用 `custom_init`
 
@@ -377,24 +396,22 @@ static bk_err_t my_reset(bk_avdk_lcd_panel_t *panel)
 配桥接寄存器）。`.init` 签名为 `bk_err_t (*)(bk_avdk_lcd_panel_t *panel)`，
 可在函数内通过 `bk_lcd_panel_tx_param()` 等接口下发命令。
 
+<a id="lt8912b"></a>
+
 10. 桥接芯片（LT8912B）说明
 
 LT8912B（MIPI-DSI → HDMI 桥）作为参考实现位于
 `lcd_mipi_lt8912b_bridge.c`：
 
-
 - 描述符 `lcd_device_lt8912b_mipi`，由 Kconfig
   选择具体分辨率（`LCD_LT8912B_RES_*`）
-
 - 桥侧用 software I2C 配置，**SCL/SDA 不走 panel 描述符**，由
   Kconfig `CONFIG_LCD_LT8912B_PIN_SCL` / `_PIN_SDA`
   决定，应用层通过 `bk_lcd_lt8912b_set_io_pins()` 覆盖
-
 - DPU 时钟源走 `DPU_CLK_SRC_SYSCLK`（旧 PHY 表）；普通 MIPI 屏走
   `DPU_CLK_SRC_DPHY_DPLL`
 
 应用层片段（节选自 `app_display.c`）：
-
 
 ```
 #if CONFIG_LCD_LT8912B_MIPI_BRIDGE
@@ -408,16 +425,17 @@ if (config->mipi.panel == &lcd_device_lt8912b_mipi) {
     bk_display_bus_set_clock_src(bus, DPU_CLK_SRC_SYSCLK);
 }
 #endif
-
 ```
 
 桥接 IC 编写新模板时遵循同一思路：bridge 自带 I2C/SPI
-通道在驱动文件内自包含初始化，外部仅通过统一的 panel 描述符 + 可选的”set
+通道在驱动文件内自包含初始化，外部仅通过统一的 panel 描述符 \+ 可选的”set
 io pins”接口配置。
+
+<a id="panel"></a>
 
 11. 现有 panel 一览
 
-| 文件 | IC | 分辨率 | n_lanes | fps | Kconfig |
+| 文件 | IC | 分辨率 | n\_lanes | fps | Kconfig |
 | --- | --- | --- | --- | --- | --- |
 | `lcd_mipi_hx8394f_720x1280.c` | HX8394F | 720×1280 | 4 |  | `LCD_HX8394F_MIPI_720x1280` |
 | `lcd_mipi_hx8399c_1080x1920.c` | HX8399C | 1080×1920 | 4 |  | `LCD_HX8399C_MIPI_1080x1920` |
@@ -433,12 +451,13 @@ io pins”接口配置。
 
 建议挑分辨率/lane 数最接近的现有文件作模板。
 
+<a id="id15"></a>
+
 12. 应用代码模板
 
 完整产品代码参考
 `projects/common_components/multimedia_device_service/src/app_display.c`。
 单文件最小化版本：
-
 
 ```
 #include <components/bk_display.h>   /* 伞头：bus + panel + display ctlr */
@@ -457,11 +476,8 @@ int my_mipi_lcd_open(void)
     bk_display_dsi_bus_new(&s_bus, NULL);
 
     /* 2) 时钟源可选：普通 MIPI 屏默认 DPU_CLK_SRC_DPHY_DPLL，PLL 不满足时
-
      *    自动回落 SYSCLK，无需调用；仅 LT8912B 等桥接 IC 才在 bus_new 之后、
-
      *    panel_new 之前显式设 SYSCLK：
-
      *    bk_display_bus_set_clock_src(s_bus, DPU_CLK_SRC_SYSCLK); */
 
     /* 3) 建 panel（reset/init 由 bk_display_init() 内部驱动，无需手动调） */
@@ -473,7 +489,6 @@ int my_mipi_lcd_open(void)
                           &s_panel);
 
     /* 4) 建 DPU 控制器；timing / 像素时钟由控制器从 panel 句柄自取，
-
      *    dpu_cfg 只填 video 层 */
     bk_display_dpu_config_t dpu_cfg = {
         .video.enable     = true,
@@ -499,12 +514,11 @@ int my_mipi_lcd_close(void)
     /* 最后再降 1.8V VDDIO */
     return 0;
 }
-
 ```
 
+<a id="id16"></a>
 
 ## 运行期调试命令通道
-
 
 ```
 /* 重新发 DISPON / SLPOUT，或在亮屏后切 MADCTL */
@@ -515,11 +529,15 @@ bk_lcd_panel_tx_param(s_panel, 0x29, NULL, 0);        /* DISPON */
 /* 读 display status */
 uint8_t dstat[4] = {0};
 bk_lcd_panel_rx_param(s_panel, 0x09, dstat, sizeof(dstat));
-
 ```
 
-13. 验证清单 & FAQ
+<a id="faq"></a>
 
+13. 验证清单 \& FAQ
+
+<a id="id17"></a>
+
+<a id="id18"></a>
 
 ## 13.1 验证顺序
 
@@ -534,6 +552,9 @@ bk_lcd_panel_rx_param(s_panel, 0x09, dstat, sizeof(dstat));
 7. 切像素格式（RGB565 / RGB888 / NV12 / ARGB8888）正常
 8. 100 次 open/close 不死机不漏内存
 
+<a id="id19"></a>
+
+<a id="id20"></a>
 
 ## 13.2 常见问题速查
 
@@ -543,7 +564,7 @@ bk_lcd_panel_rx_param(s_panel, 0x09, dstat, sizeof(dstat));
 | 整屏黑、电流异常 | 屏 VDDIO / 背光 LDO | PMU AUXLDO 2.8V/3V 投票是否成功 |
 | `read_id` 返回 0 / 0xFF | 屏 VCC 是否上电 | `read_id_regs` 配错 / `read_id_bytes` 错 |
 | 闪屏 / 帧率不稳 | DSI lane bit-rate 偏离 spec | 调 `fps` 或 `n_lanes` 重算 |
-| 整屏黄/绿条带 | DPU FIFO underflow（PSRAM 带宽） | 确认 DPU QoS=3；高带宽模块是否并发 |
+| 整屏黄/绿条带 | DPU FIFO underflow（PSRAM 带宽） | 确认 DPU QoS\=3；高带宽模块是否并发 |
 | 撕裂 | flush 频率高于实际帧率 | 降 flush 频率或 fps |
 | 切像素格式后花屏 | 切换瞬间仍有 inflight flush | 切换前先停 flush 线程 → ioctl → 再启 |
 | close 后再 open 卡死 | `bk_display_bus_delete` 是否漏 | 同一 handle 不要重复 new |
@@ -554,16 +575,10 @@ bk_lcd_panel_rx_param(s_panel, 0x09, dstat, sizeof(dstat));
 
 参考
 
-
 - 模板源文件：`ap/components/bk_peripheral/src/lcd/dsi/lcd_mipi_st7701sn_480x854.c`
-
 - 通用驱动：`ap/components/bk_display/src/panel/lcd_mipi_panel_common.c`
-
 - 公有 API：`<components/bk_display.h>`（伞头）/
   `<components/bk_display_bus.h>` / `<components/bk_lcd_panel.h>`
-
 - 公有类型：`<components/bk_lcd_panel_types.h>`
-
 - 应用样例：`projects/common_components/multimedia_device_service/src/app_display.c`、`projects/multimedia/mipi_lcd_example/`
-
 - 桥接参考：`ap/components/bk_peripheral/src/lcd/dsi/lcd_mipi_lt8912b_bridge.c`

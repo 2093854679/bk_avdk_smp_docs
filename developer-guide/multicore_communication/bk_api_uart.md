@@ -1,33 +1,50 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/multicore_communication/bk_api_uart.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="uart"></a>
+
 # 多核通讯-Uart通讯接口
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
-
 - Uart通讯接口基于Mailbox, 模拟出了一个带自动流控的UART, 如下所示:
 
-![Mailbox Uart](../_images/mailbox_uart.png)
+<a id="id3"></a>
+![Mailbox Uart](../../../_assets/0e38d5d019e78e4235db-mailbox_uart.png)
+
 
 Virtual Uart Based on Mailbox
 
+<a id="ap"></a>
 
 ## 2 AP侧代码路径
 
 > - 驱动源码路径：
 >   :   `ap\middleware\driver\mailbox\mb_uart_driver.c`
 
+<a id="cp"></a>
 
 ## 3 CP侧代码路径
 
 > - 驱动源码路径：
->   :   `ap\middleware\driver\mailbox\mb_uart_driver.c`
+>   :   `cp\middleware\driver\mailbox\mb_uart_driver.c`
 
+<a id="id2"></a>
 
 ## 4 Uart通讯接口
 
-默认实现了两个MB_UART:
-
+默认实现了两个MB\_UART:
 
 ```
 enum
@@ -45,292 +62,189 @@ typedef void (* mb_uart_isr_t)(void * param);
 
 /// 2.1  bk_mb_uart_dev_init
 /**
-
 * @brief      initialize the mailbox UART device.
-
 *
-
 * Initialize the mailbox-emulated UART.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - BK_OK: initialized success.
-
 *  - other: failed, fail code.
-
 */
 bk_err_t bk_mb_uart_dev_init(u8 id);
 
+
 /// 2.2  bk_mb_uart_dev_deinit
 /**
-
 * @brief      de-initialize the mailbox UART device.
-
 *
-
 * De-initialize the mailbox-emulated UART.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - BK_OK: initialized success.
-
 *  - other: failed, fail code.
-
 */
 bk_err_t bk_mb_uart_dev_deinit(u8 id);
 
+
 /// 2.3  bk_mb_uart_register_rx_isr
 /**
-
 * @brief      register rx ISR callback to the mailbox UART device.
-
 *
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @isr    rx isr, prototype is void (* mb_uart_isr_t)(void * param)
-
 *
-
 * @param  will be passed to rx isr callback.
-
 *
-
 * @attention   isr callback is called in interrupt disabled context, when received data.
-
 *
-
 * @return
-
 *  - BK_OK: success.
-
 *  - other: failed, fail code.
-
 */
 bk_err_t bk_mb_uart_register_rx_isr(u8 id, mb_uart_isr_t isr, void *param);
 
+
 /// 2.4  bk_mb_uart_register_tx_isr
 /**
-
 * @brief      register tx ISR callback to the mailbox UART device.
-
 *
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @isr    tx isr, prototype is void (* mb_uart_isr_t)(void * param)
-
 *
-
 * @param  will be passed to tx isr callback.
-
 *
-
 * @attention   isr callback is called in interrupt disabled context, after sent cmpelete.
-
 *
-
 * @return
-
 *  - BK_OK: success.
-
 *  - other: failed, fail code.
-
 */
 bk_err_t bk_mb_uart_register_tx_isr(u8 id, mb_uart_isr_t isr, void *param);
 
+
 /// 2.5  bk_mb_uart_write_ready
 /**
-
 * @brief      get free FIFO space in UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - free FIFO space size in byte.
-
 */
 u16 bk_mb_uart_write_ready(u8 id);
 
+
 /// 2.6  bk_mb_uart_read_ready
 /**
-
 * @brief      get data bytes in FIFO of UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - data bytes ready in mailbox-UART FIFO.
-
 */
 u16 bk_mb_uart_read_ready(u8 id);
 
+
 /// 2.7  bk_mb_uart_write_byte
 /**
-
 * @brief      send one byte data via UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 * @data   data byte to be sent.
-
 *
-
 * @return
-
 *  - data bytes sent via mailbox-UART (1 or 0).
-
 */
 u16 bk_mb_uart_write_byte(u8 id, u8 data);
 
+
 /// 2.8  bk_mb_uart_write
 /**
-
 * @brief      send data in buffer via UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 * @data_buf   data to be sent.
-
 * @data_len   data bytes in buffer.
-
 *
-
 * @return
-
 *  - data bytes sent via mailbox-UART (0 ~ data_len).
-
 */
 u16 bk_mb_uart_write(u8 id, u8 *data_buf, u16 data_len);
 
+
 /// 2.9  bk_mb_uart_read_byte
 /**
-
 * @brief      receive one byte data via UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 * @data   data buffer to receive one byte.
-
 *
-
 * @return
-
 *  - data bytes received via mailbox-UART (1 or 0).
-
 */
 u16 bk_mb_uart_read_byte(u8 id, u8 * data);
 
+
 /// 2.10  bk_mb_uart_read
 /**
-
 * @brief      receive data via UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 * @data_buf   used to receive data.
-
 * @buf_len    buffer length.
-
 *
-
 * @return
-
 *  - data bytes received via mailbox-UART (0 ~ buf_len).
-
 */
 u16 bk_mb_uart_read(u8 id, u8 *data_buf, u16 buf_len);
 
+
 /// 2.11  bk_mb_uart_is_tx_over
 /**
-
 * @brief      check whether data has been flushed out to UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - 1 : no data is pending in Tx FIFO.
-
 *  - 0 : there are data pending in Tx FIFO.
-
 */
 bool bk_mb_uart_is_tx_over(u8 id);
 
+
 /// 2.12  bk_mb_uart_get_status
 /**
-
 * @brief      get status of UART device.
-
 *
-
 * @id     mailbox uart ID (MB_UART0, MB_UART1).
-
 *
-
 * @return
-
 *  - uart rx/tx status (0, MB_UART_STATUS_OVF, MB_UART_STATUS_PARITY_ERR, or bitwise of these 2 status.).
-
 */
 u16 bk_mb_uart_get_status(u8 id);
-
 ```
 
 使用例子：
 
-从接口到行为, 这个MB_UART都类似于常规的UART设备, 除了一点: MB_UART基于mailbox的逻辑通道, 而逻辑通道的通讯依赖于mailbox硬件中断的通知,
-因此MB_UART的实现依赖于系统的中断和mailbox硬件中断, 也就是在系统关中断情况下MB_UART无法工作。
-(尽管MB_UART可以轮询方式使用, 那也只是说可以不向MB_UART注册Tx/Rx ISR回调函数, 而不是真正意义上的关中断轮询方式。)
+从接口到行为, 这个MB\_UART都类似于常规的UART设备, 除了一点: MB\_UART基于mailbox的逻辑通道, 而逻辑通道的通讯依赖于mailbox硬件中断的通知,
+因此MB\_UART的实现依赖于系统的中断和mailbox硬件中断, 也就是在系统关中断情况下MB\_UART无法工作。
+(尽管MB\_UART可以轮询方式使用, 那也只是说可以不向MB\_UART注册Tx/Rx ISR回调函数, 而不是真正意义上的关中断轮询方式。)
 
-> - 在系统启动时候, 或者业务模块启动初始化时候, 先初始化MB_UART设备:
+> - 在系统启动时候, 或者业务模块启动初始化时候, 先初始化MB\_UART设备:
 >
 >   ```
 >   bk_mb_uart_dev_init(MB_UART0);
 >   ```
-> - 如果工作在中断通知方式下, 在业务task的初始化模块中向MB_UART注册Tx/Rx ISR回调函数:
+> - 如果工作在中断通知方式下, 在业务task的初始化模块中向MB\_UART注册Tx/Rx ISR回调函数:
 >
 >   ```
 >   struct mb_uart_rx_param
@@ -370,7 +284,7 @@ u16 bk_mb_uart_get_status(u8 id);
 >       BK_LOGI(TAG," MB_Uart:%d Tx OK\r\n", mbu_para->uart_id);
 >   }
 >   ```
-> - 业务task 收到数据到达通知后用以下API获知MB_UART状态并接收数据:
+> - 业务task 收到数据到达通知后用以下API获知MB\_UART状态并接收数据:
 >
 >   ```
 >   rtos_get_semaphore(&mbu_para-> rx_sema, BEKEN_WAIT_FOREVER);

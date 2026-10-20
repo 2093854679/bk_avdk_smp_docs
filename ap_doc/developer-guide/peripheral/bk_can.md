@@ -1,11 +1,26 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_can.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="can"></a>
+
 # CAN
 
-
+<a id="id1"></a>
 
 ## CAN 简介
 
 控制器局域网 (CAN, Controller Area Network) 总线是一种强大的串行总线系统，可实现网络节点之间高效可靠的通信。它使用多主总线配置并在没有 CPU 干预的情况下管理错误检测和处理。
 
+<a id="id2"></a>
 
 ## CAN 控制器特性
 
@@ -54,6 +69,7 @@
 :   具有附加地址保护的 ECC 内存保护
     内部逻辑核心的空间冗余
 
+<a id="can-2-0-can-fd"></a>
 
 ## CAN 2.0 和 CAN FD 帧
 
@@ -64,7 +80,9 @@ CAN FD 是 CAN 2.0 的协议扩展。主要区别是：
 
 CAN 2.0 和 CAN FD 的所有类型的帧如下图所示。
 
-![2.0 and fd](../../_images/CAN_20_and_CAN_FD.png)
+<a id="id5"></a>
+![2.0 and fd](../../../../_assets/a2aeb46b2b649e3f0fff-CAN_20_and_CAN_FD.png)
+
 
 CAN 2.0 And CAN FD
 
@@ -83,45 +101,47 @@ CAN 控制器 核心中的 CAN 协议机器自动发送和接收帧并内置相�
 | IDE | 标识符扩展 IDentifier Extension | 标准或扩展帧 |
 | DLC | 数据长度代码 Data Length Code | 有效载荷字节数 |
 | EDL | 扩展数据长度 Extended Data Length | CAN 2.0 或 CAN FD 帧 |
-| FDF | FD 格式指示器 FD Format indicator (=EDL) | CAN 2.0 或 CAN FD 帧 |
+| FDF | FD 格式指示器 FD Format indicator (\=EDL) | CAN 2.0 或 CAN FD 帧 |
 | BRS | 比特率开关 Bit Rate Switch |  |
 | ESI | 错误状态指示器 错误State Indicator |  |
 
+<a id="id3"></a>
 
 ## CAN 驱动的宏定义开关
 
-CONFIG_CAN CAN驱动的总开关， 默认只编译CAN驱动部分，及主要can_driver.c
+CONFIG\_CAN CAN驱动的总开关， 默认只编译CAN驱动部分，及主要can\_driver.c
 
-CONFIG_CAN_TEST 在CONFIG_CAN打开的状态下，打开测试部分进行单步测试，主要can_test.c
+CONFIG\_CAN\_TEST 在CONFIG\_CAN打开的状态下，打开测试部分进行单步测试，主要can\_test.c
 
-CONFIG_CAN_DEMO 在CONFIG_CAN打开的状态下，打开示例部分进行用例演示，主要can_demo.c
+CONFIG\_CAN\_DEMO 在CONFIG\_CAN打开的状态下，打开示例部分进行用例演示，主要can\_demo.c
 
-1、只打开驱动部分时，CONFIG_CAN=y
+1、只打开驱动部分时，CONFIG\_CAN\=y
 
-2、进行API进行逐个测试时，CONFIG_CAN=y CONFIG_CAN_TEST=y
+2、进行API进行逐个测试时，CONFIG\_CAN\=y CONFIG\_CAN\_TEST\=y
 
-3、进行实例进行测试验证时，CONFIG_CAN=y CONFIG_CAN_DEMO=y
+3、进行实例进行测试验证时，CONFIG\_CAN\=y CONFIG\_CAN\_DEMO\=y
 
+<a id="can-api"></a>
 
 ## CAN API使用必要了解的结构体说明
 
-can_config_t:
+can\_config\_t:
 :   protocol
     :   需要选择协议CAN 2.0B或CAN FD
 
-    s_speed
+    s\_speed
     :   S速度（Slow Speed）S速度是CAN总线的低速模式，其数据传输速率为125 kbps或更低。这种模式主要用于需要低成本、低功耗和低带宽的应用
 
-    f_speed
+    f\_speed
     :   F速度（Fast Speed）F速度是CAN总线的标准速度模式，其数据传输速率为500 kbps。这种模式主要用于需要高实时性和低延迟的应用
 
-    tx_size
+    tx\_size
     :   kfifo的深度，将要发送的数据暂存到软件FIFO中，用于对硬件tx fifo的扩展
 
-    rx_size
+    rx\_size
     :   kfifo的深度，将接收到的数据暂存到软件FIFO中，便于对硬件rx fifo的扩展
 
-can_frame_tag_t:
+can\_frame\_tag\_t:
 :   id
     :   标识符 IDentifier
 
@@ -132,7 +152,7 @@ can_frame_tag_t:
     :   远程传输请求 Remote Transmission Request，只有2.0可以使用
 
     fdf
-    :   FD 格式指示器 FD Format indicator (=EDL)
+    :   FD 格式指示器 FD Format indicator (\=EDL)
 
     brs
     :   比特率开关 Bit Rate Switch，只有FD可用
@@ -143,9 +163,9 @@ can_frame_tag_t:
         ttsen
         Time Triggered Switch，时间触发切换。它是一种用于CAN FD的技术，允许在特定时间触发切换位速率或其他参数
 
-can_frame_s:
+can\_frame\_s:
 :   tag
-    :   详细信息查看can_frame_tag_t
+    :   详细信息查看can\_frame\_tag\_t
 
     size
     :   发送数据的size
@@ -153,26 +173,26 @@ can_frame_s:
     data
     :   发送数据的buffer指针
 
-can_acc_mask_ide_e:
-:   CAN_ACCEPT_BOTH
+can\_acc\_mask\_ide\_e:
+:   CAN\_ACCEPT\_BOTH
     :   标准和扩展帧都支持
 
-    CAN_ACCEPT_STANDARD
+    CAN\_ACCEPT\_STANDARD
     :   仅支持标准帧
 
-    CAN_ACCEPT_EXTENDED
+    CAN\_ACCEPT\_EXTENDED
     :   仅支持扩展帧
 
-drv_switch_e:
-:   DRIVER_DISABLE
+drv\_switch\_e:
+:   DRIVER\_DISABLE
     不同协议驱动切换关闭
 
-    DRIVER_ENABLE
+    DRIVER\_ENABLE
     不同协议驱动切换打开
 
-can_acc_filter_cmd_s:
+can\_acc\_filter\_cmd\_s:
 :   aide
-    :   参考can_acc_mask_ide_e描述
+    :   参考can\_acc\_mask\_ide\_e描述
 
     code
     :   ID不要超过29 bits
@@ -181,67 +201,69 @@ can_acc_filter_cmd_s:
     :   对应的bit置位标志接收该ID设备的数据 1 disable, 0 enable
 
     seq
-    :   0 to MAX_ACF_NUM, default 0 accept all
+    :   0 to MAX\_ACF\_NUM, default 0 accept all
 
     onoff
-    :   功能参考drv_switch_e描述
+    :   功能参考drv\_switch\_e描述
 
-can_callback_des_t:
+can\_callback\_des\_t:
 :   cb
-    :   回调函数指针(can_callback)
+    :   回调函数指针(can\_callback)
 
-
-    ***param**
+    **\*param**
     :   私有参数
 
+<a id="id4"></a>
 
 ## CAN API使用说明
 
-bk_err_t bk_can_init(can_dev_t ***can**);
+bk\_err\_t bk\_can\_init(can\_dev\_t **\*can**);
 :   初始化配置，注意查看上述结构体的配置
 
-bk_err_t bk_can_driver_init(void);
+bk\_err\_t bk\_can\_driver\_init(void);
 :   加载驱动
 
-bk_err_t bk_can_driver_deinit(void);
+bk\_err\_t bk\_can\_driver\_deinit(void);
 :   卸载驱动
 
-bk_err_t bk_can_deinit(void);
+bk\_err\_t bk\_can\_deinit(void);
 :   卸载配置，释放资源
 
-bk_err_t bk_can_receive(uint8_t ***data**, uint32_t expect_size, uint32_t ***recv_size**, uint32_t timeout);
-:   接收数据，data是接收的buffer， expect_size是接收的数据长度，recv_size是实际数据长度，timeout是接收等待的时间
+bk\_err\_t bk\_can\_receive(uint8\_t **\*data**, uint32\_t expect\_size, uint32\_t **\*recv\_size**, uint32\_t timeout);
+:   接收数据，data是接收的buffer， expect\_size是接收的数据长度，recv\_size是实际数据长度，timeout是接收等待的时间
     接收数据分为两种，一种中断通知然后交给下半部进行数据读取。另一种是读取等待总线数据，接收到数据后将数据读走
 
-bk_err_t bk_can_send_ptb(can_frame_s ***frame**);
+bk\_err\_t bk\_can\_send\_ptb(can\_frame\_s **\*frame**);
 :   优先发送数据，参数参考上一小节结构体介绍
 
-bk_err_t bk_can_send(can_frame_s ***frame**, uint32_t timeout);
+bk\_err\_t bk\_can\_send(can\_frame\_s **\*frame**, uint32\_t timeout);
 :   发送数据，等待数据发送完成
 
-bk_err_t bk_can_acc_filter_set(can_acc_filter_cmd_s ***cmd**);
+bk\_err\_t bk\_can\_acc\_filter\_set(can\_acc\_filter\_cmd\_s **\*cmd**);
 :   硬件过滤器配置，只接受部分ID的数据，减少处理
 
-void bk_can_register_isr_callback(can_callback_des_t ***rx_cb**, can_callback_des_t ***tx_cb**);
+void bk\_can\_register\_isr\_callback(can\_callback\_des\_t **\*rx\_cb**, can\_callback\_des\_t **\*tx\_cb**);
 :   注册TXRX的中断处理回调函数，注意这两个函数都是在中断中执行，注意回调函数的处理内容
 
+<a id="can-pin-and-gpio-map"></a>
 
 ## CAN Pin and GPIO Map
 
-| CAN Pin | BK7258_CP0 |
+| CAN Pin | BK7259\_AP |
 | --- | --- |
 | CAN TX | 44 |
 | CAN RX | 45 |
 | CAN STBY | 46 |
 
 注意：这三个PIN还与其他功能复用
-GPIO_44, SPI0_SCK(IO)/ADC0(Z)/RGB_b[6]/I8080_d3(O)/I2S2_SCK(IO)
+GPIO\_44, SPI0\_SCK(IO)/ADC0(Z)/RGB\_b\[6\]/I8080\_d3(O)/I2S2\_SCK(IO)
 
-GPIO_45, SPI0_NSS(IO)/ADC7(Z)/RGB_b[5]/I8080_d2(O)/I2S2_SYNC(IO)
+GPIO\_45, SPI0\_NSS(IO)/ADC7(Z)/RGB\_b\[5\]/I8080\_d2(O)/I2S2\_SYNC(IO)
 
-GPIO_46, SPI0_MOSI(IO)/ENET_PHY_INT(I)/TOUCH[140]/RGB_b[4]/I8080_d1(O)/I2S2_DIN(IO)
+GPIO\_46, SPI0\_MOSI(IO)/ENET\_PHY\_INT(I)/TOUCH\[140\]/RGB\_b\[4\]/I8080\_d1(O)/I2S2\_DIN(IO)
 
+<a id="can-api-reference"></a>
 
 ## CAN API Reference
 
-> [CAN的驱动API](../../api-reference/peripheral/bk_can.md "../../api-reference/peripheral/bk_can.md")
+> [CAN的驱动API](../../api-reference/peripheral/bk_can.md)

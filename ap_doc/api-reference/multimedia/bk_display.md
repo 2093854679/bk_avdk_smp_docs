@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/api-reference/multimedia/bk_display.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="display"></a>
+
 # display
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -8,67 +22,51 @@ Display模块提供统一的显示控制器管理接口
 
 参考工程：
 
-
 - 有关display的详细信息，请参阅：
 
-
-  - [display 使用文档](../../developer-guide/display/display_user_guide.md "../../developer-guide/display/display_user_guide.md")
-
-  - [支持的 LCD 设备](../../developer-guide/display/supported_lcd_devices.md "../../developer-guide/display/supported_lcd_devices.md")
-
-  - [新增 MIPI panel](../../developer-guide/display/how_to_add_mipi_panel.md "../../developer-guide/display/how_to_add_mipi_panel.md")
-
-  - [新增 RGB panel](../../developer-guide/display/how_to_add_rgb_panel.md "../../developer-guide/display/how_to_add_rgb_panel.md")
-
-  - [qspi display开发指南](../../developer-guide/display/qspi_lcd_display.md "../../developer-guide/display/qspi_lcd_display.md")
-
-  - [spi display开发指南](../../developer-guide/display/spi_lcd_display.md "../../developer-guide/display/spi_lcd_display.md")
-
+  - [display 使用文档](../../developer-guide/display/display_user_guide.md)
+  - [支持的 LCD 设备](../../developer-guide/display/supported_lcd_devices.md)
+  - [新增 MIPI panel](../../developer-guide/display/how_to_add_mipi_panel.md)
+  - [新增 RGB panel](../../developer-guide/display/how_to_add_rgb_panel.md)
+  - [qspi display开发指南](../../developer-guide/display/qspi_lcd_display.md)
+  - [spi display开发指南](../../developer-guide/display/spi_lcd_display.md)
 - 有关display的示例工程，请参阅：
 
-
-  - [rgb display 示例项目](../../examples/projects/multimedia/rgb_lcd_example.md "../../examples/projects/multimedia/rgb_lcd_example.md")
-
+  - [rgb display 示例项目](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/rgb_lcd_example/index.html)
   - qspi display 示例项目：`projects/multimedia/qspi_lcd_example`
-
   - spi display 示例项目：`projects/multimedia/spi_lcd_example`
 
 Display 组件采用 **总线（bus）→ 屏（panel）→ 显示控制器（ctlr）** 三域句柄模型，
 对应三个公有头文件：
 
-
 - `<components/bk_display.h>`：伞头，拉入下面三套 API
-
-- `<components/bk_display_bus.h>`：总线 API + 配置类型
-
-- `<components/bk_lcd_panel.h>` / `<components/bk_lcd_panel_types.h>`：panel API + 描述符类型
+- `<components/bk_display_bus.h>`：总线 API \+ 配置类型
+- `<components/bk_lcd_panel.h>` / `<components/bk_lcd_panel_types.h>`：panel API \+ 描述符类型
 
 典型 bring-up 顺序与详细用法见
-[display 使用文档](../../developer-guide/display/display_user_guide.md "../../developer-guide/display/display_user_guide.md") 。
+[display 使用文档](../../developer-guide/display/display_user_guide.md) 。
 
+<a id="display-api-reference"></a>
 
 ## DISPLAY API Reference
 
+<a id="display-controller"></a>
 
 ### 显示控制器（display controller）
 
-
 ```
 /* 创建 DPU 显示控制器；panel 为 bk_lcd_*_panel_new() 得到的句柄，
-
  * config 只填 video 层（timing/像素时钟/时钟源由控制器从 panel 句柄内部读取）。 */
 avdk_err_t bk_display_dpu_ctlr_new(bk_display_ctlr_handle_t *handle,
                                    bk_avdk_lcd_panel_handle_t panel,
                                    const bk_display_dpu_config_t *config);
 
 /* 创建 SPI 显示控制器（HW SPI LCD 帧通路）；
-
  * config 为 SPI 显示控制器配置，会被拷贝进控制器内部。 */
 avdk_err_t bk_display_spi_ctlr_new(bk_display_ctlr_handle_t *handle,
                                    bk_display_spi_ctlr_config_t *config);
 
 /* 创建 QSPI 显示控制器（HW QSPI LCD 帧通路）；config 为 QSPI 控制器配置，
-
  * 会被拷贝进控制器内部，flush 的 frame 需指向原始像素数据。 */
 avdk_err_t bk_display_qspi_ctlr_new(bk_display_ctlr_handle_t *handle,
                                     bk_display_qspi_ctlr_config_t *config);
@@ -82,12 +80,11 @@ avdk_err_t bk_display_pixel_format_set(bk_display_ctlr_handle_t handle,
 avdk_err_t bk_display_close (bk_display_ctlr_handle_t handle);
 avdk_err_t bk_display_deinit(bk_display_ctlr_handle_t handle);
 avdk_err_t bk_display_delete(bk_display_ctlr_handle_t handle);
-
 ```
 
+<a id="bus"></a>
 
 ### 总线（bus）
-
 
 ```
 avdk_err_t bk_display_dsi_bus_new(bk_display_bus_handle_t *handle, bk_display_dsi_bus_config_t *config);
@@ -99,12 +96,11 @@ avdk_err_t bk_display_bus_set_clock_src(bk_display_bus_handle_t handle, dpu_clk_
 
 bk_err_t   bk_display_bus_tx_param(bk_display_bus_handle_t h, int cmd, const void *p, size_t n);
 bk_err_t   bk_display_bus_rx_param(bk_display_bus_handle_t h, int cmd,       void *p, size_t n);
-
 ```
 
+<a id="panel"></a>
 
 ### 屏（panel）
-
 
 ```
 /* panel_config 只携带 reset_pin；RST 有效电平/时序/reset/init 钩子都在 panel 描述符里 */
@@ -137,12 +133,11 @@ const bk_display_dsi_panel_t *bk_lcd_find_mipi_panel_by_name(const char *name);
 const bk_display_rgb_panel_t *bk_lcd_find_rgb_panel_by_name (const char *name);
 const bk_display_spi_panel_t *bk_lcd_find_spi_panel_by_name (const char *name);
 const bk_display_qspi_panel_t *bk_lcd_find_qspi_panel_by_name(const char *name);
-
 ```
 
+<a id="display-typedefs"></a>
 
 ## DISPLAY Typedefs
-
 
 ```
 /* 不透明句柄 */
@@ -156,7 +151,6 @@ struct bk_lcd_panel_config_t {
 };
 
 /* DPU 控制器配置：只填 video 层；timing / 像素时钟 / 时钟源都不在这里，
-
  * 由控制器从 panel 句柄内部读取。dpu_video_layer_config_t 见 <driver/dpu_types.h>。 */
 typedef struct {
     dpu_video_layer_config_t video;
@@ -167,7 +161,6 @@ typedef struct {
     bk_pixel_format_t format;
     bool decompress;
 } bk_display_pixel_format_config_t;
-
 ```
 
 更多类型（`bk_display_dsi_panel_t` / `bk_display_rgb_panel_t` /
@@ -177,7 +170,7 @@ typedef struct {
 `lcd_rgb_spi_init_cmd_t` 等）见 `<components/bk_lcd_panel_types.h>` 和
 `<components/bk_display.h>`，
 字段说明见
-[新增 MIPI panel](../../developer-guide/display/how_to_add_mipi_panel.md "../../developer-guide/display/how_to_add_mipi_panel.md") /
-[新增 RGB panel](../../developer-guide/display/how_to_add_rgb_panel.md "../../developer-guide/display/how_to_add_rgb_panel.md") /
-[QSPI display开发指南](../../developer-guide/display/qspi_lcd_display.md "../../developer-guide/display/qspi_lcd_display.md") /
-[SPI display开发指南](../../developer-guide/display/spi_lcd_display.md "../../developer-guide/display/spi_lcd_display.md") 。
+[新增 MIPI panel](../../developer-guide/display/how_to_add_mipi_panel.md) /
+[新增 RGB panel](../../developer-guide/display/how_to_add_rgb_panel.md) /
+[QSPI display开发指南](../../developer-guide/display/qspi_lcd_display.md) /
+[SPI display开发指南](../../developer-guide/display/spi_lcd_display.md) 。

@@ -1,11 +1,28 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/get-started/env-docker.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="docker"></a>
+
+<a id="env-docker"></a>
+
 # Docker部署
 
-
+<a id="id1"></a>
 
 ## 概述
 
 Docker部署提供了跨平台及一键式的构建方式，不需要手动安装SDK所需要的库和工具链。
 
+<a id="id2"></a>
 
 ## 系统支持
 
@@ -20,31 +37,32 @@ Docker部署提供了跨平台及一键式的构建方式，不需要手动安�
 | Windows | 10、11 | 已验证 |
 | macOS | 14.1、14.5 | 已验证 |
 
+<a id="id3"></a>
 
 ## Docker安装
 
-Docker安装请参考 [Docker官网](https://www.docker.com/ "https://www.docker.com/") 。Docker使用请参考: [Docker官方使用文档](https://docs.docker.com/ "https://docs.docker.com/") 。
+Docker安装请参考 [Docker官网](https://www.docker.com/) 。Docker使用请参考: [Docker官方使用文档](https://docs.docker.com/) 。
 
-在Docker安装及使用过程中遇到问题，可以访问Armino官方论坛 [Docker安装及常见问题](https://armino.bekencorp.com/article/26.html "https://armino.bekencorp.com/article/26.html") 查找解决方案或进行反馈。
+在Docker安装及使用过程中遇到问题，可以访问Armino官方论坛 [Docker安装及常见问题](https://armino.bekencorp.com/article/26.html) 查找解决方案或进行反馈。
 
 Docker安装完成以后，请启动Docker以进行后续操作。
 
+<a id="id7"></a>
 
 ## Docker镜像获取
 
-
-- 通过Docker Hub拉取镜像, 您可以访问 [IDK镜像仓库](https://hub.docker.com/repository/docker/bekencorp/armino-idk/tags "https://hub.docker.com/repository/docker/bekencorp/armino-idk/tags") 查看并拉取最新的tag:
+- 通过Docker Hub拉取镜像, 您可以访问 [IDK镜像仓库](https://hub.docker.com/repository/docker/bekencorp/armino-idk/tags) 查看并拉取最新的tag:
 
   ```
   docker pull bekencorp/armino-idk:[tag]
   ```
-
-- 如果您的网络无法访问Docker Hub或者拉取镜像速度慢，可访问 [BEKEN下载站](https://dl.bekencorp.com/tools/arminosdk/docker_img/armino-idk "https://dl.bekencorp.com/tools/arminosdk/docker_img/armino-idk") ， 直接下载所需镜像，下载完成后通过以下命令加载镜像:
+- 如果您的网络无法访问Docker Hub或者拉取镜像速度慢，可访问 [BEKEN下载站](https://dl.bekencorp.com/tools/arminosdk/docker_img/armino-idk) ， 直接下载所需镜像，下载完成后通过以下命令加载镜像:
 
   ```
   docker load -i bekencorp-armino-idk-v[tag].tar
   ```
 
+<a id="id8"></a>
 
 ## 编译
 
@@ -64,16 +82,14 @@ Docker安装完成以后，请启动Docker以进行后续操作。
 
 备注
 
-SDK从2025年2月开始支持Docker部署方式，如果执行上述编译命令时找不到脚本，可能是SDK版本过低，可以点击 [Docker编译脚本](https://dl.bekencorp.com/tools/arminosdk/docker_scripts/armino-idk "https://dl.bekencorp.com/tools/arminosdk/docker_scripts/armino-idk") 下载脚本。
+SDK从2025年2月开始支持Docker部署方式，如果执行上述编译命令时找不到脚本，可能是SDK版本过低，可以点击 [Docker编译脚本](https://dl.bekencorp.com/tools/arminosdk/docker_scripts/armino-idk) 下载脚本。
 下载完成后将编译脚本放入SDK根目录，根据下面方式修改脚本执行权限后，再次执行上述编译命令即可:
-
 
 - Linux下执行命令:
 
   ```
   chmod +x dbuild.sh
   ```
-
 - Windows在Powershell中执行下面命令:
 
   ```

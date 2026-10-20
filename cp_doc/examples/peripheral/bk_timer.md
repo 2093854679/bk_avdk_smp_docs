@@ -1,14 +1,28 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_timer.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="timer"></a>
+
 # TIMER
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
-通用定时器（Timer）可用于周期中断、硬件计数和短延时。BK7259 CP 侧对外支持 `TIMER_ID0` ~ `TIMER_ID11`，测试命令参数使用 `0` ~ `11`。
+通用定时器（Timer）可用于周期中断、硬件计数和短延时。BK7259 CP 侧对外支持 `TIMER_ID0` \~ `TIMER_ID11`，测试命令参数使用 `0` \~ `11`。
 
+- Timer 功能具体描述参考：[Timer 驱动工作原理](../../developer-guide/peripheral/bk_timer.md)
 
-- Timer 功能具体描述参考：[Timer 驱动工作原理](../../developer-guide/peripheral/bk_timer.md "../../developer-guide/peripheral/bk_timer.md")
-
+<a id="id2"></a>
 
 ## 2 代码路径
 
@@ -23,6 +37,7 @@
 > - 默认配置：
 >   :   `cp/middleware/soc/bk7259/bk7259.defconfig`
 
+<a id="id3"></a>
 
 ## 3 Timer 相关宏配置
 
@@ -36,11 +51,13 @@
 | `CONFIG_TIMER_TEST` | 编译 `timer_test.c` 中的 Timer 测试命令 | `cp/middleware/driver/timer/Kconfig` | `y` |
 | `CONFIG_CLI` | 系统命令框架；Timer 测试命令入口依赖该宏 | 项目配置 / 默认配置 | `y` |
 
+<a id="id4"></a>
 
 ## 4 Timer 通道配置说明
 
-Timer 硬件不依赖 PIN 管脚，无需配置 GPIO。BK7259 CP 侧有 4 个硬件 Timer 模块（Timer group），每个模块包含 3 个通道，共 12 个 Timer 通道；驱动 API 和测试命令使用 `TIMER_ID0` ~ `TIMER_ID11` 表示这些 CP Timer 通道。
+Timer 硬件不依赖 PIN 管脚，无需配置 GPIO。BK7259 CP 侧有 4 个硬件 Timer 模块（Timer group），每个模块包含 3 个通道，共 12 个 Timer 通道；驱动 API 和测试命令使用 `TIMER_ID0` \~ `TIMER_ID11` 表示这些 CP Timer 通道。
 
+<a id="timer-demo"></a>
 
 ## 5 Timer demo 配置
 
@@ -53,7 +70,7 @@ demo 支持的命令如下表：
 | Command | Param | Description |
 | --- | --- | --- |
 | `timer delay {us}` | `us`：延时时间，单位 us | 调用 `bk_delay_us()` 做阻塞延时。 |
-| `timer {id} start {period_ms}` | `id`：CP 支持 `0` ~ `11`；`period_ms`：中断周期，单位 ms | 启动指定 Timer，并在每个周期触发测试 ISR。 |
+| `timer {id} start {period_ms}` | `id`：CP 支持 `0` \~ `11`；`period_ms`：中断周期，单位 ms | 启动指定 Timer，并在每个周期触发测试 ISR。 |
 | `timer {id} clk_src {src}` | `id`：Timer 通道 ID；`src`：`0` 为 32 kHz，`1` 为 26 MHz XTAL | 驱动通过 `id / 3` 定位该通道所属的硬件 Timer 模块，并切换该模块的时钟源。 |
 | `timer {id} read` | `id`：Timer ID | 读取 Timer 当前计数值。 |
 | `timer {id} get_period` | `id`：Timer ID | 读取周期寄存器值。 |
@@ -61,6 +78,7 @@ demo 支持的命令如下表：
 | `timer {id} enable` | `id`：Timer ID | 使能 Timer 计数。 |
 | `timer {id} disable` | `id`：Timer ID | 禁止 Timer 计数。 |
 
+<a id="id5"></a>
 
 ## 6 Timer demo 命令行演示
 
@@ -74,7 +92,7 @@ demo 支持的命令如下表：
 >     [17:57:45.352]收<-◆cli:I(5810):[TIMER][ISR] chan:1 clk:1
 >     ```
 >
-> **timer 1 clk_src 0**
+> **timer 1 clk\_src 0**
 > :   ```
 >     [17:58:12.100]发->◇timer 1 clk_src 0
 >     [17:58:12.106]收<-◆timer 1 clk_src 0
@@ -88,7 +106,7 @@ demo 支持的命令如下表：
 >     $cli:I(247706):[TIMER][READ] read cnt:2f025f5
 >     ```
 >
-> **timer 1 get_period**
+> **timer 1 get\_period**
 > :   ```
 >     [18:02:26.882]发->◇timer 1 get_period
 >     [18:02:26.888]收<-◆timer 1 get_period

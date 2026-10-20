@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_rtc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="rtc"></a>
+
 # RTC 使用指南
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -10,6 +24,7 @@
 
 BK7259 只有一个 AON RTC 硬件实例，ID 为 ``` 0``（``AON_RTC_ID_1 ```）。CP 侧是完整 RTC 闹钟管理侧；AP 侧主要提供读时间和 time of day 接口。
 
+<a id="id2"></a>
 
 ## RTC 使用方法
 
@@ -19,6 +34,7 @@ CP 侧 RTC 常见使用方式：
 > - 注册闹钟定期执行回调：通过 `bk_alarm_register()` 设置闹钟周期和触发次数，通过 `bk_alarm_unregister()` 注销闹钟。回调运行在中断上下文中，不能执行阻塞、sleep、malloc/free 等操作。
 > - 调试 RTC 时钟源和精度：通过 RTC 测试命令切换 `26m` / `rosc`，配置 ROSC 校准，或在打开测试宏后运行 timing/precision 测试。
 
+<a id="id3"></a>
 
 ## 相关代码路径
 
@@ -29,6 +45,7 @@ CP 侧 RTC 常见使用方式：
 > - Kconfig：`cp/middleware/driver/rtc/Kconfig`
 > - 默认配置：`cp/middleware/soc/bk7259/bk7259.defconfig`
 
+<a id="id4"></a>
 
 ## 配置宏
 
@@ -42,7 +59,7 @@ CP 侧 RTC 常见使用方式：
 | `CONFIG_AON_RTC_KEEP_TIME_SUPPORT` | `n` | 深睡/重启保留 time of day 的支持，默认关闭。 |
 | `CONFIG_AON_RTC_DYNAMIC_CLOCK_SUPPORT` | `n` | RTC 动态 clock 频率支持，默认关闭。 |
 
-RTC 相关测试和使用介绍：[RTC 测试用例](../../examples/peripheral/bk_rtc.md "../../examples/peripheral/bk_rtc.md")
+RTC 相关测试和使用介绍：[RTC 测试用例](../../examples/peripheral/bk_rtc.md)
 
 备注
 

@@ -1,21 +1,36 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/usb/bk_usbh_msd.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="usb-host-msd"></a>
+
 # USB Host MSD
 
+> BK7259的 USB MSD 使用的是FATFS文件系统，支持从 USB 设备读取/写入。由于文件系统默认在AP侧进行编译和使用需要将USB MSD相关宏开关在AP侧的config中打开。
 
-> BK7258的 USB MSD 使用的是FATFS文件系统，支持从 USB 设备读取/写入。由于文件系统默认在AP侧进行编译和使用需要将USB MSD相关宏开关在AP侧的config中打开。
-
+<a id="usb-msd"></a>
 
 ## USB MSD的宏定义配置
 
-CONFIG_USB=y 打开USB的总开关宏定义 使能USB的代码功能
+CONFIG\_USB\=y 打开USB的总开关宏定义 使能USB的代码功能
 
-CONFIG_USB_VBAT_CONTROL_GPIO_ID=0x1C 默认使用的GPIO是GPIO_28进行USB Vbus电的控制，用户根据自己的实际情况进行配置
+CONFIG\_USB\_VBAT\_CONTROL\_GPIO\_ID\=0x1C 默认使用的GPIO是GPIO\_28进行USB Vbus电的控制，用户根据自己的实际情况进行配置
 
-CONFIG_USB_HOST=y 主程序作为HOST 对接口连接的设备进行枚举
+CONFIG\_USB\_HOST\=y 主程序作为HOST 对接口连接的设备进行枚举
 
-CONFIG_TASK_USB_PRIO=2 USB的处理程序的TASK优先级配置为2
+CONFIG\_TASK\_USB\_PRIO\=2 USB的处理程序的TASK优先级配置为2
 
-CONFIG_USBH_MSC=y 打开MSD驱动的编译，能够做到打开USB后自动识别 U盘
+CONFIG\_USBH\_MSC\=y 打开MSD驱动的编译，能够做到打开USB后自动识别 U盘
 
+<a id="msd-cli"></a>
 
 ## MSD 主机驱动CLI测试示例
 
@@ -26,50 +41,65 @@ CONFIG_USBH_MSC=y 打开MSD驱动的编译，能够做到打开USB后自动识�
     usb power 1c 1 打开USB Vbus供电
     usb power 1c 0 关闭USB Vbus供电
 
-![powneron_powner_down](../../../_images/poweron_powerdown.png)
+<a id="id2"></a>
+![powneron_powner_down](../../../../../_assets/e6bd4dd5fb3f0b224245-poweron_powerdown.png)
+
 
 USB Vbus poweron and powerdown
 
 打开USB对U盘进行枚举：
 :   输入命令：
-    usb open_host
+    usb open\_host
 
-![open USB for enumeration](../../../_images/open_usb_enum.png)
+<a id="id3"></a>
+![open USB for enumeration](../../../../../_assets/dfbc779e39c9870eb79e-open_usb_enum.png)
+
 
 open USB for enumeration
 
-调用cli_fatfs的测试命令进行U盘的操作:
+调用cli\_fatfs的测试命令进行U盘的操作:
 :   输入命令：fatfstest M 2
 
-![mount_udisk](../../../_images/mount_udisk.png)
+<a id="id4"></a>
+![mount_udisk](../../../../../_assets/55dda34ebff10b2d938c-mount_udisk.png)
+
 
 Mount Udisk
 
 > 输入命令：fatfstest S 2
 
-![scan udisk](../../../_images/scan_udisk.png)
+<a id="id5"></a>
+![scan udisk](../../../../../_assets/1815cd7e005fbcc2e195-scan_udisk.png)
+
 
 Scan Udisk
 
 > 输入命令：fatfstest U 2
 
-![umount udisk](../../../_images/umount_udisk.png)
+<a id="id6"></a>
+![umount udisk](../../../../../_assets/312f44a8ce1334719d63-umount_udisk.png)
+
 
 Unmount Udisk
 
 > 输入命令：fatfstest R 2 abc.txt 100
 
-![read file](../../../_images/read_file.png)
+<a id="id7"></a>
+![read file](../../../../../_assets/8291f3af51ddff0c0f82-read_file.png)
+
 
 Read file
 
 输入命令：fatfstest W 2 abc.txt ABCDEFG
 
-![write file](../../../_images/write_file.png)
+<a id="id8"></a>
+![write file](../../../../../_assets/6056c1c18b869fca23b8-write_file.png)
+
 
 Write file
 
+<a id="id1"></a>
 
 ## USB MSD
 
-> 更多详细开发可参考CherryUSB相关文档， [https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md](https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md "https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md")
+> 更多详细开发可参考CherryUSB相关文档， <https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md>

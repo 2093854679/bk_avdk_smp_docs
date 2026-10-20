@@ -1,14 +1,28 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_rtc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="rtc"></a>
+
 # RTC
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 实时时钟（Real-Time Clock, RTC）是嵌入式系统中记录时间的硬件模块。BK7259 AP 侧提供读取 AON RTC tick、读取/设置 time of day 的 RTC 测试命令；BK7259 只有一个 AON RTC 硬件实例，ID 为 `0`。
 
+- RTC 功能具体描述参考：[RTC 驱动工作原理](../../developer-guide/peripheral/bk_rtc.md)
 
-- RTC 功能具体描述参考：[RTC 驱动工作原理](../../developer-guide/peripheral/bk_rtc.md "../../developer-guide/peripheral/bk_rtc.md")
-
+<a id="id2"></a>
 
 ## 2 代码路径
 
@@ -23,6 +37,7 @@
 > - 默认配置：
 >   :   `ap/middleware/soc/bk7259_ap/bk7259_ap.defconfig`
 
+<a id="id3"></a>
 
 ## 3 测试命令简介
 
@@ -47,12 +62,13 @@ demo 支持的命令如下表：
 | `aon_rtc_time_of_day get` | 无 | 读取当前 time of day。 |
 | `aon_rtc_time_of_day set {sec} {usec}` | `sec`：秒；`usec`：微秒 | 设置 time of day 基准。 |
 
+<a id="id4"></a>
 
 ## 4 演示介绍
 
 AP 侧 RTC 测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀，以下示例使用 `ap_cmd`：
 
-> **ap_cmd aon_rtc_get_time 0**
+> **ap\_cmd aon\_rtc\_get\_time 0**
 > :   ```
 >     [16:48:06.968]发->◇ap_cmd aon_rtc_get_time 0
 >     [16:48:06.974]收<-◆ap_cmd aon_rtc_get_time 0
@@ -62,12 +78,12 @@ AP 侧 RTC 测试命令在 CP shell 下执行时需要添加 `ap_cmd` 前缀，�
 >     $ap0:cli:I(337655):id=0, tick_h=0 tick_l=337792 ms
 >     ```
 >
-> **ap_cmd aon_rtc_time_of_day set 1710000000 0**
+> **ap\_cmd aon\_rtc\_time\_of\_day set 1710000000 0**
 > :   ```
 >     $ap0:cli:I(xxxx):aon_rtc_time_of_day set 1710000000 0
 >     ```
 >
-> **ap_cmd aon_rtc_time_of_day get**
+> **ap\_cmd aon\_rtc\_time\_of\_day get**
 > :   ```
 >     $ap0:cli:I(xxxx):aon_rtc_time_of_day get
 >     ```

@@ -1,59 +1,100 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_adc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="saradc"></a>
+
 # SARADC
 
-
+<a id="id1"></a>
 
 ## 概述
 
-> SARADC 目前最多支持 14 个 channel,但是目前在 BK7231N/BK7258 只支持1~6 通道，BK7231U/BK7251/BK7252/bk7253/支持1~7 通道，BK7271支持0~13通道；SARADC 精度默认为12bit，
-> 一般精度在 SARADC 驱动中不做动态调整。
+BK7259 使用 SARADC V1.2。
 
+<a id="id2"></a>
 
-## SARADC 模式类型：
+## 工作模式
 
-> - 休眠模式：
->
->   休眠模式下 ADC 停止任何操作，相当于 power down 的状态
-> - 单步模式：
->
->   单步模式下 ADC 每次只会采集一个数据，采集完成之后自动变为休眠模式，相应的模式状态位也会变为休眠模式
->   然后等待 MCU 来读取数据，每一次的采样都需要将模式设置为单步模式.
-> - 软件控制模式
->
->   软件控制模式下会产生 ADC 中断，当处于此模式时，ADC 转换完成之后会产生一个中断，这个时候会等待 MCU 读取数据，
->   如果不读取数据就不会产生中断，如果MCU读取数据之后，清除掉中断后，ADC又开始新一轮的转换，继续等待 MCU 读取数据…
-> - 连续模式
->
->   连续模式是在软件控制的模式下，去掉了 MCU 读取数据的等待，不管 MCU 取不取数据，ADC 总是按照固定节拍采样转换数据
->   不受任何信号影响，只有停止 ADC 才能停止 ADC 读取数据.
+BK7259 SARADC V1.2 硬件支持以下两种模式：
 
-备注
+> - 单步模式（`ADC_SINGLE_STEP_MODE`）：硬件 `adc_mode` 为 0。
+> - 连续模式（`ADC_CONTINUOUS_MODE`）：硬件 `adc_mode` 为 1。
 
-当 ADC 处于连续模式时会一直上报中断和采集数据，这样频繁产生中断，影响系统性能，所以当 ADC 模式处于连续模式的时候需要每采取一次到想要的 ADC 数据长度之后就停止 ADC.
+公共类型中保留的 `ADC_SLEEP_MODE` 和 `ADC_SOFTWARE_CONTRL_MODE` 是兼容枚举，
+BK7259 V1.2 HAL 不会将这两种枚举写入硬件模式寄存器，不应作为 BK7259
+可用的硬件工作模式使用。
 
+<a id="id3"></a>
 
-## SARADC 获取数据流程：
+## 连续采样与中断
 
-> SARADC 在连续模式下转换数据如下图所示。
+连续模式的数据处理流程如下：
 
-![saradc Overview](../../_images/saradc_new.png)
+> 1. 驱动选择通道、配置时钟并启动转换。
+> 2. 采样结果进入硬件 FIFO。
+> 3. FIFO 数据量达到中断条件后产生中断。
+> 4. 中断服务程序逐个读取 FIFO 数据并写入用户请求的 `uint16_t` 缓冲区。
+> 5. 收集到请求的样本数后，驱动停止转换并唤醒等待任务。
 
-SARADC Overview
+BK7259 V1.2 驱动将 FIFO 中断阈值限制为 32。该阈值表示 FIFO 的中断触发条件，
+不是 FIFO 容量，也不是用户读取缓冲区的大小。单步模式固定在采集两个数据后
+产生中断。
 
+`bk_adc_channel_read()` 默认采集 32 个样本，并对后半部分样本求平均值；
+`bk_adc_channel_raw_read()` 返回用户指定数量的原始采样结果。兼容接口
+`bk_adc_read()` 和 `bk_adc_read_raw()` 最终使用当前选中的通道执行相应读取。
 
-## 如上图所示：
+## 模块导航
 
-> - S1，S2。。。表示对 ADC 某一通道上电压进行一次采样和转换，采样一次输出 16 bits 数据；采样电压范围为 0 到 2.4v; 一次采样时长 16 个 clock.
-> - Sample Rate：两次采样间隔的倒数为采样率，仅在连续模式下生效.
-> - Sample Cnt：有两层含义，一方面，它表示 ADC 硬件 Buffer 的大小，单位为 16bits, ADC 将每次采样得到的数据存于硬件 Buffer；另一方面，它也表示中断上报时间点，即每经过多少次采样上报一次中断；
->   Sample Cnt 可由 API bk_adc_set_sample_cnt() 进行配置，默认值为 32。
-> - ADC Hardware Buffer: 即硬件存放采样数据的 Buffer，大小与 Sample Cnt 相同。
-> - ADC Software Buffer: ADC 驱动存放采样数据的 Buffer，每次产生 ADC 中断后，ADC 驱动会将 ADC Hardware Buffer 中的数据 copy 到 ADC Software Buffer，通常 ADC Software Buffer 大小不小于 ADC Hardware Buffer.
->   每次调用 bk_adc_read()/bk_adc_read_raw() 会先清空 ADC Software Buffer 清空，然后启动 ADC 采样直到 ADC Software Buffer 被采满才结束。
-
-
-## 在连续模式下 bk_adc_read()/bk_adc_read_raw() 具体处理流程如下：
-
-> - ADC Start: bk_adc_read()/bk_adc_read_raw() 启动 ADC，开始采样。
-> - ADC 硬件采样：硬件依据配置的 sample rate 进行采样，将每次采样数据存 Hardware Buffer。
-> - ADC 中断产生：当采样 sample cnt 次之后，产生 ADC 中断，ADC 驱动将 ADC Hardware Buffer 中的数据搬到 ADC Software Buffer， 最后调用 bk_adc_isr_register() 注册 callback。
-> - ADC Start: bk_adc_read()/bk_adc_read_raw() 启动 ADC，开始采样。
+- [简介](../../introduction.md)
+- [H/W 参考手册](../../hw-reference.md)
+- [API 参考手册](../../api-reference.md)
+- [开发者指南](../../developer-guide.md)
+- [软件架构与分层](../architecture.md)
+- [系统安全](../security.md)
+- [低功耗与电源管理](../power_save.md)
+- [设备管理框架](../driver_model.md)
+- [外设与驱动](../peripheral.md)
+- [DMA](bk_dma.md)
+- [HSPL](bk_hspl.md)
+- [IPI](bk_ipi.md)
+- [ICU](bk_interrupt.md)
+- [IRDA](bk_irda.md)
+- [LIN](bk_lin.md)
+- [TRNG](bk_trng.md)
+- [UART](bk_uart.md)
+- [Watchdog](bk_wdt.md)
+- [I2S](bk_i2s.md)
+- [GPIO](bk_gpio.md)
+- [RTC](bk_rtc.md)
+- [Calendar](bk_calendar.md)
+- [CKMN](bk_ckmn.md)
+- [OTP](bk_otp.md)
+- [FLASH](bk_flash.md)
+- [FLASH_PARTITION](bk_flash_partition.md)
+- [EFUSE](bk_efuse.md)
+- [PSRAM](bk_psram.md)
+- [PWM](bk_pwm.md)
+- [TOUCH](bk_touch.md)
+- [TIMER](bk_timer.md)
+- [出错与日志](../error_log.md)
+- [系统调试](../debug_trace.md)
+- [CPU Hotplug](../cpu_hotplug.md)
+- [Wi-Fi](../wifi.md)
+- [HTTP](../http.md)
+- [用例编写](../examples.md)
+- [文档系统](../documentation.md)
+- [操作系统与内存管理](../../os.md)
+- [样例演示](../../examples.md)
+- [应用开发](../../application.md)
+- [开发与贡献代码流程](../../process.md)
+- [云平台](../../cloud.md)

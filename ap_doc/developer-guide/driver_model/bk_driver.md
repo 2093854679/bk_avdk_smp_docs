@@ -1,76 +1,61 @@
-# 驱动分层
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/driver_model/bk_driver.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="id1"></a>
+
+# 驱动分层
 
 备注
 
 驱动分层模型适用于所有外设，本节以 UART 为例进行说明。
 
+<a id="id2"></a>
 
 ## 示例
 
 下图列出了与 UART 驱动实现相关的文件。
 
-
 ```
-
 - armino
-
     - middleware
-
         - driver
-
             - include
-
                 - uart.h
-
             - uart
-
                 - uart_driver.c
-
                 - uart_driver.h
-
                 - uart_statis.c
-
                 - uart_statis.h
-
         - arch
-
             - bk7236
-
                 - soc
-
                     - uart_cap.h
-
                     - uart_reg.h
-
                     - uart_struct.h
-
                 - hal
-
                     - uart_ll.c
-
                     - uart_ll.h
-
             - common
-
                 - hal
-
                     - include
-
                         - uart_hal.h
-
                         - uart_types.h
-
                     - uart_hal.c
-
                 - soc
-
                     - include
-
                         - uart_hw.h
-
 ```
 
+<a id="id3"></a>
 
 ### 分层概述
 
@@ -83,11 +68,12 @@ UART 驱动分成驱动层，HAL（硬件抽象）层, LL（寄存器接口）�
 | LL | 1. 通常是对寄存器访问的简单包装， 使程序更具有可读性 2. 通常实现为 inline 函数 3. 实现尽可能简单 |
 | SoC | 提供寄存器定义 |
 
+<a id="id4"></a>
 
 ### 文件说明
 
 | 层次 | 头文件名 | 功能概述 |
 | --- | --- | --- |
-| Driver | uart_types.h  uart.h  uart_driver.c  uart_driver.h  uart_statis.c  uart_statis.h | 提供 UART API 类型定义, 可直接引用 mod_types.h 中的定义  UART API 声明  UART 驱动实现  UART 驱动私有数据类型与宏定义，仅 UART 驱动层可访问  UART 驱动统计相关信息  UART 驱动统计相关类似定义 |
-| HAL | uart_hal.h  uart_hal.c  uart_ll.h | 硬件抽象层 API 声明，不同板子共用一份  UART 硬件抽象层接口实现  包装寄存器访问接口，使得寄存代码更可读 |
-| SoC | uart_reg.h  uart_struct.h  uart_cap.h | 寄存器宏定义，板子相关  以 C 结构体形式定义寄存器  硬件能力参数 |
+| Driver | uart\_types.h  uart.h  uart\_driver.c  uart\_driver.h  uart\_statis.c  uart\_statis.h | 提供 UART API 类型定义, 可直接引用 mod\_types.h 中的定义  UART API 声明  UART 驱动实现  UART 驱动私有数据类型与宏定义，仅 UART 驱动层可访问  UART 驱动统计相关信息  UART 驱动统计相关类似定义 |
+| HAL | uart\_hal.h  uart\_hal.c  uart\_ll.h | 硬件抽象层 API 声明，不同板子共用一份  UART 硬件抽象层接口实现  包装寄存器访问接口，使得寄存代码更可读 |
+| SoC | uart\_reg.h  uart\_struct.h  uart\_cap.h | 寄存器宏定义，板子相关  以 C 结构体形式定义寄存器  硬件能力参数 |

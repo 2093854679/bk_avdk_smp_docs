@@ -1,75 +1,101 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/usb/bk_usbh_serial_ch340.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="usb-host-serial-ch340"></a>
+
 # USB Host Serial CH340
 
+> BK7259 的 USB HOST 可以加载 CH340 驱动。相关宏需在工程 AP 配置
+> `<project>/ap/config/bk7259_ap/defconfig` 中打开。
 
-> BK7258的 USB HOST 可以加载CH340的驱动。打开USB驱动后，连接识别到CH340设备，相关宏开关在CPU0的config中打开。
-
+<a id="usb-serial-ch340"></a>
 
 ## USB Serial ch340的宏定义配置
 
-CONFIG_USB=y 打开USB的总开关宏定义 使能USB的代码功能
+`CONFIG_USB=y`：使能 AP USB 功能。
 
-CONFIG_USB_VBAT_CONTROL_GPIO_ID=0x1C 默认使用的GPIO是GPIO_28进行USB Vbus电的控制，用户根据自己的实际情况进行配置
+`CONFIG_USB_HOST=y`：使能 USB Host 模式。
 
-CONFIG_CHERRY_USB=y 默认使用的CherryUSB的开源代码，用户可根据实际情况进行版本的更新
+`CONFIG_USBH_SERIAL_CH340=y`：编译 CH340 Host 串口驱动。
 
-CONFIG_USB_HOST=y 主程序作为HOST 对接口连接的设备进行枚举
+`CONFIG_USBH_SERIAL_CH340_TEST=y`：编译本文使用的 `usbh_to_uart` 和
+`simulate_uart_auto` CLI 测试命令。
 
-CONFIG_TASK_USB_PRIO=2 USB的处理程序的TASK优先级配置为2
-
-CONFIG_USBH_SERIAL_CH340=y 打开Serial ch340驱动的编译，能够做到打开USB后自动识别 CH340串口
-
+<a id="serial-ch340-cli"></a>
 
 ## Serial ch340 主机驱动CLI测试示例
 
-参考代码在cli_usb.c中，API的调用及示例请参考由CONFIG_USBH_SERIAL_CH340宏范围的code。
-集合使用的demo，参考cli_simulate_uart_demo init/deinit操作。
+参考代码在cli\_usb.c中，API的调用及示例请参考由CONFIG\_USBH\_SERIAL\_CH340宏范围的code。
+集合使用的demo，参考cli\_simulate\_uart\_demo init/deinit操作。
 
 注册回调函数，设备连接成功后上报回调函数cli示例：
 :   输入命令：
-    usbh_to_uart reg_cb 0 注册回调函数
-    usbh_to_uart unreg_cb 0 注销回调函数
+    usbh\_to\_uart reg\_cb 0 注册回调函数
+    usbh\_to\_uart unreg\_cb 0 注销回调函数
 
-![cb init deinit](../../../_images/usbh_serial_ch340_callback_init_deinit.png)
+<a id="id2"></a>
+![cb init deinit](../../../../../_assets/52ecce517ff31e3d4b84-usbh_serial_ch340_callback_init_deinit.png)
+
 
 Serial CH340 Register callback
 
 打开USB驱动对CH340 串口打开进行枚举：
 :   输入命令：
-    usbh_to_uart init 0
+    usbh\_to\_uart init 0
 
-![open USB for enumeration](../../../_images/usbh_serial_ch340_enumeration.png)
+<a id="id3"></a>
+![open USB for enumeration](../../../../../_assets/2895ef659c11e8ca3c91-usbh_serial_ch340_enumeration.png)
+
 
 USB HOST for enumeration
 
 关闭CH340的驱动，先触发断开中断，然后再关闭USB驱动:
-:   usbh_to_uart deinit 0
+:   usbh\_to\_uart deinit 0
 
-![mount_udisk](../../../_images/usbh_serial_ch340_deinit.png)
+<a id="id4"></a>
+![mount_udisk](../../../../../_assets/d8284c891c5022d50d66-usbh_serial_ch340_deinit.png)
+
 
 USB HOST CH340 Driver Deinit
 
 调用接口发送数据,log中显示发送成功后的回调函数。测试命令如下:
-:   > usbh_to_uart write 0 128 100
+:   > usbh\_to\_uart write 0 128 100
 
-    id:0 cnt:128 bytes timeout_ms:100ms
+    id:0 cnt:128 bytes timeout\_ms:100ms
 
-![send data](../../../_images/usbh_serial_ch340_send.png)
+<a id="id5"></a>
+![send data](../../../../../_assets/108056c6c6e1a558d6ac-usbh_serial_ch340_send.png)
+
 
 Send Data
 
 调用接口接收数据,接收到数据后，触发回调函数。测试命令如下:
-:   > usbh_to_uart read 0 32 1000
+:   > usbh\_to\_uart read 0 32 1000
 
-    id:0 cnt:32 bytes timeout_ms:1000ms
+    id:0 cnt:32 bytes timeout\_ms:1000ms
 
-![receive data](../../../_images/usbh_serial_ch340_receive.png)
+<a id="id6"></a>
+![receive data](../../../../../_assets/e18d46a96f4e08f4c272-usbh_serial_ch340_receive.png)
+
 
 Receive Data
 
+<a id="api"></a>
 
 ## 基本API 调用流程图
 
-![flow](../../../_images/usbh_serial_ch340_flow.png)
+<a id="id7"></a>
+![flow](../../../../../_assets/5d167a32254f4fde6205-usbh_serial_ch340_flow.png)
+
 
 Flow chart
 
@@ -86,7 +112,8 @@ Flow chart
 
 6.关闭时，将先上报disconnect，在对USB驱动进行关闭。
 
+<a id="id1"></a>
 
 ## USB HOST Serial CH340
 
-> 更多详细开发可参考CherryUSB相关文档， [https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md](https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md "https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md")
+> 更多详细开发可参考CherryUSB相关文档， <https://github.com/cherry-embedded/CherryUSB/blob/master/README_zh.md>

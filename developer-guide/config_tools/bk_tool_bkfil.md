@@ -1,8 +1,24 @@
-# 烧录工具 BKFIL
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/config_tools/bk_tool_bkfil.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="bkfil"></a>
+
+<a id="bk-tool-bkfil"></a>
+
+# 烧录工具 BKFIL
 
 BKFIL 是 Beken FLASH Image Loader 的简称，是 Armino 官方烧录与配置工具。
 
+<a id="id1"></a>
 
 ## 准备工作
 
@@ -17,11 +33,13 @@ BK72xx 系列芯片烧录时所需的软、硬件资源如下图所示:
 >
 >   - 下载程序：BKFIL.exe
 
-![8](../_images/bkfil_prepare_resource.png)
+![8](../../../_assets/4564576a53a30c11d57b-bkfil_prepare_resource.png)
 
+<a id="id2"></a>
 
 ## 硬件介绍
 
+<a id="id3"></a>
 
 ### 串口底板
 
@@ -30,38 +48,42 @@ BK72xx 系列芯片烧录时所需的软、硬件资源如下图所示:
 
 串口底板:
 
-![8](../_images/bkfil_hw_uart0.png)
+![8](../../../_assets/5c5c8d56c24c7f3c52d0-bkfil_hw_uart0.png)
 
 用户自行准备的串口底板:
 
-![8](../_images/bkfil_hw_uart1.png)
+![8](../../../_assets/2b7e29ec8f4b5d2bc14d-bkfil_hw_uart1.png)
 
+<a id="id4"></a>
 
 ### 待下载准备
 
+<a id="id5"></a>
 
 #### 设备连接
 
 FLASH 烧录连接示意图 – BK7231N 系列:
 
-![8](../_images/bkfil_hw_uart_connect.png)
+![8](../../../_assets/bed558742244e25c805b-bkfil_hw_uart_connect.png)
 
+<a id="id6"></a>
 
 ## 软件介绍
 
+<a id="id7"></a>
 
 ### 界面简介
 
 博通集成 BK Flash Image Loader Tool 烧录工具的主界面如下图所示，用户在主界面选择烧录的固件。
 
-![8](../_images/bkfil_ui_main.png)
-
+![8](../../../_assets/794727d4f2f749096fe6-bkfil_ui_main.png)
+<a id="id8"></a>
 
 #### 功能介绍
 
-![8](../_images/bkfil_ui_function.png)
+![8](../../../_assets/f185d198ac4c8327c69a-bkfil_ui_function.png)
 
-如图上图所示，BK_Flash_Image_Loader_Tool 界面功能主要分为：
+如图上图所示，BK\_Flash\_Image\_Loader\_Tool 界面功能主要分为：
 
 > - 串口信息显示
 > - 串口选择、波特率选择
@@ -71,13 +93,15 @@ FLASH 烧录连接示意图 – BK7231N 系列:
 > - 烧录固件
 > - 实时显示测试信息
 
+<a id="configuration"></a>
 
 ## Configuration 界面介绍
 
+<a id="id9"></a>
 
 ### 常用配置
 
-![8](../_images/bkfil_ui_config_main.png)
+![8](../../../_assets/5c9ccfda1233156063be-bkfil_ui_config_main.png)
 
 如上图所示，BKFIL 界面主要分为：
 
@@ -105,51 +129,57 @@ FLASH 烧录连接示意图 – BK7231N 系列:
 >   - 烧录DeviceName；
 >   - 使能Device ID信息 大端写入模式；
 
+<a id="help"></a>
 
 ### Help 界面介绍
 
+<a id="id10"></a>
 
 #### 语言和主题配置
 
 本功能针对用户使用习惯，自定义烧录环境，目前支持切换中英文，以及不同UI主题颜色；
 
+<a id="id11"></a>
 
 #### 在线升级
 
-![8](../_images/bkfil_ota.png)
+![8](../../../_assets/ed108a6b1f533e923c49-bkfil_ota.png)
 
 重要功能；
 
 > - 点击 “检查新版本” 或者 “Check New Version”，查找是否存在新版本，根据需求按需选择；
-> - 历史版本选择功能，连续点击界面中标签 “最新版本号” 或者 “latest version”，按照图3 – 3 – 2 – 2 中①->②->③ 步骤去执行；
+> - 历史版本选择功能，连续点击界面中标签 “最新版本号” 或者 “latest version”，按照图3 – 3 – 2 – 2 中①-\>②-\>③ 步骤去执行；
 
-![8](../_images/bkfil_ota_ui.png)
+![8](../../../_assets/0d75f01ca7bfa1775be2-bkfil_ota_ui.png)
 
+<a id="id12"></a>
 
 #### 关于界面介绍
 
 本页展示博通集成公司相关信息。
 
+<a id="id13"></a>
 
 ## 烧录过程
 
+<a id="id14"></a>
 
 ### 烧录前配置
 
 点击工具栏顶部Configuration 按钮，切换到烧录配置界面:
 
-![8](../_images/bkfil_flash_select_config.png)
+![8](../../../_assets/a856a8b3414f3c83c87a-bkfil_flash_select_config.png)
 
 点击Browse 按钮，选择需要烧录的固件:
 
-![8](../_images/bkfil_flash_select_image.png)
+![8](../../../_assets/749f3743823d931f978d-bkfil_flash_select_image.png)
 
 根据烧录/读取/擦除 要求，填写对应的起始地址，默认为 0 ，部分芯片的起始地址为 ：0x11000（bk7231 以及bk7271 安全模式烧录等），
 注意需要输入16进制
 
 根据需求，选择相应的 EfuseKey 文件，用于烧录 Efuse 加密信息:
 
-![8](../_images/bkfil_flash_select_efuse.png)
+![8](../../../_assets/8638b1fc55b817014a34-bkfil_flash_select_efuse.png)
 
 根据需求，勾选 Common Setting 中烧录功能
 
@@ -163,24 +193,25 @@ FLASH 烧录连接示意图 – BK7231N 系列:
 主界面中会默认提供一组当前插入 PC 中的 USB 设备及默认的波特率，如果不满意，则点击 “SelectPort/选择串口” 按钮，
 根据需求精准的选择需要的串口信息，点击 OK 保存设置，如下图所示：
 
-![8](../_images/bkfil_flash_select_baudrate.png)
+![8](../../../_assets/bb86fa1a64c44e9e708c-bkfil_flash_select_baudrate.png)
 
-![8](../_images/bkfil_flash_select_baudrate2.png)
-
+![8](../../../_assets/cc3c487053f431b3df0c-bkfil_flash_select_baudrate2.png)
+<a id="id15"></a>
 
 #### 烧录
 
 1、进入配置界面，填入需要烧录的bin 文件 和对应的烧录地址，并根据自己实际需求填入 Erase ALL、Download Efuse、
 SecureBoot、Run After Download、COM及 BaudRate信息，配置界面如下图所示。
 
-![8](../_images/bkfil_flash_config_finish.png)
+![8](../../../_assets/7c59991ac315c414f8ac-bkfil_flash_config_finish.png)
 
 2、在主界面中点击Download 开始下载，下载过程中会根据用户配置的信息，烧写对应的bin 文件及Efuse 信息；
 
 3、烧录完成后，工具的界面如下图所示。
 
-![8](../_images/bkfil_flash_finish.png)
+![8](../../../_assets/a91b2c6ac061494cf6af-bkfil_flash_finish.png)
 
+<a id="id16"></a>
 
 #### 擦除
 
@@ -191,13 +222,12 @@ SecureBoot、Run After Download、COM及 BaudRate信息，配置界面如下图�
 
 如下图所示：
 
-![8](../_images/bkfil_erasing.png)
-
+![8](../../../_assets/3f431b2b3cb3f0d38b53-bkfil_erasing.png)
 
 **重要配置：如果用户需要进行处理，可以按照如下配置进行操作**
 
-![8](../_images/bkfil_erase_important_config.png)
-
+![8](../../../_assets/88f45ffe8fe96bd13668-bkfil_erase_important_config.png)
+<a id="id17"></a>
 
 ##### 场景一
 
@@ -205,12 +235,14 @@ SecureBoot、Run After Download、COM及 BaudRate信息，配置界面如下图�
 空白区域双击，输入擦除的起始地址0，然后在FileLen列中②处，空白区域双击，输入擦除长度1000，然后回车，输入完毕，
 然后在③处点击勾选框，则在BinFilePath 列中生成了一个x-1 的字符串，表明创建的一个自定义任务生成完毕；
 
+<a id="id18"></a>
 
 ##### 场景二
 
 用户需要多段擦除，在场景一的基础上，同理生成多个x-n 的任务即可；根据自身使用需求，按需勾选列表中的勾选框，
 勾选则表明要使用此任务进行操作；
 
+<a id="id19"></a>
 
 #### 读取
 
@@ -219,83 +251,87 @@ SecureBoot、Run After Download、COM及 BaudRate信息，配置界面如下图�
 
 如下如图所示：
 
-![8](../_images/bkfil_reading.png)
-
+![8](../../../_assets/6c958e611e57f283c443-bkfil_reading.png)
 
 **重要配置：如果用户需要进行处理，可以按照如下配置进行操作**
 此处参考擦除中的参数配置即可；
 
+<a id="id20"></a>
 
 ## 命令行烧录
 
+<a id="id21"></a>
 
 ### 命令行使用手册
 
-命令行需要使用 bk_loader.exe 程序； 在命令行窗口，输入”–help”，可以查看所有的命令集，
+命令行需要使用 bk\_loader.exe 程序； 在命令行窗口，输入”–help”，可以查看所有的命令集，
 每条指令均有使用说明，对于非法指令，会自动弹出相应的报错，见下图：
 
-![8](../_images/bkfil_manual.png)
+![8](../../../_assets/528d827e2bac68f73616-bkfil_manual.png)
 
 图中可以看到当前版本号，及 Subcommands 里面三个子功能。
 
 烧录帮助手册:
 
-![8](../_images/bkfil_command_flash_manual.png)
+![8](../../../_assets/1b3d7876825399733832-bkfil_command_flash_manual.png)
 
 擦除帮助手册:
 
-![8](../_images/bkfil_command_erase_manual.png)
+![8](../../../_assets/de28dbd4eff7b5d13aa6-bkfil_command_erase_manual.png)
 
 读帮助手册:
 
-![8](../_images/bkfil_command_read_manual.png)
+![8](../../../_assets/fc61274263eba07ba847-bkfil_command_read_manual.png)
 
+<a id="id22"></a>
 
 ### 常用命令行示例
 
 烧录:
 
-> - bk_loader download –p 7 –i all.bin 常规默认值烧录
-> - bk_loader download –p 7 –b 2000000 –i all.bin 设置串口波特率为2M，默认为1.5M
-> - bk_loader download –p 7 –i all.bin –s 11000 设置起始地址从0x11000 开始烧录
-> - bk_loader download –p 7 –mainBin-multi [all_2M.1220.bin@0x0-0x1000](mailto:all_2M.1220.bin%400x0-0x1000 "mailto:all_2M.1220.bin%400x0-0x1000"), [all_2M.1220-4k.bin@0x132000-0x1000](mailto:all_2M.1220-4k.bin%400x132000-0x1000 "mailto:all_2M.1220-4k.bin%400x132000-0x1000") 多文件烧录，使用–mainBin-multi 参数，按照格式，输入路径名 + @ + “起始地址” + “文件长度”
-> - bk_loader–h 其他客户数据写入，请看BKFIL –h ，了解更多信息写入
+> - bk\_loader download –p 7 –i all.bin 常规默认值烧录
+> - bk\_loader download –p 7 –b 2000000 –i all.bin 设置串口波特率为2M，默认为1.5M
+> - bk\_loader download –p 7 –i all.bin –s 11000 设置起始地址从0x11000 开始烧录
+> - bk\_loader download –p 7 –mainBin-multi [all\_2M.1220.bin@0x0-0x1000](mailto:all_2M.1220.bin%400x0-0x1000), [all\_2M.1220-4k.bin@0x132000-0x1000](mailto:all_2M.1220-4k.bin%400x132000-0x1000) 多文件烧录，使用–mainBin-multi 参数，按照格式，输入路径名 \+ @ \+ “起始地址” \+ “文件长度”
+> - bk\_loader–h 其他客户数据写入，请看BKFIL –h ，了解更多信息写入
 
 读取:
 
-> - bk_loader read –p 7 –i all.bin 常规默认值读取，按照起始地址为0，长度为all.bin 的长度进行读取
-> - bk_loader read –p 7 –i all.bin –s 0-1000 起始地址为0，长度为0x1000
-> - bk_loader read –p 7 –f 10-1000 起始地址为10，长度为0x1000
-> - bk_loader read –p 7 –f 10-1000, 1000-1000, 10000-1000 自定义读取，示例中要读取三段内容，分别是：
+> - bk\_loader read –p 7 –i all.bin 常规默认值读取，按照起始地址为0，长度为all.bin 的长度进行读取
+> - bk\_loader read –p 7 –i all.bin –s 0-1000 起始地址为0，长度为0x1000
+> - bk\_loader read –p 7 –f 10-1000 起始地址为10，长度为0x1000
+> - bk\_loader read –p 7 –f 10-1000, 1000-1000, 10000-1000 自定义读取，示例中要读取三段内容，分别是：
 >
 >   - 1：起始地址为0，长度为0x1000；
 >   - 2：起始地址为0x1000，长度为0x1000；
 >   - 3：起始地址为0x10000，长度为0x1000；
-> - bk_loader read –p 7 –f
-> - [all_2M.1220.bin@0x0-0x132000](mailto:all_2M.1220.bin%400x0-0x132000 "mailto:all_2M.1220.bin%400x0-0x132000"),x-[1@0x0-0x1000](mailto:1%400x0-0x1000 "mailto:1%400x0-0x1000"),x-[2@0x2000-0x2000](mailto:2%400x2000-0x2000 "mailto:2%400x2000-0x2000") 自定义读取，示例中要读取三段内容，分别是：
+> - bk\_loader read –p 7 –f
+> - [all\_2M.1220.bin@0x0-0x132000](mailto:all_2M.1220.bin%400x0-0x132000),x-[1@0x0-0x1000](mailto:1%400x0-0x1000),x-[2@0x2000-0x2000](mailto:2%400x2000-0x2000) 自定义读取，示例中要读取三段内容，分别是：
 >
->   - 1：文件名all_2M.1220.bin，起始地址为0，长度为0x132000；
+>   - 1：文件名all\_2M.1220.bin，起始地址为0，长度为0x132000；
 >   - 2：文件名x-1.bin，起始地址为0，长度为0x1000；
 >   - 3：文件名x-2.bin，起始地址为0x2000，长度为0x2000；
 
 擦除:
 
-> - bk_loader erase –p 7 –i all.bin 常规默认值擦除，按照起始地址为0，长度为all.bin 的长度进行擦除
-> - bk_loader erase –p 7 –i all.bin –s 0-1000 起始地址为0，长度为0x1000
-> - bk_loader erase –p 7 –f 10-1000 起始地址为10，长度为0x1000
-> - bk_loader erase –p 7 –f [all_2M.1220.bin@0x0-0x132000](mailto:all_2M.1220.bin%400x0-0x132000 "mailto:all_2M.1220.bin%400x0-0x132000"),x-[1@0x0-0x1000](mailto:1%400x0-0x1000 "mailto:1%400x0-0x1000"),x-[2@0x2000-0x2000](mailto:2%400x2000-0x2000 "mailto:2%400x2000-0x2000") 自定义擦除，示例中要擦除三段内容，分别是：
+> - bk\_loader erase –p 7 –i all.bin 常规默认值擦除，按照起始地址为0，长度为all.bin 的长度进行擦除
+> - bk\_loader erase –p 7 –i all.bin –s 0-1000 起始地址为0，长度为0x1000
+> - bk\_loader erase –p 7 –f 10-1000 起始地址为10，长度为0x1000
+> - bk\_loader erase –p 7 –f [all\_2M.1220.bin@0x0-0x132000](mailto:all_2M.1220.bin%400x0-0x132000),x-[1@0x0-0x1000](mailto:1%400x0-0x1000),x-[2@0x2000-0x2000](mailto:2%400x2000-0x2000) 自定义擦除，示例中要擦除三段内容，分别是：
 >
->   - 1：文件名all_2M.1220.bin，起始地址为0，长度为0x132000；
+>   - 1：文件名all\_2M.1220.bin，起始地址为0，长度为0x132000；
 >   - 2：文件名x-1.bin，起始地址为0，长度为0x1000；
 >   - 3：文件名x-2.bin，起始地址为0x2000，长度为0x2000；
 
 其他:
 
-> - bk_loader –h 其他功能，请看bk_loader –h ，了解更多
+> - bk\_loader –h 其他功能，请看bk\_loader –h ，了解更多
 
+<a id="id23"></a>
 
 ## 常见错误
 
+<a id="com"></a>
 
 ### COM 相关错误
 
@@ -303,11 +339,13 @@ Q: 打开工具后，在 COM 下拉菜单中找不到对应串口？
 
 A: 首先查看设备管理器，确认串口已经安装成功。若没有成功，检查驱动是 否有问题。
 
+<a id="efuse"></a>
 
 ### Efuse相关错误
 
-启动烧录后，如果提示：BEKEN_SWDL_LinkCheck timeout，可能该芯片已经做过Efuse，无法再次烧录，此时需要与博通联系获取相应的解决措施；
+启动烧录后，如果提示：BEKEN\_SWDL\_LinkCheck timeout，可能该芯片已经做过Efuse，无法再次烧录，此时需要与博通联系获取相应的解决措施；
 
+<a id="id24"></a>
 
 ### 烧录相关错误
 
@@ -319,17 +357,18 @@ A: 出现烧录问题，请首先确认：
 > - 波特率符合Uart板的协议要求
 > - 固件bin 的文件大小不大于芯片Flash 的大小
 
+<a id="id25"></a>
 
 ### 命令行参数错误
 
 可能原因:
 
-> - 波特率设置错误，当前波特率限制0~3000000；
+> - 波特率设置错误，当前波特率限制0\~3000000；
 > - 传入的文件不存在
 
 博通 Wi-Fi 芯片烧录工具为 zip 压缩文件包，内含可执行文件、子文件夹，如下图所示：
 
 > - Doc 文件夹：存放说明文档；
 > - BKFIL.exe：烧录工具可执行文件，GUI 工程；
-> - bk_loader.exe: 命令行烧录工具；
+> - bk\_loader.exe: 命令行烧录工具；
 > - settings.ini ：该文件是动态生成，初始时该文件不存在，只有再使用后才会生成该记忆文件；

@@ -1,40 +1,48 @@
-# spi_lcd_display
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/display/spi_lcd_display.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="spi-lcd-display"></a>
 
+# spi\_lcd\_display
+
+<a id="id1"></a>
 
 ## 概述
 
 Display 模块为不同 LCD 接口提供统一的控制器生命周期。SPI LCD 使用硬件 SPI LCD 刷帧通路和 `bk_display_spi_panel_t` 屏描述结构。
 
-本节说明 BK7259 当前 SPI LCD 通路的使用方式。API 细节请参考 [Display API](../../api-reference/multimedia/bk_display.md "../../api-reference/multimedia/bk_display.md")，可运行示例请参考 `projects/multimedia/spi_lcd_example`。
+本节说明 BK7259 当前 SPI LCD 通路的使用方式。API 细节请参考 [Display API](../../api-reference/multimedia/bk_display.md)，可运行示例请参考 `projects/multimedia/spi_lcd_example`。
 
+<a id="id2"></a>
 
 ## 配置项
 
 工程中需要使能 SPI LCD 通路和具体屏驱动：
 
-
 - `CONFIG_BK_DISPLAY`：使能 Display 组件。
-
 - `CONFIG_FRAME_BUFFER`：使能帧缓冲区分配接口。
-
 - `CONFIG_BK_PERIPHERAL`：编译 LCD panel 描述。
-
 - `CONFIG_LCD_SPI`：使能硬件 SPI LCD 驱动。
-
 - `CONFIG_LCD_SPI_<PANEL>`：使能具体 SPI panel，例如 `CONFIG_LCD_SPI_JD9853`。
-
 - `CONFIG_LCD_SPI_COLOR_DEPTH_BYTE`：输出像素字节数，用于 panel 帧大小。
-
 - `CONFIG_QSPI` 和 `CONFIG_QSPI_LINE_MODE=1` 可能也需要按板级 LCD SPI 驱动配置开启。
 
 背光和电源 GPIO 与具体板级设计相关，需要应用自行配置；display 控制器只管理配置中传入的 LCD SPI 刷帧通路、reset/DC/TE 引脚。
 
+<a id="panel"></a>
 
 ## Panel 描述
 
 SPI 屏使用 `bk_display_spi_panel_t` 描述，并提供 `lcd_spi_t` 总线配置：
-
 
 ```
 static const lcd_spi_t lcd_spi_jd9853_config = {
@@ -54,11 +62,11 @@ const bk_display_spi_panel_t lcd_device_jd9853 = {
 BK_LCD_PANEL_DEVICE_SECTION(lcd_device_jd9853,
                             "jd9853_spi_240x296",
                             BK_LCD_PANEL_BUS_SPI);
-
 ```
 
 SPI panel 通路复用 `lcd_qspi_init_cmd_t` 作为寄存器初始化命令记录。新增 SPI 屏时，可参考 `ap/components/bk_peripheral/src/lcd/spi/` 下已有文件，并确认初始化命令、时钟、有效宽高、色深和 `frame_len`。
 
+<a id="spi-panel"></a>
 
 ### 适配新 SPI panel
 
@@ -71,11 +79,8 @@ SPI panel 通路复用 `lcd_qspi_init_cmd_t` 作为寄存器初始化命令记�
 
    在 `ap/components/bk_peripheral/src/lcd/spi/` 下新增 `lcd_spi_<name>.c`，并包含下面三个部分：
 
-
    - `static const lcd_qspi_init_cmd_t <name>_init_cmds[]`：按屏厂初始化表填写寄存器命令。复位、sleep out、display on 之间的延时可参考已有文件中的延时写法。
-
    - `static const lcd_spi_t lcd_spi_<name>_config`：填写 `clk`、`init_cmd`、`device_init_cmd_len` 和 `frame_len`。首版建议先使用保守时钟，点亮稳定后再逐步提高。
-
    - `const bk_display_spi_panel_t lcd_device_<name>`：填写 `name`、`width`、`height` 和 `spi` 指针。
 
    注册时必须使用 SPI bus 类型：
@@ -95,14 +100,15 @@ SPI panel 通路复用 `lcd_qspi_init_cmd_t` 作为寄存器初始化命令记�
 
    先确认 reset、背光和电源时序，再确认 SPI 时钟、DC 引脚和初始化命令是否有波形输出。若有背光但黑屏，重点检查 `0x11` sleep out、`0x29` display on、像素格式寄存器、窗口范围和 RAM write 命令；若花屏或颜色异常，重点检查 `CONFIG_LCD_SPI_COLOR_DEPTH_BYTE`、`0x3A` 像素格式、RGB/BGR 方向寄存器和 `frame_len`。
 
+<a id="id3"></a>
 
 ## 代码流程
 
+<a id="id4"></a>
 
-### 1. 创建控制器
+### 1\. 创建控制器
 
 使用 `bk_display_spi_ctlr_new()` 创建 SPI display 控制器。`lcd_panel` 必须指向有效的 SPI `bk_display_spi_panel_t` 描述，且其 `spi` 成员不能为空。
-
 
 ```
 extern const bk_display_spi_panel_t lcd_device_jd9853;
@@ -117,16 +123,15 @@ static bk_display_spi_ctlr_config_t spi_ctlr_config = {
 };
 
 avdk_err_t ret = bk_display_spi_ctlr_new(&lcd_display_handle, &spi_ctlr_config);
-
 ```
 
 `dc_pin` 是数据/命令选择引脚，`reset_pin` 用于屏复位。`te_pin` 仅在屏和板级硬件连接 TE 引脚时预留使用。
 
+<a id="id5"></a>
 
-### 2. 初始化并打开
+### 2\. 初始化并打开
 
 调用 `bk_display_open()` 前需要先调用 `bk_display_init()`。初始化阶段会配置 SPI LCD 驱动和 panel，open 后控制器进入可刷帧状态。
-
 
 ```
 ret = bk_display_init(lcd_display_handle);
@@ -138,14 +143,13 @@ ret = bk_display_open(lcd_display_handle);
 if (ret != AVDK_ERR_OK) {
     goto fail;
 }
-
 ```
 
+<a id="id6"></a>
 
-### 3. 刷新帧
+### 3\. 刷新帧
 
 SPI 控制器的 `bk_display_flush()` 参数是与 panel 宽高和色深匹配的原始像素 buffer。示例工程按 RGB565 输出分配 `width * height * 2` 字节。
-
 
 ```
 uint32_t frame_len = spi_ctlr_config.lcd_panel->width *
@@ -157,25 +161,24 @@ ret = bk_display_flush(lcd_display_handle, disp_frame, display_frame_free_cb);
 if (ret != AVDK_ERR_OK) {
     display_frame_free_cb(disp_frame);
 }
-
 ```
 
 可选回调会在控制器不再使用该帧时被调用。如果使用固定复用 buffer，回调可以为空实现；如果每帧单独分配，应在回调中释放。
 
+<a id="id7"></a>
 
-### 4. 关闭和删除
+### 4\. 关闭和删除
 
 使用 `bk_display_close()` 停止输出。如果后续还要重新初始化，可调用 `bk_display_deinit()`；如果需要释放句柄，调用 `bk_display_delete()`。`bk_display_delete()` 会在控制器仍处于 active 状态时隐式反初始化。
-
 
 ```
 bk_display_close(lcd_display_handle);
 bk_display_deinit(lcd_display_handle);
 bk_display_delete(lcd_display_handle);
 lcd_display_handle = NULL;
-
 ```
 
+<a id="id8"></a>
 
 ## 注意事项
 

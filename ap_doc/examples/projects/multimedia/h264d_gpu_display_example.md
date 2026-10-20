@@ -1,50 +1,63 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/multimedia/h264d_gpu_display_example/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="h264gpu"></a>
+
 # H264解码GPU显示示例工程
 
+<a id="id1"></a>
 
-
-## 1. 项目概述
+## 1\. 项目概述
 
 本项目用于演示 Beken 平台上的 H264 解码、GPU 图像处理和 MIPI 屏显示流程。当前测试路径基于 `bk_h264_decode_*` 解码控制器、GPU blit/FLEXA 处理链路和 DPU/MIPI 显示后端。
 
 当前工程提供：
 
-
 - 内置 H264 流解码并通过 GPU 输出到显示帧
-
 - 可选 MIPI 屏显示输出
-
 - 可选 ISP 小窗叠加显示（PIP），通过 GPU blit 叠加到 H264 大图
-
 - `CONFIG_BK_DECODER` 使能时的上电自动运行 case
-
 - `.it.csv` 集成测试入口
 
+<a id="id2"></a>
 
 ### 1.1 测试环境
 
-> - 硬件配置：
->   :   - 核心板，**BK7259_QF128_12.3X12.3_V4.0**
->       - PSRAM 32M
->       - MIPI DSI 屏，默认配置为 `LCD_HX8399C_MIPI_1080x1920`
->       - PIP 测试默认使用 CSI GC2053 sensor
-> - 支持模块：
->   :   - H264 硬件解码
->       - VG-Lite GPU
->       - DPU/MIPI 显示
->       - 可选 ISP/CSI camera 小窗输入
-> - 默认输入：
->   :   - `720x1280` 内置 H264 码流
->       - 可通过 Kconfig 切换为 `1280x720` 内置 H264 码流
+- 硬件配置：
+
+  > - 核心板， **BK7259\_QF128\_12.3X12.3\_V4.0**
+  > - PSRAM 32M
+  > - MIPI DSI 屏，默认配置为 `LCD_HX8399C_MIPI_1080x1920`
+  > - PIP 测试默认使用 CSI GC2053 sensor
+- 支持模块：
+
+  > - H264 硬件解码
+  > - VG-Lite GPU
+  > - DPU/MIPI 显示
+  > - 可选 ISP/CSI camera 小窗输入
+- 默认输入：
+
+  > - `720x1280` 内置 H264 码流
+  > - 可通过 Kconfig 切换为 `1280x720` 内置 H264 码流
 
 警告
 
 请使用参考外设，进行 demo 工程的熟悉和学习。如果屏、sensor 或外设规格不一样，代码和 Kconfig 可能需要重新配置。
 
+<a id="id3"></a>
 
-## 2. 目录结构
+## 2\. 目录结构
 
 项目采用 AP-CP 双核架构，主要源代码位于 AP 目录下。项目结构如下：
-
 
 ```
 h264d_gpu_display_example/
@@ -67,32 +80,26 @@ h264d_gpu_display_example/
 ├── main/                       # 双核入口构建配置
 ├── partitions/                 # 分区和内存区域配置
 └── pj_config.mk                # 项目配置
-
 ```
 
+<a id="id4"></a>
 
-## 3. 功能说明
+## 3\. 功能说明
 
+<a id="id5"></a>
 
 ### 3.1 主要功能
 
-
 - 支持内置 H264 码流解码显示
-
 - 支持 `720x1280` 和 `1280x720` 两种测试码流配置
-
 - 支持 GPU 对解码帧进行缩放、旋转和格式处理
-
 - 支持将 GPU 输出帧送到 DPU/MIPI 屏显示
-
 - 支持 ISP 小窗通过 GPU blit 叠加到 H264 大图
-
 - 支持 CLI 指定循环次数，`0` 表示持续循环直到执行 `stop`
-
 - 提供统一 `[RESULT][PASS]` / `[RESULT][FAIL]` 结果日志
-
 - `CONFIG_BK_DECODER` 使能时，上电后自动运行一次默认 H264 解码显示 case
 
+<a id="h264"></a>
 
 ### 3.2 H264解码显示流程
 
@@ -106,36 +113,34 @@ h264d_gpu_display_example/
 8. 可选送 DPU/MIPI 刷屏
 9. 达到指定循环次数或收到 `stop` 请求后释放资源并打印 `[RESULT]` 日志
 
+<a id="isp"></a>
 
 ### 3.3 ISP小窗叠加流程
 
 开启 `CONFIG_H264D_GPU_DISPLAY_ENABLE_ISP_PIP` 后，可以通过 `isp_open` 启动 sensor、ISP channel 和小窗叠加任务。默认配置为：
 
-
 - sensor 输入：`1280x720@20fps`
-
 - ISP 小窗输出：`640x360` NV12
-
 - PIP 旋转：默认 90 度
-
 - PIP 显示位置：默认 `dst=(696,32)`，适配 1088x1920 竖屏
 
 `isp_close` 会关闭 ISP channel、sensor 和 bus，并释放 PIP 相关资源。
 
+<a id="id6"></a>
 
-## 4. 编译与运行
+## 4\. 编译与运行
 
+<a id="id7"></a>
 
 ### 4.1 编译方法
 
 使用以下命令编译项目：
 
-
 ```
 make bk7259 PROJECT=multimedia/h264d_gpu_display_example
-
 ```
 
+<a id="id8"></a>
 
 ### 4.2 运行方法
 
@@ -145,15 +150,17 @@ make bk7259 PROJECT=multimedia/h264d_gpu_display_example
 
 命令执行失败打印：”CMDRSP:ERROR”
 
+<a id="cli"></a>
 
 #### 4.2.1 当前CLI命令
-
 
 ```
 h264d_gpu_display help
 h264d_gpu_display start [loops]
 h264d_gpu_display start_rgb565 [loops]
 h264d_gpu_display start_rgb888 [loops]
+h264d_gpu_display start_osd_rgb565 [loops]
+h264d_gpu_display start_osd_rgb888 [loops]
 h264d_gpu_display start_dec_scale [loops] [out_w out_h]
 h264d_gpu_display start_dec_scale_cvt [loops] [out_w out_h]
 h264d_gpu_display start_dec_scale_cvt888 [loops] [out_w out_h]
@@ -162,134 +169,110 @@ h264d_gpu_display isp_open
 h264d_gpu_display isp_open <sensor_w> <sensor_h> <fps> <isp_w> <isp_h>
 h264d_gpu_display isp_open <sensor_w> <sensor_h> <fps> <isp_w> <isp_h> <dst_x> <dst_y>
 h264d_gpu_display isp_close
-
 ```
 
-
 - `start [loops]`：启动 H264 解码 GPU 显示任务；`loops` 省略或为 `0` 时持续循环，非 0 时运行指定轮数后自动退出
-
 - `start_rgb565 [loops]` / `start_rgb888 [loops]`：解码为 RGB565/RGB888 后走 GPU blit 显示
-
-- `start_dec_scale [loops] [out_w out_h]`：**测试 H264 解码器自身的缩放能力**。使用 frame 模式解码控制器，让解码器 PP 把原生码流（默认 1280×720）缩放到 `out_w×out_h`，输出仍为 NV12（不改格式，纯缩放）。省略 `out_w/out_h` 时默认下采样到 `640×352`；也可传 `1920 1088` 做上采样。缩放后的帧再经 GPU blit 缩放/旋转到屏幕分辨率并送 MIPI 屏显示
-
-- `start_dec_scale_cvt [loops] [out_w out_h]`：**测试 H264 解码器缩放 + 格式转换（RGB565）**。同上，但 PP 输出转换为 RGB565（缩放与 NV12→RGB565 转换同时进行），随后同样经 GPU 上屏显示
-
-- `start_dec_scale_cvt888 [loops] [out_w out_h]`：**测试 H264 解码器缩放 + 格式转换（RGB888）**。与上一条一致，但 PP 输出转换为 RGB888（32bpp），随后经 GPU 上屏显示
-
+- `start_osd_rgb565 [loops]` / `start_osd_rgb888 [loops]`：解码器 PP 输出 RGB565/RGB888 时叠加 320x320 OSD 图片，再经 GPU blit 显示
+- `start_dec_scale [loops] [out_w out_h]`： **测试 H264 解码器自身的缩放能力** 。使用 frame 模式解码控制器，让解码器 PP 把原生码流（默认 1280×720）缩放到 `out_w×out_h`，输出仍为 NV12（不改格式，纯缩放）。省略 `out_w/out_h` 时默认下采样到 `640×352`；也可传 `1920 1088` 做上采样。缩放后的帧再经 GPU blit 缩放/旋转到屏幕分辨率并送 MIPI 屏显示
+- `start_dec_scale_cvt [loops] [out_w out_h]`： **测试 H264 解码器缩放 \+ 格式转换（RGB565）** 。同上，但 PP 输出转换为 RGB565（缩放与 NV12→RGB565 转换同时进行），随后同样经 GPU 上屏显示
+- `start_dec_scale_cvt888 [loops] [out_w out_h]`： **测试 H264 解码器缩放 \+ 格式转换（RGB888）** 。与上一条一致，但 PP 输出转换为 RGB888（32bpp），随后经 GPU 上屏显示
 - `out_w/out_h` 建议为 16 的倍数（PP 输出高度内部按 16 对齐）；解码器 PP 水平/垂直独立支持上采样和下采样
-
 - `stop`：请求当前解码显示任务在当前帧结束后退出
-
 - `isp_open`：启动 ISP 小窗叠加功能，未传参时使用默认 sensor/ISP/PIP 配置
-
 - `isp_close`：关闭 ISP 小窗叠加功能
-
 - `CMDRSP:OK` 只表示命令被接受或测试线程创建成功，最终是否通过请看 `[RESULT]` 日志
 
+<a id="id9"></a>
 
-## 5. 测试示例
+## 5\. 测试示例
 
+<a id="id10"></a>
 
 ### 5.1 解码显示一次
 
-
 ```
 h264d_gpu_display start 1
-
 ```
 
 预期最终日志：
 
-
 ```
 [RESULT][PASS] decoded_frames=...
-
 ```
 
+<a id="id11"></a>
 
 ### 5.2 持续解码显示并停止
-
 
 ```
 h264d_gpu_display start
 h264d_gpu_display stop
-
 ```
 
 预期最终日志：
 
-
 ```
 [RESULT][PASS] decoded_frames=...
-
 ```
 
+<a id="id12"></a>
 
 ### 5.3 启动ISP小窗叠加
-
 
 ```
 h264d_gpu_display isp_open
 h264d_gpu_display start
 h264d_gpu_display isp_close
 h264d_gpu_display stop
-
 ```
 
 也可以指定 sensor、ISP 输出尺寸和小窗位置：
 
-
 ```
 h264d_gpu_display isp_open 1280 720 20 640 360 696 32
-
 ```
 
+<a id="id13"></a>
 
-### 5.4 解码器缩放 / 缩放+格式转换
+### 5.4 解码器缩放 / 缩放\+格式转换
 
 以下命令验证 H264 解码器 PP 的缩放与格式转换能力：解码器先把码流缩放（并按需转 RGB565），再经 GPU blit 缩放/旋转到屏幕分辨率并上屏显示：
 
-
 ```
-
 # 纯缩放（NV12 -> NV12），下采样 1280x720 -> 640x352
 h264d_gpu_display start_dec_scale 2 640 352
-
 # 纯缩放，上采样 1280x720 -> 1920x1088
 h264d_gpu_display start_dec_scale 2 1920 1088
-
 # 缩放 + 格式转换（NV12 -> RGB565），下采样
 h264d_gpu_display start_dec_scale_cvt 2 640 352
-
 # 缩放 + 格式转换，上采样
 h264d_gpu_display start_dec_scale_cvt 2 1920 1088
-
 # 缩放 + 格式转换（NV12 -> RGB888），下采样 / 上采样
 h264d_gpu_display start_dec_scale_cvt888 2 640 352
 h264d_gpu_display start_dec_scale_cvt888 2 1920 1088
-
 ```
 
-预期最终日志（`<mode>` 为 `dec_scale_nv12`、`dec_scale_rgb565` 或 `dec_scale_rgb888`）：
-
+预期最终日志（`<mode>` 为 `dec_scale_nv12`、`dec_scale_rgb565` 或 `dec_scale_rgb888` ）：
 
 ```
 [RESULT][PASS] <mode> out=... decoded_frames=...
-
 ```
 
 日志中还会打印每帧经 `get_info` 回读的输出尺寸，用于确认缩放确实生效。
 
+<a id="id14"></a>
 
 ### 5.5 集成测试命令
 
 `.it.csv` 包含：
 
-
 ```
 ap_cmd h264d_gpu_display start 2
 ap_cmd h264d_gpu_display start 20
 ap_cmd h264d_gpu_display stop
+ap_cmd h264d_gpu_display start_osd_rgb565 2
+ap_cmd h264d_gpu_display start_osd_rgb888 2
 ap_cmd h264d_gpu_display isp_open
 ap_cmd h264d_gpu_display start
 ap_cmd h264d_gpu_display isp_close
@@ -300,63 +283,48 @@ ap_cmd h264d_gpu_display start_dec_scale_cvt 2 640 352
 ap_cmd h264d_gpu_display start_dec_scale_cvt 2 1920 1088
 ap_cmd h264d_gpu_display start_dec_scale_cvt888 2 640 352
 ap_cmd h264d_gpu_display start_dec_scale_cvt888 2 1920 1088
-
 ```
 
 期望结果匹配 `CMDRSP:OK`、`loop 1 start` 或 `[RESULT][PASS]` 日志。
 
+<a id="id15"></a>
 
-## 6. 配置选项
+## 6\. 配置选项
 
+<a id="id16"></a>
 
 ### 6.1 显示与码流配置
 
-
 - `CONFIG_H264D_GPU_DISPLAY_ENABLE_MIPI_DISPLAY`：使能 MIPI 屏显示输出
-
 - `CONFIG_H264D_GPU_DISPLAY_TEST_STREAM_720X1280`：使用 `720x1280` 内置 H264 码流
-
 - `CONFIG_H264D_GPU_DISPLAY_TEST_STREAM_1280X720`：使用 `1280x720` 内置 H264 码流
 
 默认显示输出尺寸由工程配置定义为：
 
-
 - GPU 显示宽度：`1088`
-
 - GPU 显示高度：`1920`
-
 - `720x1280` 码流默认不旋转
-
 - `1280x720` 码流默认旋转 90 度后适配竖屏显示
 
+<a id="isp-pip"></a>
 
 ### 6.2 ISP PIP配置
 
-
 - `CONFIG_H264D_GPU_DISPLAY_ENABLE_ISP_PIP`：使能 ISP 小窗叠加
-
 - `CONFIG_H264D_GPU_DISPLAY_ENABLE_ISP_PIP_ROTATE`：使能 ISP 小窗旋转
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_ROTATE_90`：ISP 小窗旋转 90 度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_ROTATE_270`：ISP 小窗旋转 270 度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_SENSOR_DEFAULT_WIDTH`：默认 sensor 输入宽度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_SENSOR_DEFAULT_HEIGHT`：默认 sensor 输入高度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_SENSOR_DEFAULT_FPS`：默认 sensor 帧率
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_DEFAULT_WIDTH`：默认 ISP 小窗输出宽度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_DEFAULT_HEIGHT`：默认 ISP 小窗输出高度
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_DEFAULT_DST_X`：默认小窗 X 坐标
-
 - `CONFIG_H264D_GPU_DISPLAY_ISP_PIP_DEFAULT_DST_Y`：默认小窗 Y 坐标
 
+<a id="id17"></a>
 
-## 7. 注意事项
+## 7\. 注意事项
 
 1. `h264d_gpu_display start` 只负责创建测试线程，最终结果以 `[RESULT][PASS]` 或 `[RESULT][FAIL]` 为准。
 2. 上电 boot demo 会自动运行一次默认码流，建议等待其结束后再手动触发 CLI 测试。

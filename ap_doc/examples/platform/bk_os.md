@@ -1,16 +1,32 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/platform/bk_os.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="os"></a>
+
 # OS
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 > 介绍OS相关的cli命令使用。
 
+<a id="id2"></a>
 
 ## 2 代码路径
 
 > demo路径：`components\bk_cli\cli_os.c` `components\bk_cli\cli_mem.c`
 
+<a id="cli"></a>
 
 ## 3 cli命令简介
 
@@ -18,9 +34,9 @@
 >
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_FREERTOS | support FreeRTOS | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> | CONFIG_FREERTOS_V10 | support FreeRTOS V10 | `middleware\soc\bk7236\bk7236.defconfig` | y |
-> | CONFIG_CUSTOMIZE_HEAP_SIZE | customize freerots heap size(byte) | `middleware\soc\bk7236\bk7236.defconfig` | 217088 |
+> | CONFIG\_FREERTOS | support FreeRTOS | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> | CONFIG\_FREERTOS\_V10 | support FreeRTOS V10 | `middleware\soc\bk7236\bk7236.defconfig` | y |
+> | CONFIG\_CUSTOMIZE\_HEAP\_SIZE | customize freerots heap size(byte) | `middleware\soc\bk7236\bk7236.defconfig` | 217088 |
 >
 > demo支持的命令如下表：
 >
@@ -35,9 +51,10 @@
 > | memshow | none | show the usage of the current heap |
 > | memdump {addr} {length} | {addr}: start address | output data of specified length from the specified address |
 > | {length}:dump length |
-> | ostop | {1|5|10} | Display CPU usage for a specified duration |
-> | ostop_end | none | Stop Display CPU usage |
+> | ostop | {1\|5\|10} | Display CPU usage for a specified duration |
+> | ostop\_end | none | Stop Display CPU usage |
 
+<a id="id3"></a>
 
 ## 4 演示介绍
 
@@ -291,9 +308,9 @@
 >
 > 9、显示指定时间的CPU负载
 >
-> > > ostop 1|5|10 //显示指定时间内的CPU负载，当前支持1秒、5秒、10秒为单位，开启后会定时输出最新的CPU利用率
+> > > ostop 1\|5\|10 //显示指定时间内的CPU负载，当前支持1秒、5秒、10秒为单位，开启后会定时输出最新的CPU利用率
 > > >
-> > > 注意：该功能依赖于宏CONFIG_FREERTOS_HISTORY_CPU_PERCENT,默认关闭。当需要使用该功能时可在工程中配置宏，该功能开启后会消耗一部分内存。
+> > > 注意：该功能依赖于宏CONFIG\_FREERTOS\_HISTORY\_CPU\_PERCENT,默认关闭。当需要使用该功能时可在工程中配置宏，该功能开启后会消耗一部分内存。
 > > >
 > > > 下面以 ostop 5为例：
 > >
@@ -346,7 +363,7 @@
 >
 > 10、停止显示指定时间的CPU负载
 >
-> > > ostop_end //使用ostop命令开启的显示CPU负载，必须使用ostop_end来关闭
+> > > ostop\_end //使用ostop命令开启的显示CPU负载，必须使用ostop\_end来关闭
 > >
 > > ```
 > > [15:30:02.018 T]ostop_end

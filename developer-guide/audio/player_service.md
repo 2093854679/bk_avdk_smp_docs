@@ -1,8 +1,22 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/audio/player_service/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # **播放器服务**
 
+<a id="id2"></a>
 
-
-## **1. 简介**
+## **1\. 简介**
 
 > 播放器服务组件是基于ADK音频开发框架设计实现的音频播放组件。
 >
@@ -14,19 +28,16 @@
 >
 > 支持创建直接播放的播放器和不直接播放的播放器（解码后的PCM数据可以输出到其他组件进行播放）。
 
-
 - 有关播放器服务的API参考，请参阅：
 
-
-  - [播放器服务API参考](../../ap_doc/api-reference/audio/player_service.md "../../ap_doc/api-reference/audio/player_service.md")
-
+  - [播放器服务API参考](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/api-reference/audio/player_service/index.html)
 - 有关播放器服务的示例工程，请参阅：
 
+  - [播放器服务示例工程](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/examples/projects/player_service_example/index.html)
 
-  - [播放器服务示例工程](../../ap_doc/examples/projects/multimedia/player_service_example.md "../../ap_doc/examples/projects/multimedia/player_service_example.md")
+<a id="id4"></a>
 
-
-## **2. 软件框架**
+## **2\. 软件框架**
 
 > 软件框架如下图所示（图示资源待补充）：
 >
@@ -44,41 +55,43 @@
 
 1. 播放器服务支持创建不直接播放的播放器，这种情况下，解码后的PCM数据可以通过设置输出端口输出到其他组件进行处理。
 
+<a id="id5"></a>
 
-## **2. 宏配置**
+## **2\. 宏配置**
 
 > 功能宏配置：
 >
 > |  |  |  |  |
 > | --- | --- | --- | --- |
 > | Kconfig | CPU | Format | Value |
-> | CONFIG_PLAYER_SERVICE | AP | bool | y |
-> | CONFIG_PLAYER_SERVICE_SUPPORT_ARRAY_STREAM | AP | bool | y/n |
-> | CONFIG_PLAYER_SERVICE_SUPPORT_VFS_STREAM | AP | bool | y/n |
-> | CONFIG_PLAYER_SERVICE_SUPPORT_MP3_DECODER | AP | bool | y/n |
-> | CONFIG_PLAYER_SERVICE_SUPPORT_G711_DECODER | AP | bool | y/n |
-> | CONFIG_PLAYER_SERVICE_SUPPORT_WAV_DECODER | AP | bool | y/n |
+> | CONFIG\_PLAYER\_SERVICE | AP | bool | y |
+> | CONFIG\_PLAYER\_SERVICE\_SUPPORT\_ARRAY\_STREAM | AP | bool | y/n |
+> | CONFIG\_PLAYER\_SERVICE\_SUPPORT\_VFS\_STREAM | AP | bool | y/n |
+> | CONFIG\_PLAYER\_SERVICE\_SUPPORT\_MP3\_DECODER | AP | bool | y/n |
+> | CONFIG\_PLAYER\_SERVICE\_SUPPORT\_G711\_DECODER | AP | bool | y/n |
+> | CONFIG\_PLAYER\_SERVICE\_SUPPORT\_WAV\_DECODER | AP | bool | y/n |
 >
 > 依赖功能宏配置：
 >
 > |  |  |  |  |
 > | --- | --- | --- | --- |
 > | Kconfig | CPU | Format | Value |
-> | CONFIG_ADK | AP | bool | y |
-> | CONFIG_ADK_ARRAY_STREAM | AP | bool | y/n |
-> | CONFIG_ADK_VFS_STREAM | AP | bool | y/n |
-> | CONFIG_ADK_MP3_DECODER | AP | bool | y/n |
-> | CONFIG_ADK_G711_DECODER | AP | bool | y/n |
-> | CONFIG_ADK_WAV_DECODER | AP | bool | y/n |
-> | CONFIG_ADK_ONBOARD_SPEAKER_STREAM | AP | bool | y/n |
+> | CONFIG\_ADK | AP | bool | y |
+> | CONFIG\_ADK\_ARRAY\_STREAM | AP | bool | y/n |
+> | CONFIG\_ADK\_VFS\_STREAM | AP | bool | y/n |
+> | CONFIG\_ADK\_MP3\_DECODER | AP | bool | y/n |
+> | CONFIG\_ADK\_G711\_DECODER | AP | bool | y/n |
+> | CONFIG\_ADK\_WAV\_DECODER | AP | bool | y/n |
+> | CONFIG\_ADK\_ONBOARD\_SPEAKER\_STREAM | AP | bool | y/n |
 
 备注
 
 1. 宏配置中value含义： `y` 表示必须打开， `y/n` 表示根据实际需求选择是否开启。
 2. 如果需要支持UAC speaker、mp3 decoder等功能，参考音频开发框架中的组件模块说明，打开对应的功能宏以及对应的组件功能宏即可。
 
+<a id="casedemo"></a>
 
-## **3. 测试case及参考demo**
+## **3\. 测试case及参考demo**
 
 > 组件提供了模块测试case和参考使用demo：
 > :   `bk_avdk_smp<源代码路径>/ap/components/bk_player_service/cli/`
@@ -89,11 +102,13 @@
 
 1. `bk_avdk_smp<源代码路径>/ap/include/components/bk_player_service_types.h` 提供了常用方案的默认配置参考，可参阅播放器服务的API文档。
 
+<a id="id6"></a>
 
-## **4. 典型示例**
+## **4\. 典型示例**
 
 > 以典型的应用场景：播放数组中的提示音文件（使用板载speaker）为示例说明播放器组件使用流程。
 
+<a id="id7"></a>
 
 ### 创建播放器并播放提示音文件
 
@@ -104,7 +119,6 @@
     4. 启动播放器播放提示音文件。
 
 以下为代码示例
-
 
 ```
 /* 1. 配置播放器参数并创建播放器句柄 */
@@ -145,7 +159,6 @@ if (BK_OK != bk_player_start(player_handle))
     LOGE("player start fail\n");
     return BK_FAIL;
 }
-
 ```
 
 备注
@@ -153,6 +166,7 @@ if (BK_OK != bk_player_start(player_handle))
 1. 播放数组中的音频文件时，无法通过文件扩展名来判断解码类型，所以需要通过 `bk_player_set_decode_type` 函数设置解码类型。
 2. 播放vfs中的音频文件时，可以通过解析文件扩展名来判断解码类型，因此不需要通过 `bk_player_set_decode_type` 函数设置解码类型。
 
+<a id="id8"></a>
 
 ### 停止播放并注销播放器
 
@@ -161,7 +175,6 @@ if (BK_OK != bk_player_start(player_handle))
     2. 销毁播放器。
 
 以下为代码示例
-
 
 ```
 /* 1. 停止播放 */
@@ -177,16 +190,17 @@ if (BK_OK != bk_player_destroy(player_handle))
     LOGE("player destroy fail\n");
     return BK_FAIL;
 }
-
 ```
 
+<a id="id9"></a>
 
-## **5. 插播示例**
+## **5\. 插播示例**
 
 > 插播应用场景：在播放其他音频流（例如：语音通话、蓝牙听歌等）的同时，穿插播放提示音文件（例如：电量低、导航提示音等）。
 >
 > 以语音通话过程中插播提示音(vfs中的提示音)为示例说明播放器组件使用流程。
 
+<a id="id10"></a>
 
 ### 创建不直接播放的播放器并播放提示音文件
 
@@ -199,7 +213,6 @@ if (BK_OK != bk_player_destroy(player_handle))
     6. 启动播放器播放提示音文件。
 
 以下为代码示例
-
 
 ```
 /* 1. 配置并启动语音通话 */
@@ -288,15 +301,15 @@ if (BK_OK != bk_player_start(player_handle))
     LOGE("player start fail\n");
     return BK_FAIL;
 }
-
 ```
 
 备注
 
-1. 步骤 4. 绑定播放器到语音通话的输出端口 需要配置播放的音频格式信息，因此如果不确定音频格式信息的话，可以在创建播放器注册的回调函数（解码成功后会上报音频格式信息）中执行这一步骤。
-2. 有关语音通话组件的使用请参阅： [语音通话服务开发指南](voice_service.md "voice_service.md")。
-3. 有关多音源播放功能的使用请参阅： [音频流开发指南](audio_development_kit/audio_streams.md "audio_development_kit/audio_streams.md")。
+1. 步骤 4\. 绑定播放器到语音通话的输出端口 需要配置播放的音频格式信息，因此如果不确定音频格式信息的话，可以在创建播放器注册的回调函数（解码成功后会上报音频格式信息）中执行这一步骤。
+2. 有关语音通话组件的使用请参阅： [语音通话服务开发指南](voice_service.md)。
+3. 有关多音源播放功能的使用请参阅： [音频流开发指南](audio_development_kit/audio_streams.md)。
 
+<a id="id13"></a>
 
 ### 停止播放并注销播放器
 
@@ -307,7 +320,6 @@ if (BK_OK != bk_player_start(player_handle))
     4. 销毁播放器。
 
 以下为代码示例
-
 
 ```
 /* 1. 停止播放器播放 */
@@ -346,5 +358,4 @@ if (BK_OK != bk_player_destroy(player_handle))
     LOGE("player destroy fail\n");
     return BK_FAIL;
 }
-
 ```

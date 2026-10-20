@@ -1,105 +1,117 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_psram.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="psram"></a>
+
 # PSRAM 使用指南
 
-
+<a id="id1"></a>
 
 ## 概述
 
 PSRAM（Pseudo Static RAM，伪静态随机存取存储器）是一种兼具 SRAM 接口简单性与 DRAM 容量优势的存储器类型。
-通过内部 DRAM 技术 + 自动刷新控制，PSRAM 向主控提供与 SRAM 接口兼容的易用体验，且具备更高容量性价比，适用于图像/音频/缓存等大容量应用场景。
+通过内部 DRAM 技术 \+ 自动刷新控制，PSRAM 向主控提供与 SRAM 接口兼容的易用体验，且具备更高容量性价比，适用于图像/音频/缓存等大容量应用场景。
 
+<a id="id2"></a>
 
 ## PSRAM 适用场景
 
 PSRAM 特别适合以下应用场景：
 
-
 - 图像缓存（摄像头帧缓存、图像预处理）
-
 - 音频数据处理（语音识别、语音缓存）
-
 - 联网应用缓存（TCP/IP 缓冲区、OTA 数据）
-
 - 堆内存扩展（task 创建、运行时内存分配）
 
+<a id="psram-bk7259"></a>
 
-## 我们的 PSRAM 支持情况（BK7258）
+## 我们的 PSRAM 支持情况（BK7259）
 
-
-- BK7258 芯片内置 合封 PSRAM（封装在芯片内部）
-
-- 自动识别型号与容量：支持 4MB / 8MB / 16MB 三种型号，驱动在启动时会根据 PSRAM ID 自动检测并配置初始化参数，编译时使用的大小需要在ram_regions.csv中配置。
-
+- BK7259 芯片内置 **两块** 合封 PSRAM（PSRAM0 / PSRAM1，均封装在芯片内部）；相比之下 BK7258 仅内置 1 块 PSRAM。
+- 地址空间：PSRAM0 基址 `0x60000000`，PSRAM1 基址 `0x64000000`；分区与容量以工程 `ram_regions.csv` 为准。
+- 自动识别型号与容量：支持 4MB / 8MB / 16MB 等型号，驱动在启动时会根据 PSRAM ID 自动检测并配置初始化参数，编译时使用的大小需要在 `ram_regions.csv` 中配置。
 - 初始化完成后，系统自动映射有效地址空间，供开发者使用
+- 注意：尽管驱动能自动识别容量，但用户访问地址仍需确保不超出对应 PSRAM 实例的有效大小
 
-- 注意：尽管驱动能自动识别容量，但用户访问地址仍需确保不超出有效大小
-
+<a id="id3"></a>
 
 ## PSRAM 使用方法
 
+<a id="heap"></a>
 
 ### 作为 Heap 使用
 
-
-- 在配置 `AP_PSRAM_HEAP` 和 `CP_PSRAM_HEAP` 即可配置各自APP的PSRAM_HEAP空间，并需要开启宏配置 `CONFIG_PSRAM_AS_SYS_MEMORY` 。
-
+- 在 `ram_regions.csv` 中通过 `AP_PSRAM_HEAP`、`AP_PSRAM_CACHE_HEAP`
+  和 `CP_PSRAM_HEAP` 配置各内存池大小，并开启 `CONFIG_PSRAM_AS_SYS_MEMORY`。
 - 动态内存接口：
 
+  ```
+  void *psram_malloc(size_t size);
+  void *psram_zalloc(size_t size);
+  void  psram_free(void *p);
+  ```
 
-```
-void *psram_malloc(size_t size);
-void  psram_free(void *p);
+  `psram_malloc` / `psram_zalloc` 从普通 `AP_PSRAM_HEAP` 分配。当前 AP
+  推荐配置下，该内存默认 non-cacheable，适合普通业务 buffer。`AP_PSRAM_CACHE_HEAP`
+  仅用于 OS 内部的 PSRAM task 相关分配，不作为客户业务 buffer 接口。
+- 低功耗场景：未释放 Heap 内存会影响进入低功耗，可用 bk\_psram\_heap\_get\_used\_state() 查询当前状态。
+- PSRAM 上的 Task 创建接口:
 
-```
+  ```
+  bk_err_t rtos_create_psram_thread(beken_thread_t *thread, uint8_t priority, const char *name, beken_thread_function_t function, uint32_t stack_size, beken_thread_arg_t arg);
+  bk_err_t rtos_delete_thread(beken_thread_t *thread);
+  ```
 
+  如果 PSRAM 上创建任务失败或返回内存不足，通常需要检查 `AP_PSRAM_CACHE_HEAP` 是否
+  满足当前工程的 PSRAM task 内部分配峰值需求。非 fast boot 场景还需考虑 TCB 等任务内部
+  对象开销。可在工程 `partitions/bk7259/ram_regions.csv` 中增大
+  `AP_PSRAM_CACHE_HEAP`，必要时从普通 `AP_PSRAM_HEAP`、`AP_PSRAM_CODE_SECTION` 或其它
+  可调整区域中回收空间。修改后建议 clean 编译，并通过 `memshow` 确认剩余空间。
 
-- 低功耗场景：未释放 Heap 内存会影响进入低功耗，可用 bk_psram_heap_get_used_state() 查询当前状态。
-
-- PSRAM 上的 Task 创建接口：
-
-
-```
-bk_err_t rtos_create_psram_thread(beken_thread_t *thread, uint8_t priority, const char *name, beken_thread_function_t function, uint32_t stack_size, beken_thread_arg_t arg);
-bk_err_t rtos_delete_thread(beken_thread_t *thread);
-
-```
-
+<a id="id4"></a>
 
 ### 作为 多媒体静态内存 使用
 
-
 - 多媒体模块（AP）独占部分 PSRAM 空间
-
 - 使用专用接口申请/释放：
-
 
 ```
 void *bk_psram_frame_buffer_malloc(psram_heap_type_t type, uint32_t size);
 void  bk_psram_frame_buffer_free(void* mem_ptr);
-
 ```
 
+<a id="id5"></a>
 
 ## PSRAM 使用说明
 
-
 - PSRAM 可被 AP 与 CP共同访问，但访问时需要避免资源冲突，确保互斥管理
-
-- 支持使用 psram_malloc() / psram_free() 接口动态分配内存，用于多媒体缓存、任务创建等
-
+- AP 普通动态内存使用 psram\_malloc() / psram\_free()；该内存默认 non-cacheable，
+  适合普通业务 buffer 和常见 CP/DMA 共享场景
 - 一部分 PSRAM 空间可用于扩展堆内存，提升系统动态内存灵活性
 
+<a id="id6"></a>
 
 ## PSRAM的类型
 
-> BK7258支持三种类型的PSRAM，具体配置如下：
+> BK7259支持三种类型的PSRAM，具体配置如下：
 >
 > |  |  |
 > | --- | --- |
 > | name | size(Mbyte) |
-> | W955D8MKY_5J | 4 |
-> | APS6408L_O | 8 |
-> | APS128XXO_OB9 | 16 |
+> | W955D8MKY\_5J | 4 |
+> | APS6408L\_O | 8 |
+> | APS128XXO\_OB9 | 16 |
 
+<a id="id7"></a>
 
 ## PSRAM的划分
 
@@ -108,44 +120,46 @@ void  bk_psram_frame_buffer_free(void* mem_ptr);
 > |  |  |  |
 > | --- | --- | --- |
 > | marco | value | implication |
-> | CONFIG_PSRAM | Y | 使能PSRAM模块 |
-> | CONFIG_PSRAM_AS_SYS_MEMORY | Y | 使能PSRAM作为Heap |
-> | CONFIG_USE_PSRAM_HEAP_AT_SRAM_OOM | Y | 使能sram申请不到内存，从psram申请 |
+> | CONFIG\_PSRAM | Y | 使能PSRAM模块 |
+> | CONFIG\_PSRAM\_AS\_SYS\_MEMORY | Y | 使能PSRAM作为Heap |
+> | CONFIG\_USE\_PSRAM\_HEAP\_AT\_SRAM\_OOM | Y | 使能sram申请不到内存，从psram申请 |
 >
-> > - 功能开关CONFIG_PSRAM_AS_SYS_MEMORY依赖CONFIG_PSRAM和CONFIG_FREERTOS_V10
+> > - 功能开关CONFIG\_PSRAM\_AS\_SYS\_MEMORY依赖CONFIG\_PSRAM和CONFIG\_FREERTOS\_V10
 
 备注
 
 注意：
 系统默认从PSRAM的起始地址(0x60000000)开始的头部区域给多媒体使用。
 某个核上是否需要将psram作为heap，是由 `CONFIG_PSRAM_AS_SYS_MEMORY` 控制。
-ram_regions.csv仅作为划分资源分区，是否使用特定的分区由相应的宏进行控制，
+ram\_regions.csv仅作为划分资源分区，是否使用特定的分区由相应的宏进行控制，
 但AP侧未开启 `CONFIG_PSRAM_AS_SYS_MEMORY` 则此分区未被使用。
 
+<a id="id8"></a>
 
 ## PSRAM在多媒体上的划分
 
 > > PSRAM在多媒体上使用，根据功能被划分为四个模块，参考结构体：`psram_heap_type_t`，位置：`ap/include/driver/media_types.h`.
 > >
 > > 各个模块使用的内存是由结构体：`psram_mem_slab_mapping` ，定义的，参考路径：`ap/components/media_utils/src/frame_buffer_mapping.h`。
-> > 各个模块分配的内存大小在ram_regions.csv中配置，默认配置如下所示：
+> > 各个模块分配的内存大小在ram\_regions.csv中配置，默认配置如下所示：
 >
 > |  |  |  |
 > | --- | --- | --- |
 > | marco | value(byte) | implication |
-> | CONFIG_PSRAM_MEM_SLAB_USER_SIZE | 102400 | user defined mem block |
-> | CONFIG_PSRAM_MEM_SLAB_AUDIO_SIZE | 102400 | audio module mem block |
-> | CONFIG_PSRAM_MEM_SLAB_ENCODE_SIZE | 1433600 | encode image mem block |
-> | CONFIG_PSRAM_MEM_SLAB_DISPLAY_SIZE | 5701632 | undecode image mem block |
+> | CONFIG\_PSRAM\_MEM\_SLAB\_USER\_SIZE | 102400 | user defined mem block |
+> | CONFIG\_PSRAM\_MEM\_SLAB\_AUDIO\_SIZE | 102400 | audio module mem block |
+> | CONFIG\_PSRAM\_MEM\_SLAB\_ENCODE\_SIZE | 1433600 | encode image mem block |
+> | CONFIG\_PSRAM\_MEM\_SLAB\_DISPLAY\_SIZE | 5701632 | undecode image mem block |
 
 备注
 
-注意：上面宏定义的值是默认定义的，使用时可以根据自身需求，动态调整，直接在对应project中ram_regions.csv中进行修改即可。
+注意：上面宏定义的值是默认定义的，使用时可以根据自身需求，动态调整，直接在对应project中ram\_regions.csv中进行修改即可。
 
+<a id="id9"></a>
 
 ## 各个模块内存调整
 
-> > 根据上节所述，psram被划分为四个模块，不同的模块存储的数据类型不同，可在ram_regions.csv中配置地址空间，具体如下：
+> > 根据上节所述，psram被划分为四个模块，不同的模块存储的数据类型不同，可在ram\_regions.csv中配置地址空间，具体如下：
 > >
 > > - UASER：分配给用户使用，编译时生成 `CONFIG_PSRAM_MEM_SLAB_UASER_SIZE` 和 `CONFIG_PSRAM_MEM_SLAB_UASER_SIZE`；
 > > - AUDIO：分配给audio使用，存储的是音频数据，编译时生成 `CONFIG_PSRAM_MEM_SLAB_AUDIO_SIZE` 和 `CONFIG_PSRAM_MEM_SLAB_AUDIO_SIZE`；
@@ -158,18 +172,17 @@ ram_regions.csv仅作为划分资源分区，是否使用特定的分区由相�
 > |  |  |  |  |
 > | --- | --- | --- | --- |
 > | marco | value(byte) | implication | range |
-> | CONFIG_JPEG_FRAME_SIZE | 153600 | a jpeg frame max size | [0, 204800] |
-> | CONFIG_H264_FRAME_SIZE | 65536 | a h264 frame max size | [0, 204800] |
+> | CONFIG\_JPEG\_FRAME\_SIZE | 153600 | a jpeg frame max size | \[0, 204800\] |
+> | CONFIG\_H264\_FRAME\_SIZE | 65536 | a h264 frame max size | \[0, 204800\] |
 >
 > > 上面的大小需要根据自身需求需要调整，比如需要存储1280X720的JPEG图像，150K的空间可能不够，需要改成200K(204800)，甚至更大，根据实际使用情况调整。
 > > 同样针对H264数据，有时候需要调整H264的压缩率，以达到更清楚的画质，默认的64K可能不够，需要继续调大，所以也需要根据实际情况做调整。
 > >
-> > 根据上面的定义的大小，不同块存储的个数可以计算出来，假设DISPLAY模块使用的RGB565，且分辨率为：800X480，那么一帧图像的大小为：800*480*2=768000，
-> > 可存储的个数为：CONFIG_PSRAM_MEM_SLAB_DISPLAY_SIZE/768000=7，表示最大存7帧800X480的RGB565图像；
+> > 根据上面的定义的大小，不同块存储的个数可以计算出来，假设DISPLAY模块使用的RGB565，且分辨率为：800X480，那么一帧图像的大小为：800\*480\*2\=768000，
+> > 可存储的个数为：CONFIG\_PSRAM\_MEM\_SLAB\_DISPLAY\_SIZE/768000\=7，表示最大存7帧800X480的RGB565图像；
 > >
-> > 假设ENCODE模块都用来存储JPEG图像，最多存储数量：CONFIG_PSRAM_MEM_SLAB_ENCODE_SIZE/CONFIG_JPEG_FRAME_SIZE=9；但实际情况会同时存储JPEG和H264数据，代码中定义了
+> > 假设ENCODE模块都用来存储JPEG图像，最多存储数量：CONFIG\_PSRAM\_MEM\_SLAB\_ENCODE\_SIZE/CONFIG\_JPEG\_FRAME\_SIZE\=9；但实际情况会同时存储JPEG和H264数据，代码中定义了
 > > 各个图像模块最大的存储个数，参考： `ap/components/multimedia/include/frame_buffer.h`。
-
 
 ```
 #define FRAME_LIST_NODE_MAX         6
@@ -182,9 +195,9 @@ ram_regions.csv仅作为划分资源分区，是否使用特定的分区由相�
 #define YUV_FRAME_LIST_MAX_NODE     (FRAME_LIST_NODE_MAX - 3)
 
       上面的数量可以调整，只要保证总的数据量不超过各自模块的size即可。
-
 ```
 
+<a id="id10"></a>
 
 ## 多媒体上PSRAM使用
 
@@ -205,62 +218,52 @@ ram_regions.csv仅作为划分资源分区，是否使用特定的分区由相�
 
 备注
 
-客户使用时，建议使用系统的接口去申请和释放psram内存(psram_mallocpsram_free)，不建议使用上面多媒体模块自定义的申请和释放psram内存接口
+客户使用时，建议使用系统的 `psram_malloc` / `psram_free` 接口，
+不建议直接使用上面的多媒体模块私有接口。
 
+<a id="psram-heap-cache"></a>
 
-## 应用层配置psram过cache
+## PSRAM heap 的 Cache 属性
 
-> 如果上层应用想要配置psram过cache来的提升速度，可以参考下述方法。
-> 下面是默认的psram配置：
->
-> { ARM_MPU_RBAR(0x60000000UL, ARM_MPU_SH_NON, 0, 1, 0),
-> :   ARM_MPU_RLAR(0x63FFFFE0UL, 1) },
->
-> 假如现在上层需要将部分psram配置为cacheable，需要将代码修改为以下,这部分代码位于mpu_cfg.c中：
->
-> { ARM_MPU_RBAR(0x60000000UL, ARM_MPU_SH_INNER, 0, 1, 0),
-> :   ARM_MPU_RLAR(0x62FFFFE0UL, 1) }, //noncacheable
->
-> { ARM_MPU_RBAR(0x62FFFFE0UL, ARM_MPU_SH_NON, 0, 1, 0),
-> :   ARM_MPU_RLAR(0x63FFFFE0UL, 0) }, //cacheable
+BK7259 已在 MPU 中按 `ram_regions.csv` 自动划分 PSRAM 属性，无需应用修改
+`mpu_cfg.c`：
 
-备注
+- `AP_PSRAM_HEAP` 和 `AP_PSRAM_DATA_SECTION` 为 non-cacheable。
+- `AP_PSRAM_CACHE_HEAP` 为 L2 write-back cacheable，仅用于 PSRAM task 相关内部分配。
+- `AP_PSRAM_CODE_SECTION` 为 L1/L2 cacheable。
 
-1.不要将所有psram都配置为cacheable,而应该分段配置。因为被系统部分使用的psram默认是不开启cache的。
+普通业务 buffer 默认使用 non-cacheable 的 `AP_PSRAM_HEAP`，通常不需要业务层手动
+clean/invalidate。不要将 `AP_PSRAM_CACHE_HEAP` 或栈上局部变量作为 DMA、CP、GPU、
+NPU、Wi-Fi、BT、display、audio/video codec 等第三方 master 的数据 buffer。
 
-2.客户上层配置的cacheable的pasrm部分，需要由上层保证数据的一致性。
-
+<a id="id11"></a>
 
 ## PSRAM使用注意事项与动态行为
 
+<a id="id12"></a>
 
 ### PSRAM与低功耗管理的关系
 
-
 - Heap 初始化 / 多媒体静态使用时 投票上电
-
 - 资源释放后 投票下电，系统自动管理，无需手动干预
 
+<a id="id13"></a>
 
 ### PSRAM空间划分规则
 
-
-- 默认 PSRAM_DATA_ADDR(0x60000000) 到 DISPLAY分区结束为多媒体静态区
-
+- 默认 PSRAM\_DATA\_ADDR(0x60000000) 到 DISPLAY分区结束为多媒体静态区
 - 避免各个分区重叠
 
+<a id="id14"></a>
 
 ### 不同容量对工程配置影响
 
-
 - 不同工程场景需合理配置 PSRAM 空间
-
 - 若配置超出硬件容量，编译阶段 自动报错提示
 
+<a id="dump"></a>
 
 ### Dump 行为说明
 
-
 - 系统默认 Dump Heap 区内容
-
 - 多媒体静态区需手动接口查看，不自动 Dump

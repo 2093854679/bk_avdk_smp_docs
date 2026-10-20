@@ -1,10 +1,24 @@
-# bk_tflite_micro 开发指南
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/npu/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="bk-tflite-micro"></a>
 
+# bk\_tflite\_micro 开发指南
 
-## **1. 简介**
+<a id="id1"></a>
 
-> `bk_tflite_micro` 组件是在官方 [TensorFlow Lite for Microcontrollers (TFLite-Micro)](https://github.com/tensorflow/tflite-micro "https://github.com/tensorflow/tflite-micro") 组件基础上完成的平台化适配，
+## **1\. 简介**
+
+> `bk_tflite_micro` 组件是在官方 [TensorFlow Lite for Microcontrollers (TFLite-Micro)](https://github.com/tensorflow/tflite-micro) 组件基础上完成的平台化适配，
 > 结合 Beken 芯片的软件栈，增加了对芯片内置 NPU 的支持能力。
 >
 > 当前适配的 NPU 型号为 **Arm Ethos-U65**，芯片侧最高提供 **0.24 TOPS** 推理算力。
@@ -15,17 +29,16 @@
 >
 > 1. 在训练框架中导出量化后的 .tflite 模型。
 > 2. 使用 **MLIA** 对模型进行兼容性和性能分析，提前识别不支持算子、CPU 回退和内存瓶颈，并据此优化模型结构。
-> 3. 使用 **Vela** 对优化后的模型进行离线编译，生成适合 Ethos-U65 执行的 _vela.tflite 模型。
+> 3. 使用 **Vela** 对优化后的模型进行离线编译，生成适合 Ethos-U65 执行的 \_vela.tflite 模型。
 > 4. 将编译后的模型集成到工程中，通过 `bk_tflite_micro` 执行推理。
 
+- 有关bk\_tflite\_micro的示例工程，请参阅：
 
-- 有关bk_tflite_micro的示例工程，请参阅：
+  - [bk\_tflite\_micro示例工程](https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/tflite_micro_example/index.html)
 
+<a id="tflite-micro"></a>
 
-  - [bk_tflite_micro示例工程](../examples/projects/tflite_micro/tflite_micro_example.md "../examples/projects/tflite_micro/tflite_micro_example.md")
-
-
-## **2. TFLite-Micro 概述**
+## **2\. TFLite-Micro 概述**
 
 > TFLite-Micro 是 TensorFlow 面向微控制器场景的轻量级推理运行时，主要特点包括：
 >
@@ -43,11 +56,12 @@
 > - **是否真正使用到 NPU，取决于模型量化情况、算子类型和 Vela 编译结果**。
 >
 > TFLite Micro 使用参考指南：
-> [TFLite Micro 使用参考指南](https://www.tensorflow.org/lite/microcontrollers?hl=zh-cn "https://www.tensorflow.org/lite/microcontrollers?hl=zh-cn")
+> [TFLite Micro 使用参考指南](https://www.tensorflow.org/lite/microcontrollers)
 > 其中包含 `person_detection` 等基础示例，可用于参考和学习。
 
+<a id="npu"></a>
 
-## **3. 芯片 NPU 能力概述**
+## **3\. 芯片 NPU 能力概述**
 
 > 本芯片集成的 NPU 为 **Arm Ethos-U65 256MAC**。
 > 在 `bk_tflite_micro` 组件中，当工程启用 NPU 能力并且模型经过 Vela 编译后，运行时可将支持的算子下发到 Ethos-U65 执行，
@@ -114,9 +128,11 @@
 > - 某些算子即使类型受支持，也可能因张量维度、量化形式、参数约束或子图切分方式而回退到 CPU。
 > - 建议始终结合 **MLIA 分析结果** 和 **Vela 编译结果** 来判断模型的实际 NPU 覆盖率。
 
+<a id="mlia"></a>
 
-## **4. MLIA 工具分析模型**
+## **4\. MLIA 工具分析模型**
 
+<a id="id4"></a>
 
 ### **4.1 工具简介**
 
@@ -129,9 +145,9 @@
 > - 模型推理可能的性能瓶颈在哪里。
 > - 是否存在可通过改网络结构、改通道数、改算子形式来提升 NPU 利用率的空间。
 
+<a id="id5"></a>
 
 ### **4.2 安装说明**
-
 
 ```
 python3 -m venv .venv
@@ -140,38 +156,31 @@ pip install --upgrade pip
 pip install mlia
 
 安装完成后可执行：
-
 ```
-
 
 ```
 mlia --help
 mlia-target list
-
 ```
 
+<a id="id6"></a>
 
 ### **4.3 常用分析命令**
 
 > 性能分析示例：
 
-
 ```
 mlia check model.tflite \
-
   --target-profile ethos-u65-256 \
-
   --performance
 
 建议：
 
-
 - 在导出原始量化模型后，先做一次 MLIA 分析，确认算子兼容性。
-
 - 在 Vela 编译后结合编译日志一起分析，确认是否存在大量 CPU fallback。
-
 ```
 
+<a id="id7"></a>
 
 ### **4.4 分析结果如何使用**
 
@@ -181,17 +190,20 @@ mlia check model.tflite \
 > - 某些卷积层通道数、张量形状与 NPU 并行度不匹配，导致利用率偏低。
 > - 峰值 SRAM 占用过高，超出系统为 NPU / tensor arena 预留的空间。
 >
-> 在实际项目中，建议把 **MLIA 分析 + Vela 编译结果 + 实板日志** 结合起来看，而不要只依赖单一工具结论。
+> 在实际项目中，建议把 **MLIA 分析 \+ Vela 编译结果 \+ 实板日志** 结合起来看，而不要只依赖单一工具结论。
 
+<a id="id8"></a>
 
 ### **4.5 官方说明链接**
 
-> - [Arm MLIA GitHub](https://github.com/arm/mlia "https://github.com/arm/mlia")
-> - [ML Platform: Arm MLIA](https://www.mlplatform.org/mlia/ "https://www.mlplatform.org/mlia/")
+> - [Arm MLIA GitHub](https://github.com/arm/mlia)
+> - [ML Platform: Arm MLIA](https://www.mlplatform.org/mlia/)
 
+<a id="vela-tflite"></a>
 
-## **5. Vela 工具处理 TFLite 模型**
+## **5\. Vela 工具处理 TFLite 模型**
 
+<a id="id9"></a>
 
 ### **5.1 工具简介**
 
@@ -202,11 +214,11 @@ mlia check model.tflite \
 > 在模型结构和量化策略基本稳定后，再使用 Vela 生成最终部署到 Ethos-U65 的模型。
 > 未经 Vela 处理的普通 .tflite 模型虽然仍可在 TFLite-Micro 上运行，但通常无法发挥 Ethos-U65 的硬件加速能力。
 
+<a id="id10"></a>
 
 ### **5.2 安装说明**
 
 > 推荐在独立 Python 虚拟环境中安装：
-
 
 ```
 python3 -m venv .venv
@@ -215,54 +227,40 @@ pip install --upgrade pip
 pip install ethos-u-vela
 
 安装完成后，可使用以下命令确认版本：
-
 ```
-
 
 ```
 vela --version
-
 ```
 
+<a id="id11"></a>
 
 ### **5.3 使用说明**
 
 > Vela 的输入通常是 **量化后的** .tflite 模型，输出为用于 Ethos-U 的优化模型。
 > 示例命令如下：
 
-
 ```
 vela model.tflite \
-
   --output-dir ./vela_out \
-
   --accelerator-config ethos-u65-256 \
-
   --config Arm/vela.ini \
-
   --system-config Ethos_U65_High_End \
-
   --memory-mode Dedicated_Sram \
-
   --optimise Performance
 
 说明：
 
-
 - ``--accelerator-config``：指定 Ethos-U 目标配置。示例中使用 ``ethos-u65-256`` 作为参考配置，实际项目请以芯片集成配置为准。
-
 - ``--system-config`` / ``--memory-mode``：描述目标系统的 SRAM/DRAM 组织方式。
-
 - ``--optimise Performance``：优先优化推理速度；若更关注 SRAM 峰值，可考虑 ``Size``。
-
 - ``--config``：指定使用 ``bk_tflite_micro`` 组件根目录下的 ``vela.ini`` 配置文件。
-
 - ``model.tflite``：输入模型文件。
 
 运行完成后，通常会得到类似 ``model_vela.tflite`` 的输出模型。建议将该模型作为后续固件集成对象，而不是原始 `.tflite` 文件。
-
 ```
 
+<a id="id12"></a>
 
 ### **5.4 集成建议**
 
@@ -276,15 +274,18 @@ vela model.tflite \
 > 本仓库示例工程中，模型数据文件 `tflm_person_detection_model_vela_data.cc` 就属于该类集成方式。
 > 如果项目支持外部存储器如sdcard，也可以从sdcard中加载模型数据。
 
+<a id="id13"></a>
 
 ### **5.5 官方说明链接**
 
-> - [Arm Developer: Ethos-U Vela compiler](https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler "https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler")
-> - [PyPI: ethos-u-vela](https://pypi.org/project/ethos-u-vela/ "https://pypi.org/project/ethos-u-vela/")
+> - [Arm Developer: Ethos-U Vela compiler](https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler)
+> - [PyPI: ethos-u-vela](https://pypi.org/project/ethos-u-vela/)
 
+<a id="id14"></a>
 
-## **6. bk_tflite_micro 组件使用示例**
+## **6\. bk\_tflite\_micro 组件使用示例**
 
+<a id="id15"></a>
 
 ### **6.1 组件使能**
 
@@ -293,6 +294,7 @@ vela model.tflite \
 > - `CONFIG_TFLITE_MICRO=y`
 > - `CONFIG_NPU=y`
 
+<a id="id16"></a>
 
 ### **6.2 基本接入流程**
 
@@ -307,9 +309,9 @@ vela model.tflite \
 > 7. 调用 `AllocateTensors()` 完成张量分配。
 > 8. 填充输入张量并执行 `Invoke()`。
 
+<a id="id17"></a>
 
 ### **6.3 代码示例**
-
 
 ```
 #include "ethosu_driver.h"
@@ -358,18 +360,20 @@ if (interpreter.AllocateTensors() != kTfLiteOk) {
 if (interpreter.Invoke() != kTfLiteOk) {
     // handle error
 }
-
 ```
 
+<a id="id18"></a>
 
-## **7. NPU 使用注意事项**
+## **7\. NPU 使用注意事项**
 
+<a id="id19"></a>
 
 ### **7.1 模型必须优先考虑量化**
 
 > Ethos-U65 主要面向量化模型。
 > 在实际项目中，应使用 int8 量化模型，并通过 Vela 检查模型是否能够被 NPU 有效加速。
 
+<a id="cpu-fallback"></a>
 
 ### **7.2 不要忽略 CPU fallback**
 
@@ -386,6 +390,7 @@ if (interpreter.Invoke() != kTfLiteOk) {
 > - Vela 编译日志
 > - 实板推理耗时日志
 
+<a id="id20"></a>
 
 ### **7.3 重点关注三类内存**
 
@@ -402,12 +407,14 @@ if (interpreter.Invoke() != kTfLiteOk) {
 >
 > 这些数值仅供参考，实际大小取决于模型结构、算子种类和 Vela 编译结果。
 
+<a id="id21"></a>
 
 ### **7.4 注意 16 字节对齐**
 
 > Ethos-U 对 command stream 和相关缓冲区有对齐要求。
 > 示例代码中对 model data 和 scratch buffer 都做了 **16 字节对齐** 处理，实际开发中不应破坏这一约束。
 
+<a id="id22"></a>
 
 ### **7.5 高速内存优先**
 
@@ -424,13 +431,14 @@ if (interpreter.Invoke() != kTfLiteOk) {
 > - 调整 arena 预算
 > - 接受部分算子回退 CPU
 
+<a id="id23"></a>
 
-## **8. 参考资料**
+## **8\. 参考资料**
 
-> - [TensorFlow Lite for Microcontrollers](https://github.com/tensorflow/tflite-micro "https://github.com/tensorflow/tflite-micro")
-> - [Arm Ethos-U Vela compiler documentation](https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler "https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler")
-> - [PyPI: ethos-u-vela](https://pypi.org/project/ethos-u-vela/ "https://pypi.org/project/ethos-u-vela/")
-> - [Arm MLIA GitHub](https://github.com/arm/mlia "https://github.com/arm/mlia")
-> - [ML Platform: Arm MLIA](https://www.mlplatform.org/mlia/ "https://www.mlplatform.org/mlia/")
-> - [Arm Ethos-U65 product page](https://www.arm.com/products/silicon-ip-cpu/ethos/ethos-u65 "https://www.arm.com/products/silicon-ip-cpu/ethos/ethos-u65")
+> - [TensorFlow Lite for Microcontrollers](https://github.com/tensorflow/tflite-micro)
+> - [Arm Ethos-U Vela compiler documentation](https://developer.arm.com/documentation/109267/latest/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler)
+> - [PyPI: ethos-u-vela](https://pypi.org/project/ethos-u-vela/)
+> - [Arm MLIA GitHub](https://github.com/arm/mlia)
+> - [ML Platform: Arm MLIA](https://www.mlplatform.org/mlia/)
+> - [Arm Ethos-U65 product page](https://www.arm.com/products/silicon-ip-cpu/ethos/ethos-u65)
 > - 示例工程源码路径：`projects/tflite_micro/tflite_micro_example`

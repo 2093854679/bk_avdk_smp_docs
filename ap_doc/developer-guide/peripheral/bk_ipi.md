@@ -1,12 +1,26 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_ipi.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="ipi"></a>
+
 # IPI
 
-
+<a id="id1"></a>
 
 ## IPI 简介
 
 IPI（Inter-Processor Interrupt，处理器间中断）用于在多核系统中让一个 CPU core 向另一个 CPU core 发送中断通知。它适合用作轻量级 doorbell：发送方通过 IPI 唤醒目标 core，目标 core 在 IPI 中断中读取少量事件信息，或进一步到共享内存、状态位图中处理真正的数据。
 
-在 BK7259 的 CP + AP SMP 架构中，IPI 可以用于以下场景：
+在 BK7259 的 CP \+ AP SMP 架构中，IPI 可以用于以下场景：
 
 > - AP/CP 之间的轻量通知，例如心跳通知。
 > - AP 内部 SMP core 之间的调度通知，例如 CPU2 与 CPU3 之间的 cross-core yield。
@@ -18,6 +32,7 @@ IPI（Inter-Processor Interrupt，处理器间中断）用于在多核系统中�
 
 IPI 不是数据 FIFO。IPI 硬件每个目标 core 只有 pending/value 语义，不适合承载大量数据或连续队列数据。软件设计上应将 IPI 作为 doorbell 使用，把持久状态、命令位图或大块数据放在共享内存中。
 
+<a id="id2"></a>
 
 ## IPI 硬件与软件设计机制
 
@@ -34,18 +49,17 @@ IPI value 的编码格式如下：
 
 编码和解析由公共宏完成：
 
-
 ```
 IPI_VALUE_MAKE(src, domain, event, payload)
 IPI_VALUE_GET_SRC(value)
 IPI_VALUE_GET_DOMAIN(value)
 IPI_VALUE_GET_EVENT(value)
 IPI_VALUE_GET_PAYLOAD(value)
-
 ```
 
 Domain 机制的核心目标是避免多个模块直接抢占同一个 IPI 硬件回调。各模块只注册自己的 domain callback，IPI driver 统一负责硬件 ISR、value 解析和 callback 分发。
 
+<a id="domain"></a>
 
 ## 当前 Domain 使用情况
 
@@ -68,6 +82,7 @@ Domain 机制的核心目标是避免多个模块直接抢占同一个 IPI 硬�
 
 新增 IPI 用户时不建议复用已有业务 domain。如果确实属于已有 domain 的子事件，应在该 domain 内定义明确 event，并确认不会和现有事件冲突。
 
+<a id="id3"></a>
 
 ## IPI 初始化流程
 
@@ -83,6 +98,7 @@ IPI driver 通过 `bk_ipi_driver_init()` 完成初始化，主要工作包括：
 
 如果某个模块在调度器启动早期就需要 IPI，例如 FreeRTOS SMP cross-core doorbell，则必须保证 `bk_ipi_driver_init()` 早于该模块的 domain callback 注册。
 
+<a id="smp-cross-core-ipi"></a>
 
 ## SMP cross-core IPI 通知机制
 
@@ -106,6 +122,7 @@ FreeRTOS SMP 的 cross-core notify 原本使用 mailbox 作为 doorbell。改为
 
 因此，IPI 方案中真正的 SMP 命令仍由共享位图承载，IPI 只负责通知目标 core “有命令需要处理”。
 
+<a id="id4"></a>
 
 ## 配置宏说明
 
@@ -123,6 +140,7 @@ IPI 相关配置宏如下：
 
 默认配置中，IPI driver 可以独立打开，但心跳和 SMP cross-core notify 是否使用 IPI 由各自独立宏控制，便于按模块验证和回退。
 
+<a id="ipi-api"></a>
 
 ## IPI API 使用说明
 
@@ -162,11 +180,11 @@ IPI 相关配置宏如下：
 `void bk_ipi_dump_info(void);`
 :   打印 IPI driver 初始化状态和各 domain callback 注册状态。该接口仅在 `CONFIG_IPI_DUMP` 打开时可用。
 
+<a id="domain-callback"></a>
 
 ## Domain Callback 说明
 
 Domain callback 类型如下：
-
 
 ```
 typedef void (*ipi_domain_callback_t)(ipi_core_id_t core_id,
@@ -175,7 +193,6 @@ typedef void (*ipi_domain_callback_t)(ipi_core_id_t core_id,
                                       uint8_t event,
                                       uint16_t payload,
                                       void *param);
-
 ```
 
 参数说明：
@@ -189,6 +206,7 @@ typedef void (*ipi_domain_callback_t)(ipi_core_id_t core_id,
 
 Callback 在 IPI ISR 上下文执行，应避免复杂处理、阻塞等待、大量日志打印或耗时操作。推荐在 callback 中只完成状态记录、位图更新、轻量唤醒等操作。
 
+<a id="id5"></a>
 
 ## 使用注意事项
 

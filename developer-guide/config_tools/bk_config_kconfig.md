@@ -1,88 +1,73 @@
-# Kconfig 配置
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/smp_doc/bk7259/zh_CN/v4.0.1/developer-guide/config_tools/bk_config_kconfig.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: SMP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="kconfig"></a>
+
+<a id="bk-config-kconfig"></a>
+
+# Kconfig 配置
 
 本节介绍 Armino Kconfig 使用过程中常见问题。
 
+<a id="id1"></a>
 
 ## Kconfig 配置文件
 
 Armino Kconfig 组织如下图所示：
 
-
 ```
-
 - armino/
-
     - ap/
-
         - components/
-
             - c1/
-
                 - Kconfig
-
         - middleware/
-
             - soc/
-
                 - bk7259_ap/
-
                     - bk7259_ap.defconfig
-
     - cp/
-
         - components/
-
             - c1/
-
                 - Kconfig
-
         - middleware/
-
             - soc/
-
                 - bk7259/
-
                     - bk7259.defconfig
-
     - projects/
-
         - my_project/
-
             - ap/
-
                 - config/
-
-                    - bk7259_ap/config
-
+                    - bk7259_ap/defconfig
                 - Kconfig.projbuild
-
                 - components/
-
                     - c2/
-
                         - Kconfig
-
             - cp/
-
                 - config/
-
-                    - bk7259/config
-
+                    - bk7259/defconfig
 ```
 
 可以将这些文件归为两类：
 
 > - 配置定义文件:
 >
->   - Kconfig - 通常定义在组件中。
->   - Kconfig.projbuild - 定义在组件或者工程目录下。
+>   - Kconfig \- 通常定义在组件中。
+>   - Kconfig.projbuild \- 定义在组件或者工程目录下。
 > - 配置修改文件:
 >
->   - ap/middleware/boards/bk7259_ap/bk7259_ap.defconfig - Armino 提供的 BK7259 AP 默认配置。
->   - cp/middleware/boards/bk7259/bk7259.defconfig - Armino 提供的 BK7259 CP 默认配置。
->   - projects/xx/ap/config/bk7259_ap/config - 工程中 BK7259 AP 专有配置。
->   - projects/xx/cp/config/bk7259/config - 工程中 BK7259 CP 专有配置。
+>   - ap/middleware/soc/bk7259\_ap/bk7259\_ap.defconfig \- Armino 提供的 BK7259 AP 默认配置。
+>   - cp/middleware/soc/bk7259/bk7259.defconfig \- Armino 提供的 BK7259 CP 默认配置。
+>   - projects/xx/ap/config/bk7259\_ap/defconfig \- 工程中 BK7259 AP 专有配置。
+>   - projects/xx/cp/config/bk7259/defconfig \- 工程中 BK7259 CP 专有配置。
 
 重要
 
@@ -92,8 +77,7 @@ Armino Kconfig 组织如下图所示：
 备注
 
 Kconfig.projbuild 是针对 menuconfig 来设计的，当向 Kconfig.projbuild 中增加一项时，
-会在 menuconfig 顶层菜单中显示该配置项。BK7259 不支持 menuconfig，因此 Kconfig.projbuild
-与 Kconfig 作用相同。
+会在 menuconfig 顶层菜单中显示该配置项。
 
 备注
 
@@ -101,12 +85,15 @@ Kconfig.projbuild 是针对 menuconfig 来设计的，当向 Kconfig.projbuild �
 
 在 Armino AP 工程中，Kconfig 配置优先级为:
 
-> bk7259_ap/config > bk7259.defconfig > 配置定义文件
+> projects/\<project\>/ap/config/bk7259\_ap/defconfig \> ap/middleware/soc/bk7259\_ap/bk7259\_ap.defconfig \> 配置定义文件
 
 在 Armino CP 工程中，Kconfig 配置优先级为:
 
-> bk7259/config > bk7259.defconfig > 配置定义文件
+> projects/\<project\>/cp/config/bk7259/defconfig \> cp/middleware/soc/bk7259/bk7259.defconfig \> 配置定义文件
 
+<a id="menuconfig"></a>
+
+<a id="bk-config-menuconfig"></a>
 
 ## menuconfig 支持
 
@@ -115,26 +102,21 @@ BK7259 Kconfig 配置支持 menuconfig 配置。
 以app工程为例
 配置ap工程，输入命令如下:
 
-
 ```
 make bk7259_ap_menuconfig PROJECT=app
-
 ```
 
-保存后，配置将保存到projects/app/ap/config/bk7259_ap/config
+保存后，工程差异配置写入 `projects/app/ap/config/bk7259_ap/defconfig`。编译 AP 时，合并后的配置与 `sdkconfig.h` 位于 `build/bk7259/app/bk7259_ap/config/`。
 
 配置cp工程，输入命令如下:
 
-
 ```
 make bk7259_cp_menuconfig PROJECT=app
-
 ```
 
-保存后，配置将保存到projects/app/ap/config/bk7259_cp/config
+保存后，工程差异配置写入 `projects/app/cp/config/bk7259/defconfig`。编译 CP 时，合并后的配置与 `sdkconfig.h` 位于 `build/bk7259/app/bk7259/config/`。
 
 menuconfig中常用快捷键如下:
-
 
 ```
 SPACE/Enter 选中/取消
@@ -147,13 +129,13 @@ C 切换配置名称显示
 A 显示所有配置
 Q 离开
 ESC 返回
-
 ```
 
 备注
 
-如果在solution工程中，在工程目录下输入 make bk7259_ap_menuconfig 来进行ap侧 menuconfig配置，输入 make bk7259_cp_menuconfig 来进行cp侧 menuconfig配置。
+如果在solution工程中，在工程目录下输入 make bk7259\_ap\_menuconfig 来进行ap侧 menuconfig配置，输入 make bk7259\_cp\_menuconfig 来进行cp侧 menuconfig配置。
 
+<a id="id2"></a>
 
 ## 配置依赖
 
@@ -164,8 +146,9 @@ ESC 返回
 
 在 Armino 中所有配置项均需显式指定，或者使用默认值。
 
+<a id="cmakelists-txt-kconfig"></a>
 
 ## CMakeLists.txt 中使用 Kconfig
 
 在 CMakeLists.txt 中可直接使用 Kconfig 中定义的配置项，唯一要注意的问题不要将
-armino_component_register() 放在任何配置条件中。
+armino\_component\_register() 放在任何配置条件中。

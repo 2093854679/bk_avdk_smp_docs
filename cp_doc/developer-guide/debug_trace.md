@@ -1,34 +1,46 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/debug_trace/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # 系统调试
 
-
+<a id="arminocp"></a>
 
 ## **Armino平台CP系统调试命令**
 
-BK7259 为 CP+AP 双系统架构。日常调试串口接在 CP 侧（`bk7259` defconfig 默认
-`CONFIG_UART_PRINT_PORT=0`，即 DL_UART0，波特率 115200）。CP 命令直接在串口输入；
+BK7259 为 CP\+AP 双系统架构。日常调试串口接在 CP 侧（`bk7259` defconfig 默认
+`CONFIG_UART_PRINT_PORT=0`，即 DL\_UART0，波特率 115200）。CP 命令直接在串口输入；
 AP 命令需加 `ap_cmd` 前缀由 CP 转发。
 
+<a id="id2"></a>
 
 ### 日志输出
 
-详细机制见 [系统日志](error_log/bk_log.md "error_log/bk_log.md")，此处仅列与调试相关的要点：
+详细机制见 [系统日志](error_log/bk_log.md)，此处仅列与调试相关的要点：
 
-
-- CP 侧 log 默认经 DL_UART0 直出；AP 侧 log 默认经 mailbox 转发到 CP，在同一串口
+- CP 侧 log 默认经 DL\_UART0 直出；AP 侧 log 默认经 mailbox 转发到 CP，在同一串口
   混合输出。
-
 - 正常运行时 log 前缀：CP 为 cpu0 与 cpu1（CP SMP 时），AP 为 ap0 与 ap1（逻辑
   CPU2 与 CPU3）；异常 dump 不带此前缀。
-
 - 异步 log 默认开启 `CONFIG_SHELL_ASYNCLOG`；缓存耗尽时出现 `INSRT:` 插入式输出。
   可用 `log [echo] [level] [sync] [whitelist]` 分别调整 CP 侧配置；AP 侧用
   `ap_cmd log` 调整。
 
+<a id="cli"></a>
 
 ### 串口 CLI
 
 CP 侧内置命令（直接在 CP 串口输入）：
-
 
 ```
 help
@@ -38,13 +50,12 @@ memshow
 backtrace
 setswdmode
 ap_cmd help
-
 ```
 
 备注
 
-旧版 cpu1 命令已改为 ap_cmd（见 cli_cpu1_command）。实际可用命令随工程
-menuconfig 变化，以 help 与 ap_cmd help 实时输出为准，不要依赖静态命令列表。
+旧版 cpu1 命令已改为 ap\_cmd（见 cli\_cpu1\_command）。实际可用命令随工程
+menuconfig 变化，以 help 与 ap\_cmd help 实时输出为准，不要依赖静态命令列表。
 
 常见 CP 调试命令（直接输入）包括：
 
@@ -55,46 +66,40 @@ menuconfig 变化，以 help 与 ap_cmd help 实时输出为准，不要依赖�
 | `setswdmode` / `setprintport` | 进入 SWD 模式、切换 log/shell 串口（见下文 SWD 章节） |
 | `ap_cmd <cmd>` | 将命令转发到 AP shell（如 `ap_cmd memshow`、`ap_cmd dwtf 100`） |
 
+<a id="ate-uart"></a>
 
 ### ATE 模式下的 UART 切换（可选）
 
 若工程启用 ATE 相关配置，可通过以下宏指定 ATE 检测管脚与 log 口切换行为：
 
-
 - `CONFIG_UART_ATE_PORT`：ATE 模式检测管脚
-
 - `CONFIG_UART_PRINT_PORT`：正常运行时 log UART
-
 - `CONFIG_UART_ATE_PRINT_PORT`：进入 ATE 后切换到的 log UART
 
 示例：ATE 用 UART1 TX 识别，正常运行 log 走 UART1，进 ATE 后 log/命令行走 UART0:
-
 
 ```
 CONFIG_UART_ATE_PORT=1
 CONFIG_UART_PRINT_PORT=1
 CONFIG_UART_ATE_PRINT_PORT=0
-
 ```
 
+<a id="dwt-data-watchpoint-and-trace"></a>
 
 ## **DWT 调试 (Data Watchpoint and Trace)**
 
+<a id="id3"></a>
 
 ### 功能简介
 
-DWT（Data Watchpoint and Trace）是 ARM Cortex-M 内核内置的调试单元，可在**不连接 JLink 等外部调试器**的情况下，
+DWT（Data Watchpoint and Trace）是 ARM Cortex-M 内核内置的调试单元，可在\*\*不连接 JLink 等外部调试器\*\*的情况下，
 通过串口 CLI 实现类似硬件断点 / watchpoint 的调试能力。
 
 主要功能包括：
 
-
 - **数据 watchpoint**：监控指定内存地址的读、写或读写访问（SMP 下 `dwtdw`；非 SMP 下 `dwtd r/w/b`）
-
 - **数据范围 watchpoint**：监控一段连续地址范围内的写操作（`dwtdr`，仅非 SMP 模式）
-
 - **条件 watchpoint**：仅当向某地址写入特定值时才触发（`dwtdd`）
-
 - **指令 watchpoint**：监控 CPU 执行到某条指令地址时触发（`dwti`，类似硬件断点）
 
 备注
@@ -103,18 +108,15 @@ AP 侧（SMP 模式）另提供 `dwtf` 命令，利用 DWT 周期计数器（CYC
 
 典型应用场景：
 
-
 - 定位「谁在什么时候改写了某个变量」
-
 - 监控关键标志位被写成特定值的时机
-
 - 确认某段代码是否被执行
 
+<a id="id4"></a>
 
 ### 软件架构
 
 CP 侧调用链路:
-
 
 ```
 串口 CLI (cli_dwt.c)
@@ -122,17 +124,17 @@ CP 侧调用链路:
     → 配置 DWT 比较器 + 开启 Debug Monitor 模式
     → 命中时触发 DebugMon 异常
     → soc_debugmon_handler() → dump 系统信息
-
 ```
 
 AP 侧调用链路类似，源码位于 `ap/components/bk_cli/cli_dwt.c` 和 `ap/middleware/arch/cortex-m/dwt.c`。
 SMP 模式下数据 watchpoint 会通过 IPI 同步到各核；AP 侧另提供 `dwtf` 频率测量命令。
 
+<a id="id5"></a>
 
 ### 工作原理
 
 1. 通过 `DCB->DEMCR` 开启 Debug Monitor 模式（`MON_EN`）和 DWT 跟踪（`TRCENA`）
-2. 配置 DWT 比较器（`COMP0~3` + `FUNCTION0~3`）设置监控条件
+2. 配置 DWT 比较器（`COMP0~3` \+ `FUNCTION0~3`）设置监控条件
 3. 当 CPU 访问/执行命中条件时，产生 Debug Event
 4. 进入 Debug Monitor 异常（异常号 12），平台默认 handler 会 dump 寄存器、backtrace 和内存
 
@@ -141,6 +143,7 @@ SMP 模式下数据 watchpoint 会通过 IPI 同步到各核；AP 侧另提供 `
 DWT CLI 使用的是 Debug Monitor 模式（无需 halt CPU），与 JLink SWD Halt 调试模式不同。
 两者同时使用时可能冲突，建议按需选择其一。
 
+<a id="cp-smp"></a>
 
 ### CP SMP 差异
 
@@ -149,19 +152,20 @@ BK7259 CP 同样支持 SMP（`CONFIG_SOC_SMP=y`）。开启 SMP 后，数据 wat
 
 与 AP 的区别：CP 侧不提供 `dwtf` 频率测量命令；非 SMP 配置下可用 `dwtd`/`dwtdr` 提供更细粒度的数据 watchpoint 类型。
 
+<a id="cli-cli-dwt"></a>
 
-### CLI 命令 (cli_dwt)
+### CLI 命令 (cli\_dwt)
 
 CP 侧 `cli_dwt.c` 实现了与 AP 类似的 DWT CLI 封装，但默认不在 `bk_cli_init()` 中调用 `cli_dwt_init()`，串口 shell 不会注册这些命令。DWT CLI 调试建议在 AP 侧使用。
 
+<a id="id6"></a>
 
 ### 编译与注册条件
 
-
 - `CONFIG_CLI=y`、`CONFIG_ARCH_CORTEX_M=y`：编译 `cli_dwt.c`
-
 - CP 默认不注册 DWT 命令；若需启用，在 `bk_cli_init()` 中自行调用 `cli_dwt_init()`
 
+<a id="id7"></a>
 
 ### 命令列表
 
@@ -182,83 +186,71 @@ SMP 模式（`CONFIG_SOC_SMP=y`，多数工程默认开启）：
 | `dwtdd` | `dwtdd 0x<addr> 0x<value>` | 监控向地址写入指定值 |
 | `dwti` | `dwti 0x<instruction_addr>` | 监控指令地址被执行 |
 
+<a id="id8"></a>
 
 ### 参数格式
 
-
 - 地址和数值参数必须使用 `0x` 前缀的十六进制格式，例如 `0x281a9070`
-
 - 非 SMP 模式下，`dwtd` 的第一个参数为访问类型字符 r/w/b，分别表示读、写、读或写
 
+<a id="id9"></a>
 
 ### 使用示例
 
-SMP 模式下设置数据写 watchpoint 并触发 dump（触发写内存可用 memset_pattern；
+SMP 模式下设置数据写 watchpoint 并触发 dump（触发写内存可用 memset\_pattern；
 memset 需 `CONFIG_DEBUG_VERSION`）:
-
 
 ```
 memshow
 dwtdw 0x281a9070
 memset_pattern 0x281a9070 0x4 0x55
-
 ```
 
 非 SMP 模式下设置数据写 watchpoint:
 
-
 ```
 dwtd w 0x281a9070
 memset_pattern 0x281a9070 0x4 0x55
-
 ```
 
 非 SMP 模式下监控地址范围写入:
 
-
 ```
 dwtdr 0x281a9070 0x281a9080
 memset_pattern 0x281a9075 0x4 0xAA
-
 ```
 
 设置条件 watchpoint（仅匹配值时触发）:
-
 
 ```
 dwtdd 0x281a9070 0xAABBCCDD
 memset_pattern 0x281a9070 0x4 0x11        # 不匹配，不 dump
 memset_pattern 0x281a9070 0x4 0xAABBCCDD  # 匹配，触发 dump
-
 ```
 
 设置指令 watchpoint（需已知函数地址，可从 map/elf 获取）:
 
-
 ```
 dwti 0x64f691ec
 memset_pattern 0x281a9070 0x4 0x55
-
 ```
 
+<a id="id10"></a>
 
 ### 注意事项
 
-
 - watchpoint 触发后会进入 Debug Monitor 异常并 dump 系统信息（`RESET_SOURCE_DEBUG_MONITOR_FAULT`），系统可能重启
-
 - watchpoint 设置后一直有效，直到系统重启；无 CLI 清除命令
-
-- 不要在 `rtos_disable_int()` 临界区（PRIMASK=1）内依赖 DWT watchpoint：PRIMASK 会屏蔽 Debug Monitor 异常，命中事件会被丢弃，开中断后也不会补触发
-
+- 普通 `rtos_disable_int()` 运行态临界区使用 `BASEPRI` 屏蔽中断，DWT watchpoint 仍可按优先级响应；不要在 `PRIMASK` 特殊路径（如异常处理、启动流程、tickless sleep-entry 窗口）内依赖 DWT watchpoint，命中事件可能被丢弃，开中断后也不会补触发
 - 同时连接 JLink SWD halt 调试时，可能与 Debug Monitor 模式冲突，建议二选一
 
+<a id="arminocpswd"></a>
 
 ## **Armino平台CP系统swd调试**
 
 cp系统支持在线调试，使用jlink工具及Eclipse上位机工具，即可快速搭建调式环境。
 
-> - JLink环境通过Eclipse集成JLink gdb server + gdb 工具
+> - JLink环境通过Eclipse集成JLink gdb server \+ gdb 工具
 > - Jlink和BK7259连线:
 >
 >   ```
@@ -268,20 +260,20 @@ cp系统支持在线调试，使用jlink工具及Eclipse上位机工具，即可
 >   20# GND   ---- GND
 >   ```
 > - JLink软件版本
->   [https://www.segger.com/downloads/jlink/JLink_Windows_V768_x86_64.exe](https://www.segger.com/downloads/jlink/JLink_Windows_V768_x86_64.exe "https://www.segger.com/downloads/jlink/JLink_Windows_V768_x86_64.exe")
+>   <https://www.segger.com/downloads/jlink/JLink_Windows_V898_x86_64.exe>
 > - Arm工具链版本
->   [https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.exe](https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.exe "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.exe")
+>   <https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.exe>
 > - Eclipse版本
->   eclipse-embedcpp-2020-12-R-win32-x86_64.zip
+>   eclipse-embedcpp-2020-12-R-win32-x86\_64.zip
 > - Eclipse工程配置
 >
-> > ![BK7259 JLink configuration](../_images/bk7236_jlink_config.png)
+> > ![BK7259 JLink configuration](../../../_assets/376018f4f3882d748fc6-bk7236_jlink_config.png)
 > >
-> > ![BK7259 JLink configuration](../_images/bk7236_jlink_config2.png)
+> > ![BK7259 JLink configuration](../../../_assets/d51763472bd898b27af1-bk7236_jlink_config2.png)
 > >
-> > ![BK7258 JLink configuration](../_images/bk7236_jlink_config3.png)
+> > ![BK7259 JLink configuration](../../../_assets/26d3c325265f733e9870-bk7236_jlink_config3.png)
 >
-> - 默认swd连接CP端，使用第一组SWD管脚(GPIO20=SWCLK，GPIO21=SWDIO)
+> - 默认swd连接CP端，使用第一组SWD管脚(GPIO20\=SWCLK，GPIO21\=SWDIO)
 > - 打开 `CONFIG_SWD_DEBUG_MODE` 后，开机启动过程或进入异常(HardFault/NMI等)时会自动进入SWD调试模式，无需输入命令即可用Trace32或JLink连接
 > - 也可以在运行时通过 `setswdmode` 命令手动进入SWD调试模式
 > - 可以通过jtagmode命令查看当前jtag/swd状态
@@ -290,94 +282,123 @@ cp系统支持在线调试，使用jlink工具及Eclipse上位机工具，即可
 
 使用Jlink/Trace32进行SWD调试连接，需要打开 `CONFIG_SWD_DEBUG_MODE` (或编译DEBUG版本)。
 
-`bk_set_swd_mode()` 不再需要传入cpu id和管脚组号，调用后会：
-
+调用 `bk_set_swd_mode()` 后会：
 
 - 将调试端口路由到CP端(CPU0)
-
 - 关闭 AON WDT / WWDT / Task WDT，避免调试器halt住CPU时被看门狗复位
-
-- 把SWD管脚重新配置为SWD功能(默认GPIO20=SWCLK，GPIO21=SWDIO)
+- 把SWD管脚重新配置为SWD功能(默认GPIO20\=SWCLK，GPIO21\=SWDIO)
 
 该接口只做寄存器级配置，因此在驱动尚未初始化(开机早期或异常处理上下文)时也可以安全调用。
 
+**开机早期自动进入 SWD**：如果希望无需等待 CLI 可用，上电后尽早让 JLink/Trace32
+接入，请在 CP 工程配置中打开 ``` CONFIG_SWD_DEBUG_MODE``（或使用
+``CONFIG_DEBUG_VERSION=y ``` 的 DEBUG 版本）并重新编译烧录。启用后，CP 启动代码会在
+`Reset_Handler` / `Reset_Handler_Core0` 中调用 `bk_enable_swd()`，该调用发生在
+`b_system_base_init()` 之前，会完成 CoreSight 路由、WDT 处理和 SWD 管脚配置，因此
+不依赖 `setswdmode` 串口命令。
+
+如果需要停在 very early boot 等待调试器接入，可临时在 `bk_enable_swd()` 后加入
+volatile 变量控制的等待循环，例如:
+
+```
+volatile uint32_t g_swd_early_wait = 1;
+while (g_swd_early_wait) {
+    __NOP();
+}
+```
+
+JLink/Trace32 连接后，将 `g_swd_early_wait` 改为 `0` 即可继续启动。该等待循环
+仅建议用于临时调试，正式版本不要保留。
 
 **自定义SWD管脚**：打开 `CONFIG_SWD_DEBUG_MODE` 后，可通过以下两个配置项让客户自定义SWD的GPIO：
 
-
 - `CONFIG_SWD_DEBUG_MODE_PIN_CLK`：SWCLK使用的GPIO编号(默认20)
-
 - `CONFIG_SWD_DEBUG_MODE_PIN_DIO`：SWDIO使用的GPIO编号(默认21)
 
 `bk_set_swd_mode()` 会读取这两个配置；若客户把管脚改到非默认位置，会先释放默认的GPIO20/21再映射到新的管脚。
 
-如果是开机异常想要在某处停下来等待JLink接入，可以在代码中调用:
+警告
 
+SWD 管脚必须和 AP/CP 工程的 `usr_gpio_cfg.h` 保持一致，避免后续 GPIO
+初始化把 SWD 管脚复用成 SPI、LCD、I2C 等其他外设。默认管脚为
+`GPIO20=SWCLK`、`GPIO21=SWDIO`，如果板级 GPIO 表中这两个管脚被配置为
+其他功能，JLink/Trace32 可能只能在极早期短暂连接，或在系统启动后连接失败。
+使用默认 SWD 管脚时，建议将对应 GPIO 配置为 `GPIO_DEV_SWCLK` /
+`GPIO_DEV_SWDIO`，或从板级 GPIO 表中移除这些管脚的其他复用配置。
+
+如果是开机异常想要在某处停下来等待JLink接入，可以在代码中调用:
 
 ```
 bk_set_swd_mode();
 while (g_test_mode); // 定义一个volatile全局变量，而不是while(1)，防止编译器把后面的代码优化掉
-
 ```
 
-然后接入JLink/Trace32后，修改g_test_mode变量值，开始往下调试。
+然后接入JLink/Trace32后，修改g\_test\_mode变量值，开始往下调试。
 
 若需要使用非默认管脚，可直接调用 `gpio_swd_sel(swclk, swdio)` 指定SWCLK/SWDIO对应的GPIO。
 
+<a id="swd"></a>
 
 ### swd调试示例
 
 连接好jlink后，可以按照以下步骤打断点调试：
 
-
 - 根据函数指针或者函数名在Disassembly页找到dump的地址
 
-![BK7259 JLink configuration](../_images/jlink_1.png)
+<a id="id20"></a>
+![BK7259 JLink configuration](../../../_assets/1d4c3f8ecabb3b0a25af-jlink_1.png)
+
 
 示意图1
 
-![BK7259 JLink configuration](../_images/jlink_2.png)
+<a id="id21"></a>
+![BK7259 JLink configuration](../../../_assets/15e2ea9c6d0fd60e7879-jlink_2.png)
+
 
 示意图2
 
-
 - 在dump函数之前的语句设置断点，将断点属性设置为hardware
 
-![BK7259 JLink configuration](../_images/jlink_3.png)
+<a id="id22"></a>
+![BK7259 JLink configuration](../../../_assets/8fbb3bcef8fa10235a1b-jlink_3.png)
+
 
 示意图3
 
-
 - 点击resume继续运行程序。运行错误代码，如我在sta命令里，加了错误代码
 
-![BK7259 JLink configuration](../_images/jlink_4.png)
+<a id="id23"></a>
+![BK7259 JLink configuration](../../../_assets/358218c251c69576504b-jlink_4.png)
+
 
 示意图4
 
-
 - 程序在断点处停下
 
-![BK7259 JLink configuration](../_images/jlink_5.png)
+<a id="id24"></a>
+![BK7259 JLink configuration](../../../_assets/21e180ff11455fab99f6-jlink_5.png)
+
 
 示意图5
 
+<a id="arminodump"></a>
 
 ## **Armino平台异常dump一键恢复现场工具**
 
 > - 请参考发布工具中使用文档:
->   [https://dl.bekencorp.com/d/tools/Debug_tool/bk_coredump_tools.zip](https://dl.bekencorp.com/d/tools/Debug_tool/bk_coredump_tools.zip "https://dl.bekencorp.com/d/tools/Debug_tool/bk_coredump_tools.zip")
+>   <https://dl.bekencorp.com/d/tools/Debug_tool/bk_coredump_tools.zip>
 > - BK7259 dump工具常见问题:
 >
 >   - Kconfig 中 `CONFIG_DUMP_ENABLE` 默认关闭；`bk7259` / `bk7259_ap` 的
 >     defconfig 已将其设为 `y`。若自定义工程关闭了 dump，需在 CP/AP 两侧
 >     menuconfig 的 Coredump 中分别重新打开
->   - 当前架构为 CP+AP，可在两侧 config 中分别打开 dump
+>   - 当前架构为 CP\+AP，可在两侧 config 中分别打开 dump
 >   - Dump 工具通过解析 log 中的 regs、内存段等内容恢复现场（详见工具包文档）
 >   - Log 后缀支持 txt、log、DAT；编码仅支持 utf-8
 >   - 工具目录下应只保留一份 Log，且 Log 中只含一次完整 dump（否则取最后一次）
->   - 工具可自动去掉规则时间戳 `[2024-02-03 14:35:13.375193]`，不规则时间戳需手动删除
+>   - 工具可自动去掉规则时间戳 `[2026-02-03 14:35:13.375193]`，不规则时间戳需手动删除
 >   - 若 dump 过程中连续两次异常（如越界检测触发 Assert），解析时需删掉第二次寄存器打印
->   - 单次 dump 会输出当前核寄存器、ITCM、DTCM、SRAM 分区、栈、外设寄存器及 EXTRA_MEM 等
+>   - 单次 dump 会输出当前核寄存器、ITCM、DTCM、SRAM 分区、栈、外设寄存器及 EXTRA\_MEM 等
 >   - 默认 CP 侧 Log/Dump 经 UART0 输出；AP 侧经 MAILBOX 转发到 CP 再经 UART0 输出
 >   - 多核同时 dump 时需按核拆分 Log，分别用 CP/AP 的 elf 恢复
 >
@@ -454,7 +475,7 @@ while (g_test_mode); // 定义一个volatile全局变量，而不是while(1)，�
 >   BK7259 常见 `region` 名称：`DTCM`、`ITCM`、`SRAM0`–`SRAM6`、
 >   `mstack`、`pstack`、`EXTRA_MEM`、`MEM_CHECK` 及各外设寄存器块。
 >
->   - 当系统打开 CONFIG_MEM_DEBUG 时，Dump 过程会将当前系统正在使用的 Heap 内存全部
+>   - 当系统打开 CONFIG\_MEM\_DEBUG 时，Dump 过程会将当前系统正在使用的 Heap 内存全部
 >     打印出来，并检查是否有内存越界:
 >
 >     ```
@@ -465,6 +486,72 @@ while (g_test_mode); // 定义一个volatile全局变量，而不是while(1)，�
 >     ```
 >   - 正常情况下也会将 task 相关信息 dump 到日志，供问题分析时参考
 
+<a id="bk7259-dump"></a>
+
+## **BK7259 在线 Dump 解析工具**
+
+SDK 内置 `bk_dump_analyze.py`，可直接解析 AP/CP 异常 dump 与 heartbeat timeout
+日志，不需要先导入 Eclipse。工具会从串口 log 中提取寄存器、traceback、内存段、
+EXTRA\_MEM 和 heap 信息，并结合同一次构建的 `app.elf` 做符号化。
+
+基本用法:
+
+```
+# AP 异常 dump
+python3 tools/dump_tools/bk_dump_analyze.py \
+    --log dump_ap.log \
+    --elf projects/app/build/bk7259/app/bk7259_ap/app.elf
+
+# CP 异常 dump
+python3 tools/dump_tools/bk_dump_analyze.py \
+    --mode cp-exception \
+    --log dump_cp.log \
+    --elf projects/app/build/bk7259/app/bk7259/app.elf
+
+# 输出完整 Markdown 报告
+python3 tools/dump_tools/bk_dump_analyze.py \
+    --log dump_ap.log \
+    --elf projects/app/build/bk7259/app/bk7259_ap/app.elf \
+    -o report.md
+```
+
+主要输出包括：
+
+- `Summary`：dump reason、build time、ELF 是否匹配、traceback 数量等。
+- `Crash Point`：异常核 PC/LR/MSP/PSP、CFSR/HFSR/MMFAR/BFAR 及符号化结果。
+- `Execution Context`：判断异常发生在 task/thread、ISR/handler，还是
+  critical section / interrupts masked。
+- `Primary Call Chain Candidates`：按置信度展示固件 traceback、任务栈或栈扫描链路。
+- `Interrupt State`：解析 interrupt recorder，识别 ISR 是否进入未退出。
+- `Heap Integrity`：离线扫描 MEM\_DEBUG canary，定位已分配堆块尾部越界。
+
+`Execution Context` 的判断依据：
+
+- `xPSR` 低 9 位（IPSR / exception number）非 0，说明异常发生在 handler/ISR。
+- 调用链中出现 `timer_group_isr`、`bk_ipi_isr_dispatch`、
+  `bk_int_dispatch_registered_isr` 等 ISR 分发帧时，判为 ISR/handler。
+- dump\_test 日志中的 `DUMP_TEST_BEGIN mode=task_*|isr_*|critical_*` 可作为测试场景强证据。
+- `PRIMASK` / `FAULTMASK` 可作为中断屏蔽证据；`BASEPRI` 只能作为弱提示，
+  因为异常处理或 assert 路径也可能抬高 `BASEPRI`，不能单独据此判定 critical。
+
+`Heap Integrity` 的工作方式：
+
+- AP 侧会从 ELF 中查找 `s_sram_used`、`s_hsram_used`、`s_psram_used`、
+  `s_psram_cache_used`，分别扫描 SRAM / HSRAM / PSRAM / PSRAM cache 已分配链表。
+- CP 侧会查找 `xUsed`、`xPsramUsed`，扫描 SRAM / PSRAM 已分配链表。
+- 对每个已分配块读取 MEM\_DEBUG 记录的 alloc func/line/task/tick，再检查
+  `user + wantedSize` 后的 `0xcd` canary。
+- 若 canary 被破坏，报告会显示 `Mem Overflow user=... tag=... actual=... alloc=...`。
+
+能力边界：
+
+- 工具能定位崩溃现场、符号化调用链、识别 ISR/critical 等执行上下文，并发现已破坏的
+  heap canary。
+- 对象内部字段被踩或 UAF 若没有破坏块尾 canary，工具通常只能看到 `PC=0`、
+  函数指针异常等结果，不能仅凭 dump 自动给出「UAF」或「对象内越界」根因标签。
+- 若 ELF 与 dump 不是同一次构建，符号化、heap used-list 地址和 alloc 现场都可能不可靠。
+
+<a id="armino"></a>
 
 ## **Armino平台系统稳定性问题分析**
 
@@ -481,27 +568,25 @@ while (g_test_mode); // 定义一个volatile全局变量，而不是while(1)，�
 
 > 本文档仅针对软件引起的稳定性问题,建议用户在碰到稳定性问题时，优先参考该文档
 
-
-- 文档 [下载链接](https://dl.bekencorp.com/tools/system_debug/稳定性问题软件分析.pdf "https://dl.bekencorp.com/tools/system_debug/稳定性问题软件分析.pdf")
-
+- 文档 [下载链接](https://dl.bekencorp.com/tools/system_debug/稳定性问题软件分析.pdf)
 - 文档内容说明:
 
-
   - 文中介绍了系统调试相关的工具，请参考上述章节
-
   - 文中列举了系统可能出现异常的各种场景
-
   - 文中还列举了一些经典的稳定性问题的分析案例
 
+<a id="cp"></a>
 
 ## **CP 内置调试特性**
 
 本节按功能说明 CP 侧内置调试能力的作用与查看方式。命令在 CP 串口直接输入，无需
 `ap_cmd` 前缀。DWT 数据观察点见上文 DWT 章节，此处不重复。
 
+<a id="config-mem-debug"></a>
 
-### 1. 堆内存分配跟踪（CONFIG_MEM_DEBUG）
+### 1\. 堆内存分配跟踪（CONFIG\_MEM\_DEBUG）
 
+<a id="id12"></a>
 
 #### 作用
 
@@ -509,86 +594,83 @@ while (g_test_mode); // 定义一个volatile全局变量，而不是while(1)，�
 任务名、分配 tick、请求大小；块尾填充 `0xcd` 用于检测写越界。可用于排查内存
 泄漏、崩溃时存活堆块定位等。`bk7259` defconfig 默认 `CONFIG_MEM_DEBUG=y`。
 
+<a id="id13"></a>
 
 #### 如何查看
-
 
 ```
 memshow
 memleak
 memleak 60
 osinfo
-
 ```
 
 开启 `CONFIG_DUMP_ENABLE` 后，MemFault 或 Assert 的串口日志中会自动附带与
 `memleak` 相同格式的堆列表。
 
+<a id="task-task-recorder"></a>
 
-### 2. Task 切换记录（Task Recorder）
+### 2\. Task 切换记录（Task Recorder）
 
+<a id="id14"></a>
 
 #### 作用
 
 每次任务切换时，把当前核上最近 10 次调度快照写入环形缓冲（tick、时间、TCB、栈指针
 等），用于分析崩溃前的调度顺序与栈余量。SMP 下符号名为 `s_task_recorder_core0[]`、
-
 ``` s_task_recorder_core1[]``（``cp/components/os_source/freertos_smp_v2p0 ```）。
 
+<a id="id15"></a>
 
 #### 开启配置
-
 
 **Armino Configuration** → **Compiler Options** → `CONFIG_DEBUG_VERSION=y`
 （`bk7259` defconfig 默认关闭）。
 
+<a id="id16"></a>
 
 #### 如何查看
-
 
 ```
 tasklist
 backtrace
-
 ```
 
 无专用 CLI 逐条打印。异常 dump 后结合 `app.map` 中的 recorder 地址，在 Eclipse
-
 **Memory** 或 **Expressions** 窗口查看结构体字段。
 
+<a id="interrupt-recorder"></a>
 
-### 3. 中断记录（Interrupt Recorder）
+### 3\. 中断记录（Interrupt Recorder）
 
+<a id="id17"></a>
 
 #### 作用
 
 在每个 CPU 核上记录最近若干次中断的进入/退出时间与 IRQ 号，并统计 ISR 耗时与
 中断静默窗口。适用于 Wi-Fi/BLE 中断异常、系统卡死、怀疑关中断过久等场景。
 
+<a id="id18"></a>
 
 #### 开启配置
 
-
 **Arch** → **Cortex-M** → **Modify Arch Config**：
-
 
 ```
 CONFIG_INTERRUPT_DEBUG_RECORDER=y          # bk7259 defconfig 默认已开
 CONFIG_INTERRUPT_RECORDER_CNT=40
 CONFIG_INTERRUPT_GAP_DETECT_US=50000
-
 ```
 
 实现位于 `cp/middleware/driver/bk7259/interrupt.c`；plat dump 符号为
 `s_interrupt_core0_dump`、`s_interrupt_core1_dump`。
 
+<a id="id19"></a>
 
 #### 如何查看
 
-
 **崩溃后**：在 dump 日志 `EXTRA_MEM` 段定位上述符号，用 Eclipse Memory 窗口查看
 `recorder[]`、`max_gap_us` 等字段。
-
 
 **运行期**：可调用 `bk_interrupt_dump_recorder()` 串口文本输出（异常 dump 路径中
 默认未启用）。

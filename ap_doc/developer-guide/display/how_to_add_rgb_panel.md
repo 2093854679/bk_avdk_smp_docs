@@ -1,34 +1,49 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/display/how_to_add_rgb_panel.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="rgb-panel-bk7259"></a>
+
 # 如何新增 RGB Panel（BK7259）
 
-
 面向 **新增 RGB 屏驱动** 的开发者。MIPI 屏见同目录
-:   [如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md "how_to_add_mipi_panel.md") 。 整个过程：**1 个 .c 文件 + 1 个
-    Kconfig 入口 + 1 个 cmake 入口 + 应用层引用 1 个符号**。 无需修改
+:   [如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md) 。 整个过程：**1 个 .c 文件 \+ 1 个
+    Kconfig 入口 \+ 1 个 cmake 入口 \+ 应用层引用 1 个符号**。 无需修改
     `bk_display` / 链接脚本 / 寄存器。
 
 目录
 
-1. [BK7259 RGB 屏的两条通道](#1-bk7259-rgb-屏的两条通道 "#1-bk7259-rgb-屏的两条通道")
-2. [总流程](#2-总流程 "#2-总流程")
-3. [Step 1：从 datasheet 收集字段](#3-step-1从-datasheet-收集字段 "#3-step-1从-datasheet-收集字段")
-4. [Step 2：新建 panel 驱动文件](#4-step-2新建-panel-驱动文件 "#4-step-2新建-panel-驱动文件")
-5. [Step 3：Kconfig 声明](#5-step-3kconfig-声明 "#5-step-3kconfig-声明")
-6. [Step 4：config.cmake 加入构建](#6-step-4configcmake-加入构建 "#6-step-4configcmake-加入构建")
-7. [Step 5：工程启用 + 应用层使用](#7-step-5工程启用--应用层使用 "#7-step-5工程启用--应用层使用")
-8. [描述符字段速查表](#8-描述符字段速查表 "#8-描述符字段速查表")
-9. [init_cmds 编写规则（含 9-bit vs 4-byte 包
-   SPI）](#9-init_cmds-编写规则含-9-bit-vs-4-byte-包-spi "#9-init_cmds-编写规则含-9-bit-vs-4-byte-包-spi")
-10. [custom_reset / reset_timing](#10-custom_reset--reset_timing "#10-custom_reset--reset_timing")
-11. [现有 panel 一览](#11-现有-panel-一览 "#11-现有-panel-一览")
-12. [应用代码模板](#12-应用代码模板 "#12-应用代码模板")
-13. [验证清单 & FAQ](#13-验证清单--faq "#13-验证清单--faq")
+1. [BK7259 RGB 屏的两条通道](#1-bk7259-rgb-屏的两条通道)
+2. [总流程](#2-总流程)
+3. [Step 1：从 datasheet 收集字段](#3-step-1从-datasheet-收集字段)
+4. [Step 2：新建 panel 驱动文件](#4-step-2新建-panel-驱动文件)
+5. [Step 3：Kconfig 声明](#5-step-3kconfig-声明)
+6. [Step 4：config.cmake 加入构建](#6-step-4configcmake-加入构建)
+7. [Step 5：工程启用 \+ 应用层使用](#7-step-5工程启用--应用层使用)
+8. [描述符字段速查表](#8-描述符字段速查表)
+9. [init\_cmds 编写规则（含 9-bit vs 4-byte 包
+   SPI）](#9-init_cmds-编写规则含-9-bit-vs-4-byte-包-spi)
+10. [custom\_reset / reset\_timing](#10-custom_reset--reset_timing)
+11. [现有 panel 一览](#11-现有-panel-一览)
+12. [应用代码模板](#12-应用代码模板)
+13. [验证清单 \& FAQ](#13-验证清单--faq)
+
+<a id="bk7259-rgb"></a>
 
 1. BK7259 RGB 屏的两条通道
 
 | 通道 | 用途 | 物理形式 |
 | --- | --- | --- |
-| **像素通道**（24-bit RGB） | 持续输出像素数据 | 24 根 RGB 数据线 + HSYNC/VSYNC/DE/PCLK，由 DPU 直接驱动 |
-| **配置通道**（SW SPI，bit-bang） | 上电时下发屏厂初始化命令 | CSX / SDA / CLK + RESET，4 根 GPIO 软件位敲 |
+| **像素通道**（24-bit RGB） | 持续输出像素数据 | 24 根 RGB 数据线 \+ HSYNC/VSYNC/DE/PCLK，由 DPU 直接驱动 |
+| **配置通道**（SW SPI，bit-bang） | 上电时下发屏厂初始化命令 | CSX / SDA / CLK \+ RESET，4 根 GPIO 软件位敲 |
 
 像素通道随 DPU bring-up 自动 pinmux；配置通道的 3 根 SPI GPIO 由你在
 `bk_display_spi_bus_config_t` 中传入，RESET 引脚由 `bk_lcd_panel_config_t`
@@ -37,8 +52,9 @@
 > **没有** `bk_display_rgb_bus_new()` 这个 API。RGB 屏的配置通道复用
 > SPI 总线后端，作为 GPIO bit-bang 配置通道，仅承担寄存器写。
 
-2. 总流程
+<a id="id1"></a>
 
+2. 总流程
 
 ```
 1) ap/components/bk_peripheral/src/lcd/rgb/lcd_rgb_<vendor>_<WxH>.c
@@ -47,10 +63,11 @@
 3) rgb/config.cmake    条件加入源文件
 4) 工程 defconfig      CONFIG_LCD_<NAME>=y
 5) 应用层              extern 该 panel，喂给 bk_lcd_rgb_panel_new()
-
 ```
 
 参考工程：`projects/multimedia/rgb_lcd_example/`。
+
+<a id="step-1-datasheet"></a>
 
 3. Step 1：从 datasheet 收集字段
 
@@ -60,46 +77,42 @@
 | PCLK 频率（典型 20–60 MHz） | `pixel_clock_hz`（用宏 `BK_RGB_PIXEL_CLK_HZ(mhz)`，如 `BK_RGB_PIXEL_CLK_HZ(30)`） |
 | H 时序 (脉宽/后沿/前沿) | `timing.hsync_pulse_width` / `hsync_back_porch` / `hsync_front_porch` |
 | V 时序 (脉宽/后沿/前沿) | `timing.vsync_pulse_width` / `vsync_back_porch` / `vsync_front_porch` |
-| 配置 SPI 协议 | `spi_cmd_16bit`（**0 = 9-bit SPI；1 = 4-byte 包**，见 §9） |
+| 配置 SPI 协议 | `spi_cmd_16bit`（**0 \= 9-bit SPI；1 \= 4-byte 包**，见 §9） |
 | 初始化命令序列 | `init_cmds` |
 | ID 寄存器（可选） | `read_id_regs` / `read_id_bytes` / `id` |
 
 帧率估算：
 
-
 ```
 fps = pixel_clock_hz
        ÷ (h_size + h_pulse + h_back + h_front)
        ÷ (v_size + v_pulse + v_back + v_front)
-
 ```
 
 例：`BK_RGB_PIXEL_CLK_HZ(30), 480×854, ΣH=576/ΣV=904` →
 `30M / 576 / 904 ≈ 57 Hz`。
 
-> 与 MIPI 屏不同，**RGB 屏的 ``pixel_clock_hz``
+> 与 MIPI 屏不同，**RGB 屏的 \`\`pixel\_clock\_hz\`\`
 > 必填**，否则像素时钟不对会撕裂/闪屏。
+
+<a id="step-2-panel"></a>
 
 4. Step 2：新建 panel 驱动文件
 
 路径规范：
 
-
 ```
 ap/components/bk_peripheral/src/lcd/rgb/lcd_rgb_<vendor>_<WxH>.c
-
 ```
 
+<a id="vendor"></a>
 
 ```
 // Copyright 2020-2021 Beken
 
 /**
-
  * @file lcd_rgb_<vendor>_<WxH>.c
-
  * @brief <Vendor> RGB Panel Driver (<W>x<H>)
-
  */
 
 #include <components/bk_lcd_panel.h>
@@ -158,9 +171,9 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_<vendor>_rgb_<WxH>,
                             BK_LCD_PANEL_BUS_RGB);
 
 #endif /* CONFIG_LCD_<VENDOR_TAG> */
-
 ```
 
+<a id="id2"></a>
 
 ## 命名规范（强烈建议）
 
@@ -173,81 +186,81 @@ BK_LCD_PANEL_DEVICE_SECTION(lcd_device_<vendor>_rgb_<WxH>,
 | 段注册 name | `"<vendor>_rgb_<WxH>"` |
 | Kconfig 项 | `CONFIG_LCD_<VENDOR>`（参考现有命名约定，多为 IC 名） |
 
+<a id="step-3kconfig"></a>
+
 5. Step 3：Kconfig 声明
 
 文件：`ap/components/bk_peripheral/src/lcd/rgb/Kconfig`
-
 
 ```
 config LCD_<VENDOR_TAG>
     depends on LCD_RGB
     bool "Enable LCD_<VENDOR_TAG> API"
     default n
-
 ```
 
 `depends on LCD_RGB` 必填。
+
+<a id="step-4configcmake"></a>
 
 6. Step 4：config.cmake 加入构建
 
 文件：`ap/components/bk_peripheral/src/lcd/rgb/config.cmake`
 
-
 ```
 if (CONFIG_LCD_<VENDOR_TAG>)
     list(APPEND RGB_LCD_DEVICE_FILES ${RGB_LCD_PATH}/lcd_rgb_<vendor>_<WxH>.c)
 endif()
-
 ```
 
-7. Step 5：工程启用 + 应用层使用
+<a id="step-5"></a>
 
+7. Step 5：工程启用 \+ 应用层使用
+
+<a id="id3"></a>
+
+<a id="id4"></a>
 
 ## 7.1 启用
 
 工程 defconfig 中加：
 
-
 ```
 CONFIG_LCD_<VENDOR_TAG>=y
-
 ```
 
-或在 build 目录 `make menuconfig` → BK_PERIPHERAL → RGB LCD 勾选。
+或在 build 目录 `make menuconfig` → BK\_PERIPHERAL → RGB LCD 勾选。
 
+<a id="id5"></a>
+
+<a id="id6"></a>
 
 ## 7.2 应用层引用
 
-
 **方式 A：固定单屏 — 直接 extern**
-
 
 ```
 extern const bk_display_rgb_panel_t lcd_device_<vendor>_rgb_<WxH>;
 const bk_display_rgb_panel_t *panel = &lcd_device_<vendor>_rgb_<WxH>;
-
 ```
 
-
 **方式 B：CLI/可换屏 — 段注册按 name 查找**
-
 
 ```
 const bk_display_rgb_panel_t *panel =
     bk_lcd_find_rgb_panel_by_name("<vendor>_rgb_<WxH>");
-
 ```
 
 或枚举：
 
-
 ```
 const bk_display_rgb_panel_t *list[8];
 uint32_t n = bk_lcd_get_rgb_panel_list(list, 8);
-
 ```
 
 完整 bring-up 链见 §12。
+
+<a id="id7"></a>
 
 8. 描述符字段速查表
 
@@ -264,10 +277,10 @@ uint32_t n = bk_lcd_get_rgb_panel_list(list, 8);
 | `timing.hsync_*` | `uint16_t` | **必填** | hsync 脉宽/后沿/前沿（单位 pclk） |
 | `timing.vsync_*` | `uint16_t` | **必填** | vsync 脉宽/后沿/前沿（单位 line） |
 | `init_cmds` | `const lcd_rgb_spi_init_cmd_t *` | **必填** | 命令序列，**必须**以 `{0x00, NULL, 0}` 结尾 |
-| `spi_cmd_16bit` | `uint8_t` | **必填** | 配置 SPI 协议选择：`0` = 9-bit SPI；`1` = 4-byte 包，详见 §9 |
+| `spi_cmd_16bit` | `uint8_t` | **必填** | 配置 SPI 协议选择：`0` \= 9-bit SPI；`1` \= 4-byte 包，详见 §9 |
 | `read_id_regs` | `const uint8_t *` | 可选 | ID 寄存器地址数组，以 `0` 结尾 |
-| `read_id_bytes` | `uint8_t` | 与 `read_id_regs` 配套 | 1~3 |
-| `reset_active_level` | `bool` | 推荐 | RST 有效电平：`true` = 高有效，`false` = 低有效 |
+| `read_id_bytes` | `uint8_t` | 与 `read_id_regs` 配套 | 1\~3 |
+| `reset_active_level` | `bool` | 推荐 | RST 有效电平：`true` \= 高有效，`false` \= 低有效 |
 | `reset_timing` | `bk_display_reset_timing_t` | 可选 | 三段（`idle_ms`/`active_ms`/`release_ms`），回落到 `BK_DISPLAY_RESET_*_MS_RGB_DEFAULT` |
 | `reset` | `bk_err_t (*)(bk_avdk_lcd_panel_t *)` | 推荐 | reset 钩子；填 `bk_lcd_rgb_default_reset` 走通用 H/L/H，`NULL` 跳过，或自定义，见 §10 |
 | `init` | `bk_err_t (*)(bk_avdk_lcd_panel_t *)` | 推荐 | init 钩子；填 `bk_lcd_rgb_default_init` 通过 SW SPI 派发 `init_cmds`，`NULL` 跳过 |
@@ -288,10 +301,11 @@ uint32_t n = bk_lcd_get_rgb_panel_list(list, 8);
 RGB 屏的 `.init` 默认用 `bk_lcd_rgb_default_init` 通过 SW SPI 派发
 `init_cmds`，一般无需自定义。
 
+<a id="init-cmds-9-bit-vs-4-byte-spi"></a>
+
 9. `init_cmds` 编写规则（含 9-bit vs 4-byte 包 SPI）
 
 `lcd_rgb_spi_init_cmd_t`：
-
 
 ```
 typedef struct {
@@ -299,19 +313,24 @@ typedef struct {
     const void   *data;      /* 9-bit: const uint8_t *；4-byte: const uint16_t *；无参 NULL */
     uint8_t       data_len;  /* 参数个数；0xFF 时表示 delay */
 } lcd_rgb_spi_init_cmd_t;
-
 ```
 
+<a id="id8"></a>
+
+<a id="id9"></a>
 
 ## 9.1 4 种合法形式
 
 | 形式 | 写法（9-bit / `spi_cmd_16bit=0`） | 含义 |
 | --- | --- | --- |
-| 带参命令 | `{0x36, (const uint8_t []){0x10}, 1}` | 命令 0x36 + 1 字节参数 |
+| 带参命令 | `{0x36, (const uint8_t []){0x10}, 1}` | 命令 0x36 \+ 1 字节参数 |
 | 无参命令 | `{0x11, NULL, 0}` | SLPOUT |
 | 延迟 N ms | `{0x00, (const uint8_t []){N}, 0xFF}` | 不发任何命令，等 N 毫秒 |
 | 结束标记（必填） | `{0x00, NULL, 0}` |  |
 
+<a id="bit-spi-spi-cmd-16bit-0"></a>
+
+<a id="bit-spispi-cmd-16bit-0"></a>
 
 ## 9.2 9-bit SPI（`spi_cmd_16bit = 0`）
 
@@ -321,53 +340,56 @@ MD0430R / MD0700R …
 线上波形：`[D/C bit] [byte]`，bit-bang。 `cmd` 字段写低 8
 位，`data` 用 `const uint8_t[]`：
 
-
 ```
 {0xFF, (const uint8_t []){0x77,0x01,0x00,0x00,0x13}, 5},
 {0x3A, (const uint8_t []){0x55}, 1},
-
 ```
 
+<a id="byte-spi-spi-cmd-16bit-1"></a>
+
+<a id="byte-spispi-cmd-16bit-1"></a>
 
 ## 9.3 4-byte 包 SPI（`spi_cmd_16bit = 1`）
 
 适用：NT35510 / NT35512。
 
-线上格式按完整 16-bit 命令字 + 16-bit data，`cmd` 写完整 16 位（如
+线上格式按完整 16-bit 命令字 \+ 16-bit data，`cmd` 写完整 16 位（如
 `0xF000`）， `data` 用 `const uint16_t[]`，多数寄存器是单字 1
 word：
-
 
 ```
 {0xF000, (const void *)(const uint16_t []){0x0055}, 1},
 {0xF001, (const void *)(const uint16_t []){0x00AA}, 1},
 {0xB600, (const void *)(const uint16_t []){0x0034}, 1},
-
 ```
 
 delay 形式两种模式相同：`{0x00, (const uint8_t []){N}, 0xFF}`。
 
+<a id="id10"></a>
+
+<a id="id11"></a>
 
 ## 9.4 常见误用
 
-
-- ❌ `{0x11, (const uint8_t []){120}, 0xFF}`——驱动不会解析”命令 +
+- ❌ `{0x11, (const uint8_t []){120}, 0xFF}`——驱动不会解析”命令 \+
   延时”复合形式；拆成两条：
 
   ```
   {0x11, NULL, 0},
   {0x00, (const uint8_t []){120}, 0xFF},
   ```
-
 - ❌ delay 的 `data` 不能是 `NULL`；`cmd` 必须是 `0x00`
-
 - ❌ 普通命令的 `data_len` 不能等于 `0xFF`（会被当 delay）
-
 - ❌ 4-byte 模式忘了把 `data` 改成 `uint16_t[]`——驱动会按 16-bit
   单元读
 
+<a id="custom-reset-reset-timing"></a>
+
 10. `custom_reset` / `reset_timing`
 
+<a id="reset-timing"></a>
+
+<a id="id12"></a>
 
 ## 10.1 优先用 `reset_timing` 调时序
 
@@ -381,18 +403,18 @@ delay 形式两种模式相同：`{0x00, (const uint8_t []){N}, 0xFF}`。
 
 要改时序，填 `reset_timing` 即可（零字段保持默认）：
 
-
 ```
 .reset_timing = {
     .active_ms  = 200,   /* 加长 reset 脉冲 */
     .release_ms = 100,
 },
-
 ```
 
+<a id="h-l-h-custom-reset"></a>
+
+<a id="hlh-custom-reset"></a>
 
 ## 10.2 仅在波形不是 H/L/H 三段时才写 `custom_reset`
-
 
 ```
 /* 赋给描述符的 .reset 字段；签名只有 panel 一个参数 */
@@ -406,11 +428,12 @@ static bk_err_t my_reset(bk_avdk_lcd_panel_t *panel)
     rtos_delay_milliseconds(200);
     return BK_OK;
 }
-
 ```
 
 自定义 `.reset` 非 NULL 时**完全替换**默认波形，`reset_timing`
 被旁路。
+
+<a id="panel"></a>
 
 11. 现有 panel 一览
 
@@ -430,12 +453,13 @@ static bk_err_t my_reset(bk_avdk_lcd_panel_t *panel)
 
 建议挑分辨率/IC 最接近的现有文件做模板。
 
+<a id="id13"></a>
+
 12. 应用代码模板
 
 完整工程参考
 `projects/multimedia/rgb_lcd_example/ap/src/lcd_example_rgb.c`。
 单文件最小化版本：
-
 
 ```
 #include <components/bk_display.h>   /* 伞头：bus + panel + display ctlr */
@@ -451,9 +475,7 @@ int my_rgb_lcd_open(void)
     const bk_display_rgb_panel_t *panel = &lcd_device_<vendor>_rgb_<WxH>;
 
     /* 1) 建配置通道（SW SPI bit-bang）。cmd_width 必须按 panel 选择：
-
      *      panel->spi_cmd_16bit == 0 -> cmd_width = 8  (9-bit SPI)
-
      *      panel->spi_cmd_16bit == 1 -> cmd_width = 16 (4-byte 包)        */
     bk_display_spi_bus_config_t cfg = {
         .clk_pin   = GPIO_8,
@@ -493,11 +515,15 @@ int my_rgb_lcd_close(void)
     bk_display_bus_delete(s_spi_bus); s_spi_bus = NULL;
     return 0;
 }
-
 ```
 
-13. 验证清单 & FAQ
+<a id="faq"></a>
 
+13. 验证清单 \& FAQ
+
+<a id="rgb-131"></a>
+
+<a id="id14"></a>
 
 ## 13.1 验证顺序
 
@@ -512,6 +538,9 @@ int my_rgb_lcd_close(void)
 6. 渐变图无条纹/撕裂；R/G/B 顺序正确（错位见 §13.2）
 7. 100 次 open/close 不死机不漏内存
 
+<a id="rgb-132"></a>
+
+<a id="id15"></a>
 
 ## 13.2 常见问题速查
 
@@ -520,7 +549,7 @@ int my_rgb_lcd_close(void)
 | 整屏黑、电流正常 | RESET 时序 / init 命令是否真的下发（抓 SPI） | RGB 像素脚 pinmux：PCLK 是否在跳 |
 | 整屏黑、电流异常 | 屏 VCC / 背光 LDO | 板上 LDO 使能 |
 | 整屏白底/雪花 | DPI clock 太高或 porch 偏小 | 降 `pixel_clock_hz` 或重算 porch |
-| 规则横纹 | h porch 偏小，DPU FIFO underflow | 加大 porch；确认 DPU QoS=3 |
+| 规则横纹 | h porch 偏小，DPU FIFO underflow | 加大 porch；确认 DPU QoS\=3 |
 | 规则竖纹/抖动 | PCLK 极性与屏采样沿不一致 | 屏 datasheet 看 PCLK 极性（本平台不开放反相，找驱动同事） |
 | R/B 互换 | 屏 BGR/RGB 寄存器没设对 | 检查 `init_cmds` 中 0x36 (MADCTL) |
 | `read_id` 全 0 / 全 F | 屏 VCC / 配置 SPI 引脚错 | 万用表测 CSX/SDA/CLK 是否到屏脚 |
@@ -536,17 +565,11 @@ int my_rgb_lcd_close(void)
 
 参考
 
-
 - 模板源文件：`ap/components/bk_peripheral/src/lcd/rgb/lcd_rgb_st7701sn_480x854.c`
-
 - 4-byte
   包参考：`ap/components/bk_peripheral/src/lcd/rgb/lcd_rgb_nt35510_480x854.c`
-
 - 通用驱动：`ap/components/bk_display/src/panel/lcd_rgb_panel_common.c`
-
 - 公有 API：`<components/bk_display.h>`（伞头）/
   `<components/bk_display_bus.h>` / `<components/bk_lcd_panel.h>`
-
 - 公有类型：`<components/bk_lcd_panel_types.h>`
-
 - 应用样例：`projects/multimedia/rgb_lcd_example/ap/src/lcd_example_rgb.c`

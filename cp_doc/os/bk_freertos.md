@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/os/bk_freertos.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="freertos"></a>
+
 # FreeRTOS 操作系统
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -8,18 +22,22 @@
 > - 作为一个轻量级的操作系统，功能包括：任务管理、时间管理、信号量、消息队列、内存管理、记录功能、软件定时器、协程等，可基本满足较小系统的需要。
 > - FreeRTOS 能在小 RAM 单片机上运行，是完全免费的开源操作系统，具有源码公开、可移植、可裁减、调度策略灵活的特点，可以方便地移植到各种单片机上运行。
 > - Armino 平台 CP 侧使用内核路径 `components/os_source/freertos_v10`，版本基于 FreeRTOS Kernel V10.4.x 系列。
-> - BK7259 CP 子系统支持双核（CPU0/CPU1），多核协同与 hotplug 说明见 [开发者指南](../developer-guide.md "../developer-guide.md")。
+> - BK7259 CP 子系统支持双核（CPU0/CPU1），多核协同与 hotplug 说明见 [开发者指南](../developer-guide.md)。
 
+<a id="id2"></a>
 
 ## 通用架构
 
 > - 一个 FreeRTOS 系统主要由 BSP 驱动、内核与组件组成。内核包含多任务调度、内存管理与任务间通信；组件包含网络协议、外设支持等。
 > - FreeRTOS 内核与组件均可剪裁。嵌入式应用对内存空间要求苛刻，可剪裁 RTOS 非常重要，这使得 FreeRTOS 核心代码仅约 9000 行。
 
-![FreeRTOS architecture](../_images/freertos_arch.png)
+<a id="id5"></a>
+![FreeRTOS architecture](../../../_assets/344e4a2fdf81d67b7de9-freertos_arch.png)
+
 
 FreeRTOS 架构
 
+<a id="id3"></a>
 
 ## 功能与特点
 
@@ -37,6 +55,7 @@ FreeRTOS 架构
 > - 优先级继承
 > - 免费开源的源代码
 
+<a id="id4"></a>
 
 ## 小结
 
@@ -44,6 +63,7 @@ FreeRTOS 架构
 > - FreeRTOS 的内核可根据用户需要设置为可剥夺型内核或不可剥夺型内核。
 > - 在嵌入式领域，FreeRTOS 同时具有实时性、开源性、可靠性、易用性、多平台支持等特点。
 
+<a id="api"></a>
 
 ## API 介绍
 
@@ -51,5 +71,5 @@ FreeRTOS 架构
 
 具体可参考：
 
-> - [OS 抽象层](bk_os_abstract.md "bk_os_abstract.md")
-> - [内存接口](bk_mem.md "bk_mem.md")
+> - [OS 抽象层](bk_os_abstract.md)
+> - [内存接口](bk_mem.md)

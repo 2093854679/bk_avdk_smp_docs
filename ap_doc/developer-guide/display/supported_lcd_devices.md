@@ -1,20 +1,34 @@
-# 支持的 LCD 设备
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/display/supported_lcd_devices.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="lcd"></a>
+
+# 支持的 LCD 设备
 
 本页汇总 BK7259 当前已在 `ap/components/bk_peripheral/src/lcd` 下注册的 LCD 屏，
 按总线类型分组。型号/分辨率/源文件以代码库为准；新增屏的方法见
-[如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md "how_to_add_mipi_panel.md") 与 [如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md "how_to_add_rgb_panel.md")。
+[如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md) 与 [如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md)。
 
 备注
 
 BK7259 **不支持** Intel 8080 / MCU 并口 LCD 总线，仅支持 MIPI-DSI、并口 RGB、
 QSPI、SPI 四类。
 
+<a id="mipi-dsi"></a>
 
 ## MIPI-DSI 屏
 
 源目录 `ap/components/bk_peripheral/src/lcd/dsi`，详细新增/时序说明见
-[如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md "how_to_add_mipi_panel.md")。
+[如何新增 MIPI DSI Panel（BK7259）](how_to_add_mipi_panel.md)。
 
 | 型号 | 分辨率 | 源文件 |
 | --- | --- | --- |
@@ -31,11 +45,12 @@ QSPI、SPI 四类。
 | ST7701SN | 480×854 | `lcd_mipi_st7701sn_480x854.c` |
 | LT8912B（MIPI→HDMI 桥） | 由 HDMI 时序决定（Kconfig 选择） | `lcd_mipi_lt8912b_bridge.c` |
 
+<a id="rgb"></a>
 
 ## 并口 RGB 屏
 
 源目录 `ap/components/bk_peripheral/src/lcd/rgb`，详细新增/时序说明见
-[如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md "how_to_add_rgb_panel.md")。像素走 24-bit 并口 RGB，寄存器初始化走 SW SPI
+[如何新增 RGB Panel（BK7259）](how_to_add_rgb_panel.md)。像素走 24-bit 并口 RGB，寄存器初始化走 SW SPI
 配置通道。
 
 | 型号 | 分辨率 | 源文件 |
@@ -52,11 +67,12 @@ QSPI、SPI 四类。
 | ST7701S | 480×480 | `lcd_rgb_st7701s_480x480.c` |
 | ST7701SN | 480×854 | `lcd_rgb_st7701sn_480x854.c` |
 
+<a id="qspi"></a>
 
 ## QSPI 屏
 
 源目录 `ap/components/bk_peripheral/src/lcd/qspi`，使用方法见
-[qspi_lcd_display](qspi_lcd_display.md "qspi_lcd_display.md")。
+[qspi\_lcd\_display](qspi_lcd_display.md)。
 
 | 型号 | 分辨率 | 源文件 |
 | --- | --- | --- |
@@ -72,11 +88,12 @@ QSPI、SPI 四类。
 | ST77903 (WX20114) | 400×400 | `lcd_qspi_st77903_wx20114.c` |
 | ST77916 | 360×360 | `lcd_qspi_st77916.c` |
 
+<a id="spi"></a>
 
 ## SPI 屏
 
 源目录 `ap/components/bk_peripheral/src/lcd/spi`，使用方法见
-[spi_lcd_display](spi_lcd_display.md "spi_lcd_display.md")。
+[spi\_lcd\_display](spi_lcd_display.md)。
 
 | 型号 | 分辨率 | 源文件 |
 | --- | --- | --- |

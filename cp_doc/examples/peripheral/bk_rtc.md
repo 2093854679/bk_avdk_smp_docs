@@ -1,14 +1,28 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_rtc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="rtc"></a>
+
 # RTC
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
 实时时钟（Real-Time Clock, RTC）是嵌入式系统中记录时间的硬件模块。BK7259 CP 侧提供 AON RTC 驱动初始化、读取当前 tick、注册/注销闹钟、自动闹钟测试、RTC clock source/ROSC 调试以及 dump/timing test 等 RTC 测试命令；BK7259 只有一个 AON RTC 硬件实例，ID 为 `0`。
 
+- RTC 功能具体描述参考：[RTC 驱动工作原理](../../developer-guide/peripheral/bk_rtc.md)
 
-- RTC 功能具体描述参考：[RTC 驱动工作原理](../../developer-guide/peripheral/bk_rtc.md "../../developer-guide/peripheral/bk_rtc.md")
-
+<a id="id2"></a>
 
 ## 2 代码路径
 
@@ -23,6 +37,7 @@
 > - 默认配置：
 >   :   `cp/middleware/soc/bk7259/bk7259.defconfig`
 
+<a id="id3"></a>
 
 ## 3 测试命令简介
 
@@ -61,18 +76,19 @@ demo 支持的命令如下表：
 
 旧的 `aon_rtc {id} create/destroy` 和 `aon_rtc_int` 命令在代码中被 `#if 0` 关闭，BK7259 默认 `CONFIG_AON_RTC_MANY_USERS=y`，请使用 `aon_rtc_register` / `aon_rtc_unregister`。
 
+<a id="id4"></a>
 
 ## 4 演示介绍
 
 demo 执行步骤如下：
 
-> **aon_rtc_driver init**
+> **aon\_rtc\_driver init**
 > :   ```
 >     $aon_rtc_driver init
 >     $cli:I(xxxx):aon_rtc driver init
 >     ```
 >
-> **aon_rtc_get_time 0**
+> **aon\_rtc\_get\_time 0**
 > :   ```
 >     [16:37:26.111]发->◇aon_rtc_get_time 0
 >     [16:37:26.116]收<-◆aon_rtc_get_time 0
@@ -81,7 +97,7 @@ demo 执行步骤如下：
 >     $cli:I(10746):id=0, tick_h=0 tick_l=10747 ms
 >     ```
 >
-> **aon_rtc_register 0 alarm1 64000 5**
+> **aon\_rtc\_register 0 alarm1 64000 5**
 >
 > 注册名为 `alarm1` 的闹钟。默认 ROSC 频率为 32000 Hz 时，`64000` tick 约等于 2 秒，`period_cnt=5` 表示触发 5 次。
 >
@@ -93,12 +109,12 @@ demo 执行步骤如下：
 > > [16:42:45.323]收<-◆cli:I(16141):id=0, name=alarm1 alarmprm
 > > ```
 >
-> **aon_rtc_unregister 0 alarm1**
+> **aon\_rtc\_unregister 0 alarm1**
 > :   ```
 >     $aon_rtc_unregister 0 alarm1
 >     ```
 >
-> **aon_rtc_auto_test 0 start / aon_rtc_auto_test 0 stop**
+> **aon\_rtc\_auto\_test 0 start / aon\_rtc\_auto\_test 0 stop**
 > :   ```
 >     $aon_rtc_auto_test 0 start
 >     $cli:I(xxxx):id=0, name=alarm_1
@@ -106,23 +122,23 @@ demo 执行步骤如下：
 >     $aon_rtc_auto_test 0 stop
 >     ```
 >
-> **aon_rtc_clock_src rosc**
+> **aon\_rtc\_clock\_src rosc**
 > :   ```
 >     $aon_rtc_clock_src rosc
 >     ```
 >
-> **aon_rtc_rosc_cal auto 10**
+> **aon\_rtc\_rosc\_cal auto 10**
 > :   ```
 >     $aon_rtc_rosc_cal auto 10
 >     $cli:I(xxxx):ROSC calibration mode: 0, interval: 10
 >     ```
 >
-> **aon_rtc_rosc_test enable**
+> **aon\_rtc\_rosc\_test enable**
 > :   ```
 >     $aon_rtc_rosc_test enable
 >     ```
 >
-> **aon_rtc_dump 0**
+> **aon\_rtc\_dump 0**
 > :   ```
 >     $aon_rtc_dump 0
 >     ```

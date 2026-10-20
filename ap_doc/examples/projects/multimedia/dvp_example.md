@@ -1,25 +1,36 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/projects/multimedia/dvp_example/index.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="dvp"></a>
+
 # DVP 示例工程
 
+<a id="id1"></a>
 
-
-## 1. 项目概述
+## 1\. 项目概述
 
 本工程从 `multimedia/isp_example` 中拆出 DVP 摄像头测试能力，专门用于 BK7259 DVP sensor 的检测、MP/SP 通道打开、单帧读取以及帧 callback 验证。
 
 默认硬件配置：
 
-
-- 核心板：BK7259_QF128_12.3X12.3_V4.0
-
+- 核心板：BK7259\_QF128\_12.3X12.3\_V4.0
 - PSRAM：32M
-
-- DVP sensor：GC2145，默认 [1280x720@30fps](mailto:1280x720%4030fps "mailto:1280x720%4030fps")
+- DVP sensor：GC2145，默认 [1280x720@30fps](mailto:1280x720%4030fps)
 
 主要软件依赖：`CONFIG_ISP`、`CONFIG_BK_CAMERA`、`CONFIG_FRAME_BUFFER`、`CONFIG_DVP_CAMERA`、`CONFIG_DVP_GC2145`、`CONFIG_MEDIA_SERVICE`。当前 SDK 的 GC2145 DVP raw path 还链接到 MIPI/CSI 辅助符号，因此 defconfig 保留 `CONFIG_MIPI_CSI`、`CONFIG_CSI_CAMERA`、`CONFIG_CSI_GC2053` 作为底层链接依赖，但本工程 CLI 只暴露 DVP 测试入口。
 
+<a id="id2"></a>
 
-## 2. 目录结构
-
+## 2\. 目录结构
 
 ```
 dvp_example/
@@ -30,12 +41,11 @@ dvp_example/
 │   └── src/dvp_func_test.c    # DVP detect/open/read/callback 实现
 ├── cp/
 └── partitions/
-
 ```
 
+<a id="cli"></a>
 
-## 3. CLI 命令
-
+## 3\. CLI 命令
 
 ```
 dvp detect
@@ -43,11 +53,9 @@ dvp open <mp|sp> <sensor_w> <sensor_h> <fps> <out_w> <out_h> <frame|flexa> [outp
 dvp read <mp|sp>
 dvp cb <on|off> [mp|sp]
 dvp close <mp|sp>
-
 ```
 
 示例：
-
 
 ```
 dvp detect
@@ -55,19 +63,17 @@ dvp open mp 1280 720 30 1280 720 frame
 dvp cb on mp
 dvp cb off
 dvp close mp
-
 ```
 
 `dvp cb on` 会注册示例 callback，并启动后台采集任务。日志持续打印 `dvp_cb frame[...]` 表示帧数据已经通过 callback 推到应用层。帧 buffer 在 callback 返回后释放，真实业务需要在回调里尽快消费或拷贝。
 
+<a id="id3"></a>
 
-## 4. 编译
-
+## 4\. 编译
 
 ```
 cd <SDK_ROOT>
 make bk7259 PROJECT=multimedia/dvp_example -j$(nproc)
-
 ```
 
 完整测试步骤见 `DVP_TEST_CASES.md`。

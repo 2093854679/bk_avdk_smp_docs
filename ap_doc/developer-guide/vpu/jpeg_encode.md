@@ -1,77 +1,82 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/vpu/jpeg_encode.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="jpeg"></a>
+
 # JPEG 编码
 
+<a id="id1"></a>
 
-
-## 1. 概述
+## 1\. 概述
 
 JPEG 硬件编码基于 VCENC JPEG 通路，通过 `bk_jpeg_encode_*` 控制器将 NV12 图像编码为 JPEG 码流。
 
-
 - 头文件：`ap/include/components/bk_encode/bk_jpeg_encode_ctlr.h`
-
 - 示例工程：`projects/multimedia/jpeg_encode_example`
 
+<a id="id2"></a>
 
-## 2. 支持能力
-
+## 2\. 支持能力
 
 - NV12 输入静态 JPEG 编码
-
 - Frame 整帧模式（`bk_jpeg_encode_frame_new`）
-
 - 硬件 / 软件 Flexa 低延迟模式
-
-- 质量档位 0~10（IOCTL 调节）
+- 质量档位 0\~10（IOCTL 调节）
 
 参见
 
-Frame 与 Flexa 模式说明见 [Frame 与 Flexa 模式](flexa_frame.md "flexa_frame.md")。CLI `jpeg_encode frame` / `jpeg_encode flexa` 分别对应 Frame 与软件 Flexa。
+Frame 与 Flexa 模式说明见 [Frame 与 Flexa 模式](flexa_frame.md)。CLI `jpeg_encode frame` / `jpeg_encode flexa` 分别对应 Frame 与软件 Flexa。
 
+<a id="id3"></a>
 
-## 3. 相关宏定义
+## 3\. 相关宏定义
 
 | 宏名称 | 说明 |
 | --- | --- |
-| CONFIG_BK_ENCODER | 使能 VCENC 编码子系统 |
-| CONFIG_BK_ENCODER_MJPEG_TASK_SIZE | JPEG 编码任务栈大小 |
-| CONFIG_BK_ENCODER_MJPEG_MAX_OUTPUT_BUFFER | JPEG 最大输出缓冲区（字节） |
+| CONFIG\_BK\_ENCODER | 使能 VCENC 编码子系统 |
+| CONFIG\_BK\_ENCODER\_MJPEG\_TASK\_SIZE | JPEG 编码任务栈大小 |
+| CONFIG\_BK\_ENCODER\_MJPEG\_MAX\_OUTPUT\_BUFFER | JPEG 最大输出缓冲区（字节） |
 
+<a id="id4"></a>
 
-## 4. 调试说明
+## 4\. 调试说明
 
+<a id="id5"></a>
 
 ### 4.1 编译与烧录
-
 
 ```
 cd <SDK_ROOT>
 make bk7259 PROJECT=multimedia/jpeg_encode_example -j$(nproc)
-
 ```
 
+<a id="cli"></a>
 
 ### 4.2 CLI 命令
-
 
 ```
 jpeg_encode help
 jpeg_encode frame
 jpeg_encode flexa
-
 ```
 
-
 - 内置 256×128 NV12 平铺为 1920×1080 输入，10 帧，质量档 5
-
 - `flexa` 为软件 Flexa 模式
-
 - 成功标志：`[RESULT][PASS] bk_jpeg_encode_frame_test success` / `bk_jpeg_encode_sw_flexa_test success`
+- 使能 `CONFIG_BK_ENCODER` 时上电自动运行 Frame \+ Flexa 自检
 
-- 使能 `CONFIG_BK_ENCODER` 时上电自动运行 Frame + Flexa 自检
+<a id="id6"></a>
 
-
-## 5. 使用流程
-
+## 5\. 使用流程
 
 ```
 bk_jpeg_encode_ctlr_handle_t encoder = NULL;
@@ -96,16 +101,13 @@ bk_jpeg_encode_frame(encoder, &input);
 bk_jpeg_encode_close(encoder);
 bk_jpeg_encode_deinit(encoder);
 bk_jpeg_encode_delete(encoder);
-
 ```
 
 Flexa 硬件路径：`bk_jpeg_encode_hw_flexa_new()`；软件 Flexa：`bk_jpeg_encode_sw_flexa_new()`。
 
 质量调节：
 
-
 ```
 uint8_t quality = 8;
 bk_jpeg_encode_ioctl(encoder, BK_JPEG_ENCODE_IOCTL_SET_QUALITY, &quality);
-
 ```

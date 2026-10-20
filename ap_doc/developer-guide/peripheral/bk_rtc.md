@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/peripheral/bk_rtc.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="rtc"></a>
+
 # RTC 使用指南
 
-
+<a id="id1"></a>
 
 ## 概述
 
@@ -10,6 +24,7 @@
 
 BK7259 只有一个 AON RTC 硬件实例，ID 为 ``` 0``（``AON_RTC_ID_1 ```）。CP 侧负责完整的闹钟管理；AP 侧保留读当前 tick、读/设置 time of day、读 us/ms 单调时间等接口，不提供闹钟注册测试命令。
 
+<a id="id2"></a>
 
 ## RTC 使用方法
 
@@ -18,6 +33,7 @@ AP 侧 RTC 常见使用方式：
 > - 统计代码执行时间：调用 `bk_aon_rtc_get_current_tick()`、`bk_aon_rtc_get_us()` 或 `bk_aon_rtc_get_ms()` 记录开始和结束时间，再计算耗时。
 > - 维护系统时间：调用 `bk_rtc_settimeofday()` 设置时间基准，后续可通过 `bk_rtc_gettimeofday()` 读取当前时间。
 
+<a id="id3"></a>
 
 ## 相关代码路径
 
@@ -28,6 +44,7 @@ AP 侧 RTC 常见使用方式：
 > - Kconfig：`ap/middleware/driver/rtc/Kconfig`
 > - 默认配置：`ap/middleware/soc/bk7259_ap/bk7259_ap.defconfig`
 
+<a id="id4"></a>
 
 ## 配置宏
 
@@ -40,6 +57,7 @@ AP 侧 RTC 常见使用方式：
 | `CONFIG_AON_RTC_DEBUG` | `n` | AP 默认不编译调试 timing test。 |
 | `CONFIG_RTC_TIMER_PRECISION_TEST` | `n` | RTC 精度测试宏，默认关闭。 |
 
+<a id="ap"></a>
 
 ## AP 侧测试
 
@@ -55,9 +73,10 @@ AP 侧 RTC 测试命令由 `ap/middleware/driver/rtc/aon_rtc_test.c` 导出。SM
 | `aon_rtc_time_of_day get` | 读取 `bk_rtc_gettimeofday()` 的当前时间。 |
 | `aon_rtc_time_of_day set {sec} {usec}` | 调用 `bk_rtc_settimeofday()` 设置 time of day 基准。 |
 
-RTC 相关测试和使用介绍：[RTC 测试用例](../../examples/peripheral/bk_rtc.md "../../examples/peripheral/bk_rtc.md")
+RTC 相关测试和使用介绍：[RTC 测试用例](../../examples/peripheral/bk_rtc.md)
 
+<a id="rtc-api-reference"></a>
 
 ## RTC API Reference
 
-> [RTC 驱动 API](../../api-reference/peripheral/bk_rtc.md "../../api-reference/peripheral/bk_rtc.md")
+> [RTC 驱动 API](../../api-reference/peripheral/bk_rtc.md)

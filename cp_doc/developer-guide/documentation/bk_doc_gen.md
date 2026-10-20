@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/cp_doc/bk7259/zh_CN/v4.0.1/developer-guide/documentation/bk_doc_gen.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: CP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # 文档生成
 
-
+<a id="id2"></a>
 
 ## 概述
 
@@ -9,6 +23,7 @@
 > - API 头文件生成: 以 API 头文件作为输入，先由 Doxygen 生成 XML 文件, 然后由 sphinx 结合 breathe 插件进一步生成 HTML。
 > - reStructuredText (RST) 格式生成，以 .rst 文档作为输入，通过 sphinx 生成 HTML 文档。
 
+<a id="id3"></a>
 
 ## 工具安装
 
@@ -19,7 +34,7 @@
 >   ```
 >   sudo apt-get install doxygen
 >   ```
-> - sphinx 与 sphinx_rtd_theme:
+> - sphinx 与 sphinx\_rtd\_theme:
 >
 >   ```
 >   pip3 install sphinx sphinx_rtd_theme
@@ -30,20 +45,24 @@
 >   pip3 install breathe
 >   ```
 
+<a id="api"></a>
+
+<a id="doc-gen-api-header"></a>
 
 ## API 头文件生成
 
-以 bk_api_mod.h 为例说明文档生成步骤。
+以 bk\_api\_mod.h 为例说明文档生成步骤。
 
+<a id="id4"></a>
 
 ### 步骤一：完善头文件注释
 
 为生成头文件文档，需要按 Doxygen 要求编写注释，Doxygen 定义了多种格式，掌握常见的几种就能处理绝大多数情况。
 
-> - 定义 group。为 bk_api_mod.h 定义一个新的 group bk_api_mod， 如果头文件中除了有 API 声明之外还有数据类型定义，
+> - 定义 group。为 bk\_api\_mod.h 定义一个新的 group bk\_api\_mod， 如果头文件中除了有 API 声明之外还有数据类型定义，
 >   可再定义多个子 group， 通常将所有枚举类型放在起定义一个子 group， 将所有结构体定义放一起定义一个 group， 分成多个子。如下示，
 >   group 的好处是在 HTML 显示时可以分开显示， 不然 API 文档与数字类型定义会串插显示。如下示，
->   定义了三个 group: bk_api_mod, bk_api_mod_enums, bk_api_mod_structs:
+>   定义了三个 group: bk\_api\_mod, bk\_api\_mod\_enums, bk\_api\_mod\_structs:
 >
 >   ```
 >    /**
@@ -112,17 +131,15 @@
 >   } struct_type_t;
 >   ```
 
+<a id="id5"></a>
 
 ### 步骤二：将文档关联到文档树中
 
 进到 docs/api-reference 中，为模块增加一个 mod.rst 文件，将 step1 中的 group 放到 mod.rst 中，group 放置的顺序即为 group 在 HTML 页面显示的顺序:
 
-
 ```
-
 ***********************************
 Mod API Reference
-
 ***********************************
 
 .. doxygengroup:: bk_api_mod
@@ -133,22 +150,21 @@ Mod API Reference
 
 .. doxygengroup:: bk_api_wifi_structs
         :project: api_ref
-
 ```
 
 进到 docs/api-reference 目录中， 在 index.rst 中增加一行:
 
-
 ```
 Mod <mod>
-
 ```
 
-上面仅介绍最常中的 doxygen 注释， 如果需要使用更高级的功能可参考： [Doxygen](https://www.doxygen.nl/manual/grouping.html "https://www.doxygen.nl/manual/grouping.html") 与 [Breathe](https://breathe.readthedocs.io/en/latest/index.html "https://breathe.readthedocs.io/en/latest/index.html")
+上面仅介绍最常中的 doxygen 注释， 如果需要使用更高级的功能可参考： [Doxygen](https://www.doxygen.nl/manual/grouping.html) 与 [Breathe](https://breathe.readthedocs.io/en/latest/index.html)
 
+<a id="rst"></a>
 
 ## RST 文档生成
 
+<a id="id6"></a>
 
 ### 步骤一：编写 RST 文档
 
@@ -162,29 +178,29 @@ Mod <mod>
 
 确定文档要放置的目录之后，在该目录下新建 mod.rst。之后，按 reStructuredText 格式编写 mod.rst。
 
-最常用的格式是：标题，列表，图片，引用。可打开一个已有的文档参参考，如需要用到高级功能，可参考 [reStructuredText](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html "https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html")
+最常用的格式是：标题，列表，图片，引用。可打开一个已有的文档参参考，如需要用到高级功能，可参考 [reStructuredText](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
 
+<a id="id7"></a>
 
 ### 步骤二：将 RST 文档关联到文档树中
 
 找到文档所在目录下 index.rst, 在其中增加一行:
 
-
 ```
 Mod <mod>
-
 ```
 
+<a id="id8"></a>
 
 ## 编译生成文档
 
 有两种方法可以生成 doc:
 
-> - 在 docs 目录下运行 build_doc.py
+> - 在 docs 目录下运行 build\_doc.py
 > - 在项目目录下，运行 armino.py doc， 该方法仅在 FreeRTOS 有效
 
 上述命令在当前目录下生成 build/html 目录， 可用浏览器打开 build/html/index.hmtl 查看文档效果。
 
 备注
 
-默认情况下 build 系统不编译文档， 因此当修改了 API 头文件或者 RST 文档后，应该运行 build_doc.py 以确认是否引入错误。
+默认情况下 build 系统不编译文档， 因此当修改了 API 头文件或者 RST 文档后，应该运行 build\_doc.py 以确认是否引入错误。

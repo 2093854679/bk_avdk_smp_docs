@@ -1,10 +1,25 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/process/bk_code_style.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="id1"></a>
+
 # 代码风格
 
 备注
 
-Armino 以 [Linux kernel coding style](https://www.kernel.org/doc/html/latest/process/coding-style.html?highlight=code%20style "https://www.kernel.org/doc/html/latest/process/coding-style.html?highlight=code%20style")
+Armino 以 [Linux kernel coding style](https://www.kernel.org/doc/html/latest/process/coding-style.html)
 为基础，对部分规范进行了调整或者删除。
 
+<a id="id2"></a>
 
 ## 缩进
 
@@ -12,7 +27,6 @@ Armino 以 [Linux kernel coding style](https://www.kernel.org/doc/html/latest/pr
 
 在 switch 语句中消除多级缩进的首选的方式是让 `switch` 和从属于它的 `case`
 标签对齐于同一列，而不要 `两次缩进` `case` 标签。比如：
-
 
 ```
 switch (suffix) {
@@ -23,13 +37,13 @@ case 'k':
 default:
         break;
 }
-
 ```
 
 不要把多个语句放在一行里，也不要在一行里放多个赋值语句。
 
 不要在行尾留空格。
 
+<a id="id3"></a>
 
 ## 把长的行和字符串打散
 
@@ -40,21 +54,19 @@ default:
 的函数头。然而，绝对不要打散对用户可见的字符串，例如 printk 信息，因为这样就
 很难对它们 grep。
 
+<a id="id4"></a>
 
 ## 大括号和空格的放置
 
 把起始大括号放在行尾，而把结束大括号放在行首，所以：
 
-
 ```
 if (x is true) {
         we do y
 }
-
 ```
 
 这适用于所有的非函数语句块 (if, switch, for, while, do)。比如：
-
 
 ```
 switch (action) {
@@ -63,33 +75,27 @@ case KOBJ_ADD:
 default:
         return NULL;
 }
-
 ```
 
 不过，有一个例外，那就是函数：函数的起始大括号放置于下一行的开头，所以：
-
 
 ```
 int function(int x)
 {
         body of function
 }
-
 ```
 
 注意结束大括号独自占据一行，除非它后面跟着同一个语句的剩余部分，也就是 do 语
 句中的 “while” 或者 if 语句中的 “else”，像这样：
 
-
 ```
 do {
 body of do-loop
 } while (condition);
-
 ```
 
 和
-
 
 ```
 if (x == y) {
@@ -99,31 +105,25 @@ if (x == y) {
 } else {
         ....
 }
-
 ```
 
 当只有一个单独的语句的时候，不用加不必要的大括号。
 
-
 ```
 if (condition)
         action();
-
 ```
 
 和
-
 
 ```
 if (condition)
         do_this();
 else
         do_that();
-
 ```
 
 这并不适用于只有一个条件分支是单语句的情况；这时所有分支都要使用大括号：
-
 
 ```
 if (condition) {
@@ -132,84 +132,66 @@ if (condition) {
 } else {
         otherwise();
 }
-
 ```
 
+<a id="id5"></a>
 
 ## 空格
 
 空格使用方式 (主要) 取决于它是用于函数还是关键字。(大多数) 关键字
-后要加一个空格。值得注意的例外是 sizeof, typeof, alignof 和 __attribute__，这
+后要加一个空格。值得注意的例外是 sizeof, typeof, alignof 和 \_\_attribute\_\_，这
 些关键字某些程度上看起来更像函数。
 
 所以在这些关键字之后放一个空格:
 
-
 ```
 if, switch, case, for, do, while
-
 ```
 
-但是不要在 sizeof, typeof, alignof 或者 __attribute__ 这些关键字之后放空格。
+但是不要在 sizeof, typeof, alignof 或者 \_\_attribute\_\_ 这些关键字之后放空格。
 例如，
-
 
 ```
 s = sizeof(struct file);
-
 ```
 
 不要在小括号里的表达式两侧加空格。这是一个 **反例** ：
 
-
 ```
 s = sizeof( struct file );
-
 ```
 
 当声明指针类型或者返回指针类型的函数时， `*` 的首选使用方式是使之靠近变量名
 或者函数名，而不是靠近类型名。例子：
 
-
 ```
 char *armino_banner;
 unsigned long long memparse(char *ptr, char **retptr);
 char *match_strdup(substring_t *s);
-
 ```
 
 在大多数二元和三元操作符两侧使用一个空格，例如下面所有这些操作符:
 
-
 ```
 =  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
-
 ```
 
 但是一元操作符后不要加空格:
 
-
 ```
 &  *  +  -  ~  !  sizeof  typeof  alignof  __attribute__  defined
-
 ```
 
 后缀自加和自减一元操作符前不加空格:
 
-
 ```
-
 ++  --
-
 ```
 
 前缀自加和自减一元操作符后不加空格:
 
-
 ```
-
 ++  --
-
 ```
 
 `.` 和 `->` 结构体成员操作符前后不加空格。
@@ -219,6 +201,7 @@ char *match_strdup(substring_t *s);
 就不会移除已经加入的空白，就像你故意留下一个只有空白的行。包含行尾空白的行就
 这样产生了。
 
+<a id="typedef"></a>
 
 ## Typedef
 
@@ -226,20 +209,16 @@ char *match_strdup(substring_t *s);
 
 对结构体和指针使用 typedef 是一个 **错误** 。当你在代码里看到：
 
-
 ```
 vps_t a;
-
 ```
 
 这代表什么意思呢？
 
 相反，如果是这样
 
-
 ```
 struct virtual_container *a;
-
 ```
 
 你就知道 `a` 是什么了。
@@ -253,7 +232,7 @@ struct virtual_container *a;
 >
 >    备注
 >
->    不透明性和 “访问函数” 本身是不好的。我们使用 pte_t 等类型的原因在于真
+>    不透明性和 “访问函数” 本身是不好的。我们使用 pte\_t 等类型的原因在于真
 >    的是完全没有任何共用的可访问信息。
 > 2. 清楚的整数类型，如此，这层抽象就可以 **帮助** 消除到底是 `int` 还是
 >    `long` 的混淆。
@@ -264,7 +243,7 @@ struct virtual_container *a;
 >
 >    要这样做，必须事出有因。如果某个变量是 `unsigned long` ，那么没有必要
 >
->    > typedef unsigned long myflags_t;
+>    > typedef unsigned long myflags\_t;
 >
 >    不过如果有一个明确的原因，比如它在某种情况下可能会是一个 `unsigned int`
 >    而在其他情况下可能为 `unsigned long` ，那么就不要犹豫，请务必使用
@@ -287,6 +266,9 @@ struct virtual_container *a;
 总的来说，如果一个指针或者一个结构体里的元素可以合理的被直接访问到，那么它们
 就不应该是一个 typedef。
 
+<a id="function"></a>
+
+<a id="id6"></a>
 
 ## 函数
 
@@ -311,6 +293,7 @@ struct virtual_container *a;
 
 在函数原型中，包含函数名和它们的数据类型。
 
+<a id="id7"></a>
 
 ## 集中的函数退出途径
 
@@ -322,20 +305,15 @@ struct virtual_container *a;
 
 选择一个能够说明 goto 行为或它为何存在的标签名。如果 goto 要释放 `buffer`,
 一个不错的名字可以是 `out_free_buffer:` 。别去使用像 `err1:` 和 `err2:`
-这样的 GW_BASIC 名称，因为一旦你添加或删除了 (函数的) 退出路径，你就必须对它们
+这样的 GW\_BASIC 名称，因为一旦你添加或删除了 (函数的) 退出路径，你就必须对它们
 重新编号，这样会难以去检验正确性。
 
 使用 goto 的理由是：
 
-
 - 无条件语句容易理解和跟踪
-
 - 嵌套程度减小
-
 - 可以避免由于修改时忘记更新个别的退出点而导致错误
-
 - 让编译器省去删除冗余代码的工作 ;)
-
 
 ```
 int fun(int a)
@@ -359,23 +337,19 @@ out_free_buffer:
         free(buffer);
         return result;
 }
-
 ```
 
 一个需要注意的常见错误是 `一个 err 错误` ，就像这样：
-
 
 ```
 err:
         free(foo->bar);
         free(foo);
         return ret;
-
 ```
 
 这段代码的错误是，在某些退出路径上 `foo` 是 NULL。通常情况下，通过把它分离
 成两个错误标签 `err_free_bar:` 和 `err_free_foo:` 来修复这个错误：
-
 
 ```
 err_free_bar:
@@ -383,11 +357,11 @@ err_free_bar:
 err_free_foo:
        free(foo);
        return ret;
-
 ```
 
 理想情况下，你应该模拟错误来测试所有退出路径。
 
+<a id="id8"></a>
 
 ## 注释
 
@@ -396,7 +370,7 @@ err_free_foo:
 
 一般的，你想要你的注释告诉别人你的代码做了什么，而不是怎么做的。也请你不要把
 注释放在一个函数体内部：如果函数复杂到你需要独立的注释其中的一部分，你很可能
-需要回到:ref:_function。你可以做一些小注释来注明或警告某些很聪明 (或者槽糕) 的
+需要回到:ref:\_function。你可以做一些小注释来注明或警告某些很聪明 (或者槽糕) 的
 做法，但不要加太多。你应该做的，是把注释放在函数的头部，告诉人们它做了什么，
 也可以加上它做这些事情的原因。
 
@@ -404,39 +378,29 @@ err_free_foo:
 
 长 (多行) 注释的风格是：
 
-
 ```
 /*
-
  * This is the preferred style for multi-line
-
  * comments in the Armino source code.
-
  * Please use it consistently.
-
  *
-
  * Description:  A column of asterisks on the left side,
-
  * with beginning and ending almost-blank lines.
-
  */
-
 ```
 
 注释数据也是很重要的，不管是基本类型还是衍生类型。为了方便实现这一点，每一行
 应只声明一个数据 (不要使用逗号来一次声明多个数据)。这样你就有空间来为每个数据
 写一段小注释来解释它们的用途了。
 
+<a id="id9"></a>
 
 ## 宏，枚举
 
 用于定义常量的宏的名字及枚举里的标签需要大写。
 
-
 ```
 #define CONSTANT 0x12345
-
 ```
 
 在定义几个相关的常量时，最好用枚举。
@@ -447,20 +411,17 @@ err_free_foo:
 
 含有多个语句的宏应该被包含在一个 do-while 代码块里：
 
-
 ```
 #define macrofun(a, b, c)                       \
         do {                                    \
                 if (a == 5)                     \
                         do_this(b, c);          \
         } while (0)
-
 ```
 
 使用宏的时候应避免的事情：
 
 1. 影响控制流程的宏：
-
 
 ```
 #define FOO(x)                                  \
@@ -468,38 +429,31 @@ err_free_foo:
                 if (blah(x) < 0)                \
                         return -EBUGGERED;      \
         } while (0)
-
 ```
-
 
 **非常** 不好。它看起来像一个函数，不过却能导致 `调用` 它的函数退出；不要打
 乱读者大脑里的语法分析器。
 
 2. 依赖于一个固定名字的本地变量的宏：
 
-
 ```
 #define FOO(val) bar(index, val)
-
 ```
 
 可能看起来像是个不错的东西，不过它非常容易把读代码的人搞糊涂，而且容易导致看起
 来不相关的改动带来错误。
 
-3. 作为左值的带参数的宏： FOO(x) = y；如果有人把 FOO 变成一个内联函数的话，这
+3. 作为左值的带参数的宏： FOO(x) \= y；如果有人把 FOO 变成一个内联函数的话，这
    种用法就会出错了。
 4. 忘记了优先级：使用表达式定义常量的宏必须将表达式置于一对小括号之内。带参数
    的宏也要注意此类问题。
 
-
 ```
 #define CONSTANT 0x4000
 #define CONSTEXP (CONSTANT | 3)
-
 ```
 
 5. 在宏里定义类似函数的本地变量时命名冲突：
-
 
 ```
 #define FOO(x)                          \
@@ -508,20 +462,18 @@ err_free_foo:
         ret = calc_ret(x);              \
         (ret);                          \
 })
-
 ```
 
-ret 是本地变量的通用名字 - __foo_ret 更不容易与一个已存在的变量冲突。
+ret 是本地变量的通用名字 \- \_\_foo\_ret 更不容易与一个已存在的变量冲突。
 
+<a id="id10"></a>
 
 ## 分配内存
 
 内存分配时，传递结构体大小的首选形式是这样的：
 
-
 ```
 p = malloc(sizeof(*p), ...);
-
 ```
 
 另外一种传递方式中，sizeof 的操作数是结构体的名字，这样会降低可读性，并且可能
@@ -531,6 +483,7 @@ p = malloc(sizeof(*p), ...);
 强制转换一个 void 指针返回值是多余的。C 语言本身保证了从 void 指针到其他任何
 指针类型的转换是没有问题的。
 
+<a id="id11"></a>
 
 ## 内联弊病
 
@@ -547,6 +500,7 @@ p = malloc(sizeof(*p), ...);
 inline gcc 也可以自动使其内联。而且其他用户可能会要求移除 inline，由此而来的
 争论会抵消 inline 自身的潜在价值，得不偿失。
 
+<a id="id12"></a>
 
 ## 条件编译
 
@@ -564,15 +518,13 @@ inline gcc 也可以自动使其内联。而且其他用户可能会要求移除
 未使用，把它标记为 `__maybe_unused` 而不是将它包含在一个预处理条件中。(然而，如
 果一个函数或变量总是未使用，就直接删除它。)
 
-在代码中，尽可能地使用 IS_ENABLED 宏来转化某个 Kconfig 标记为 C 的布尔
+在代码中，尽可能地使用 IS\_ENABLED 宏来转化某个 Kconfig 标记为 C 的布尔
 表达式，并在一般的 C 条件中使用它：
-
 
 ```
 if (IS_ENABLED(CONFIG_SOMETHING)) {
         ...
 }
-
 ```
 
 编译器会做常量折叠，然后就像使用 #ifdef 那样去包含或排除代码块，所以这不会带
@@ -583,10 +535,8 @@ if (IS_ENABLED(CONFIG_SOMETHING)) {
 在任何有意义的 #if 或 #ifdef 块的末尾 (超过几行的)，在 #endif 同一行的后面写下
 注解，注释这个条件表达式。例如：
 
-
 ```
 #ifdef CONFIG_SOMETHING
 ...
 #endif /* CONFIG_SOMETHING */
-
 ```

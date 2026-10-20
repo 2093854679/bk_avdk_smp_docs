@@ -1,6 +1,20 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_can.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="can"></a>
+
 # CAN
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
@@ -14,11 +28,13 @@
 
 通过设置已经过滤器，将设备设置位只接受特定ID的设备数据。
 
+<a id="id2"></a>
 
 ## 2 代码路径
 
-> demo路径：`middleware\driver\can_demo.c`
+> demo路径：`middleware/driver/can/can_demo.c`
 
+<a id="demo"></a>
 
 ## 3 demo命令简介
 
@@ -26,49 +42,52 @@ demo运行依赖的宏配置：
 
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_TRNG | need to get random data | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
-> | CONFIG_CLI | need cli | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_TRNG | need to get random data | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
+> | CONFIG\_CLI | need cli | `middleware\soc\bk7259_ap\bk7259_ap.defconfig` | y |
 
 demo支持的命令如下表：
 
 > | Command | | Param | Description |
 > | --- | --- | --- | --- |
-> | can_filter_demo [aid] [acode] [amask] | | {aid}:choose standard or extended | Configure device ID filter |
+> | can\_filter\_demo \[aid\] \[acode\] \[amask\] | | {aid}:choose standard or extended | Configure device ID filter |
 > | {acode}: no more than 29 bits |
 > | {amask}: 1 disable, 0 enable |
-> | can_speed_demo [s_spend] [f_speed] | | {s_spend}: Slow Speed | Dynamically adjust the setting speed |
-> | {f_speed}: Fast Speed |
-> | can_stb_demo1 [can_id] [sender|receiver|moniter|interfere] [start|stop] | | {can_id}: device ID | CAN FD Tested demo using different  identities |
-> | {sender|receiver|moniter|interfere}: Identity |
-> | {start|stop}: start or stop |
-> | can_stb_demo2 [can_id] [sender|receiver|moniter|interfere] [start|stop] | | {can_id}: device ID | CAN 20 Tested demo using different  identities |
-> | {sender|receiver|moniter|interfere}: Identity |
-> | {start|stop}: start or stop |
+> | can\_speed\_demo \[s\_spend\] \[f\_speed\] | | {s\_spend}: Slow Speed | Dynamically adjust the setting speed |
+> | {f\_speed}: Fast Speed |
+> | can\_stb\_demo1 \[can\_id\] \[sender\|receiver\|moniter\|interfere\] \[start\|stop\] | | {can\_id}: device ID | CAN FD Tested demo using different  identities |
+> | {sender\|receiver\|moniter\|interfere}: Identity |
+> | {start\|stop}: start or stop |
+> | can\_stb\_demo2 \[can\_id\] \[sender\|receiver\|moniter\|interfere\] \[start\|stop\] | | {can\_id}: device ID | CAN 20 Tested demo using different  identities |
+> | {sender\|receiver\|moniter\|interfere}: Identity |
+> | {start\|stop}: start or stop |
 
 CAN 支持的波特率如下：
 
-> CAN_BR_250K, //81%
+> CAN\_BR\_250K, //81%
 >
-> CAN_BR_500K, //81%
+> CAN\_BR\_500K, //81%
 >
-> CAN_BR_800K, //80%
+> CAN\_BR\_800K, //80%
 >
-> CAN_BR_1M, //81%
+> CAN\_BR\_1M, //81%
 >
-> CAN_BR_2M, //81%
+> CAN\_BR\_2M, //81%
 >
-> CAN_BR_4M, //81%
+> CAN\_BR\_4M, //81%
 >
-> CAN_BR_5M, //77%
+> CAN\_BR\_5M, //77%
 
+<a id="id3"></a>
 
 ## 4 硬件环境连接介绍
 
 使用的CAN Transceiver 为MCP2562FD 对应使用的小板PIN定义如下图所示
 
-![can_t](../../_images/can_transceiver.png)
+<a id="id5"></a>
+![can_t](../../../../_assets/ff9ddf519eb4f9998084-can_transceiver.png)
 
-Figure 1. CAN Transceiver
+
+Figure 1\. CAN Transceiver
 
 开发板上与接收器连接对应的GPIO：
 :   | GPIO | FUNC |
@@ -77,71 +96,86 @@ Figure 1. CAN Transceiver
     | P45 | CAN RX |
     | P46 | CAN STBY |
 
-BK7258开发板与CAN Transceiver PIN连接如下图所示，注意开发板3.3v 可能影响到vio Transceiver电压
+BK7259开发板与CAN Transceiver PIN连接如下图所示，注意开发板3.3v 可能影响到vio Transceiver电压
 
-![CAN Transceiver connection board](../../_images/can_trans_connect_board.png)
+<a id="id6"></a>
+![CAN Transceiver connection board](../../../../_assets/e7d9b0d8ca7835cd97a3-can_trans_connect_board.png)
 
-Figure 2. CAN Transceiver connection board
+
+Figure 2\. CAN Transceiver connection board
 
 CAN Transceiver 需要连接到两端120Ω电阻的总线上，线上阻值为60Ω，测试用线如下图所示
 
-![can connect line](../../_images/can_connect_line.png)
+<a id="id7"></a>
+![can connect line](../../../../_assets/3c091e15496529a4dab2-can_connect_line.png)
 
-Figure 3. CAN BUS
+
+Figure 3\. CAN BUS
 
 两块板子进行对发接收环形测试，测试用线如下图所示
 
-![can two boards](../../_images/can_two_boards_connect.png)
+<a id="id8"></a>
+![can two boards](../../../../_assets/7faa84b2f0ed48b625df-can_two_boards_connect.png)
 
-Figure 4. CAN Data transmission test
+
+Figure 4\. CAN Data transmission test
 
 四块板子进行测试，测试用线如下图所示
 
-![can four boards](../../_images/can_four_boards_connect.png)
+<a id="id9"></a>
+![can four boards](../../../../_assets/4cc7a3c55843124412bf-can_four_boards_connect.png)
 
-Figure 5. CAN System transmission test
 
+Figure 5\. CAN System transmission test
+
+<a id="id4"></a>
 
 ## 5 演示介绍
 
-1、设置过滤器，保证设备只接收该ID的数据，是根据can_filter_demo:
-:   can_filter_demo 0 0x10000008 0x1fffff08 过滤器设置只接收 ID 0x10000008的设备数据
-    can_filter_demo 0 0x10000004 0x1fffff04 过滤器设置只接收 ID 0x10000004的设备数据
+1、设置过滤器，保证设备只接收该ID的数据，是根据can\_filter\_demo:
+:   can\_filter\_demo 0 0x10000008 0x1fffff08 过滤器设置只接收 ID 0x10000008的设备数据
+    can\_filter\_demo 0 0x10000004 0x1fffff04 过滤器设置只接收 ID 0x10000004的设备数据
 
 输入指令后，log如下图所示
 
-![set filterfilter](../../_images/can_set_filter_cfg.png)
+<a id="id10"></a>
+![set filterfilter](../../../../_assets/e335c3ae9d1f44f1e53c-can_set_filter_cfg.png)
 
-Figure 6. Filter Configure
+
+Figure 6\. Filter Configure
 
 2、若要进行动态配置波特率，请参考如下图所示demo
 
-![set speed](../../_images/can_dy_set_speed.png)
+<a id="id11"></a>
+![set speed](../../../../_assets/03b39ce8db30a3439b9e-can_dy_set_speed.png)
 
-Figure 7. Dynamically set baud rate
+
+Figure 7\. Dynamically set baud rate
 
 3、 CAN FD示例1，2个设备进行对测，1个设备做发起方，1个设备做应答方
 
-① id_4 先保存64bits 的随机数据到全局变量；
-② id_4 将这组随机数据发送到 CAN总线上， 触发发送完成中断后，发送结束；
-③ id_8 设备 触发接收中断，在中断中发送msg到 task队列， 读取id_1设备发送过来的数据；
-④ id_8 读取到的64bits 数据发送到CAN总线上， 触发发送完成中断后，发送结束；
-⑤ id_4 触发中断，在中断中发送msg到 task队列，在task中解析是否数据正确；
+① id\_4 先保存64bits 的随机数据到全局变量；
+② id\_4 将这组随机数据发送到 CAN总线上， 触发发送完成中断后，发送结束；
+③ id\_8 设备 触发接收中断，在中断中发送msg到 task队列， 读取id\_1设备发送过来的数据；
+④ id\_8 读取到的64bits 数据发送到CAN总线上， 触发发送完成中断后，发送结束；
+⑤ id\_4 触发中断，在中断中发送msg到 task队列，在task中解析是否数据正确；
 
 测试目标是数据通路正常，没有错误数据
 
 测试命令:
-:   can_stb_demo1 0x10000004 sender start
+:   can\_stb\_demo1 0x10000004 sender start
 
-    can_stb_demo1 0x10000004 sender stop
+    can\_stb\_demo1 0x10000004 sender stop
 
-    can_stb_demo1 0x10000008 receiver start
+    can\_stb\_demo1 0x10000008 receiver start
 
-    can_stb_demo1 0x10000008 receiver stop
+    can\_stb\_demo1 0x10000008 receiver stop
 
-![loop test](../../_images/can_2_device_loop_test.png)
+<a id="id12"></a>
+![loop test](../../../../_assets/d66a0c8f3329d377e764-can_2_device_loop_test.png)
 
-Figure 8. 2Devices data transmission loop test
+
+Figure 8\. 2Devices data transmission loop test
 
 传输过程中有数据错误时，出现如下打印
 
@@ -161,26 +195,30 @@ Figure 8. 2Devices data transmission loop test
 测试目标是CAN BUS正常数据收发，与示例1统计到的发送次数和接收次数进行比较，确保数据没有丢失。
 
 测试命令：
-:   can_stb_demo1 0x10000001 moniter start
+:   can\_stb\_demo1 0x10000001 moniter start
 
-    can_stb_demo1 0x10000001 moniter stop
+    can\_stb\_demo1 0x10000001 moniter stop
 
-![loop test](../../_images/can_demo_moniter.png)
+<a id="id13"></a>
+![loop test](../../../../_assets/c0b28faf60c775af2cdb-can_demo_moniter.png)
 
-Figure 9. Demo Moniter
+
+Figure 9\. Demo Moniter
 
 5、 在示例2的基础上增加1个设备作为示例3，共4个设备测试，1个干扰设备，1个监视器设备，1个设备做发起方，1个设备做应答方
 干扰器只发送数据，扰乱线上状态，但不会将CAN总线搞坏掉，且干扰器的ID较高。
 测试目标是让线上出现竞争的情况，且数据仍能正常传输。
 
 测试命令：
-:   can_stb_demo1 0x10000002 interfere start
+:   can\_stb\_demo1 0x10000002 interfere start
 
-    can_stb_demo1 0x10000002 interfere stop
+    can\_stb\_demo1 0x10000002 interfere stop
 
-![loop test](../../_images/can_four_boards_demo_test.png)
+<a id="id14"></a>
+![loop test](../../../../_assets/c60f39bcb5e14161e442-can_four_boards_demo_test.png)
 
-Figure 10. CAN mini sys test
 
-6、上述示例1、2、3都是在CAN FD协议下进行的，将命令头改为can_20_demo2，则使用CAN_2.0进行测试。
+Figure 10\. CAN mini sys test
+
+6、上述示例1、2、3都是在CAN FD协议下进行的，将命令头改为can\_20\_demo2，则使用CAN\_2.0进行测试。
 其他目标一致

@@ -1,15 +1,29 @@
-# 三.BLE_OTA测试流程
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/developer-guide/bootloader_ota/ble_ota/bk_ble_ota_test_introduction.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
 
+<a id="ble-ota"></a>
 
+# 三.BLE\_OTA测试流程
 
-## 3.1.BLE_OTA测试步骤介绍
+<a id="id1"></a>
 
-> BLE_OTA的测试流程主要分为以下步骤：
+## 3.1.BLE\_OTA测试步骤介绍
+
+> BLE\_OTA的测试流程主要分为以下步骤：
 >
 > > - 1）需要在手机上，下载一个BekenTool的APK，可以通过扫描以下的二维码下载；
-> > - 2）在手机文件管理建立一个文件夹，命名为ble_ota;
+> > - 2）在手机文件管理建立一个文件夹，命名为ble\_ota;
 > > - 3）需使用差分升级，所以需要制作差分包；（如何制作差分包，下面会介绍）
-> > - 4）把差分包放进步骤2 中ble_ota文件夹中；
+> > - 4）把差分包放进步骤2 中ble\_ota文件夹中；
 > > - 5）板子端烧录 all-app.bin；（以scoote工程为例）
 > > - 6）连上蓝牙；
 > >
@@ -20,24 +34,28 @@
 > >   > - e）升级结束（见图4）；
 > > - 7） 升级成功的log;
 > >
-> >   > f_ota:E(300636):ota_do_check_crc:crc ok
-> >   > app_gatt:I(300638):bk_gatts_cb:BK_GATTS_CONF_EVT 0 5 57
-> >   > app_boar:W(300638):boarding_message_handle:ota success !
-> >   > sys:I(300638):bk_reboot
+> >   > f\_ota:E(300636):ota\_do\_check\_crc:crc ok
+> >   > app\_gatt:I(300638):bk\_gatts\_cb:BK\_GATTS\_CONF\_EVT 0 5 57
+> >   > app\_boar:W(300638):boarding\_message\_handle:ota success !
+> >   > sys:I(300638):bk\_reboot
 >
-> ![ble_ota_test](../../../_images/ble_ota_test.png)
+> <a id="id3"></a>
+> ![ble_ota_test](../../../../../_assets/8822a029299b1e03a148-ble_ota_test.png)
 >
 >
-> 图4 ble_ota测试
+> 图4 ble\_ota测试
 
+<a id="bekentool-apk"></a>
 
 ## 3.2.BekenTool APK获取方式
 
-> ![Beken_tool](../../../_images/Beken_tool.png)
+> <a id="id4"></a>
+> ![Beken_tool](../../../../../_assets/56a580f08331dc6ea25f-Beken_tool.png)
 >
 >
-> 图5 Beken_tool二维码
+> 图5 Beken\_tool二维码
 
+<a id="id2"></a>
 
 ## 3.3.差分包的制作流程
 
@@ -46,34 +64,33 @@
 >
 > 二、 差分包制作及测试步骤：
 >
-> > - 1、用如下方法生成 差分包（压缩）： ./diff-compress app_pack_ori.bin app_pack_new.bin diff1.bin app
+> > - 1、用如下方法生成 差分包（压缩）： ./diff-compress app\_pack\_ori.bin app\_pack\_new.bin diff1.bin app
 > >
-> >   - a） 其中需要两个源文件 app_pack_ori.bin、 app_pack_new.bin，（以bk7258为例 路径是bk_idk/build/app/bk7259/encrypt/app_pack.bin）；
-> >   - b） 源文件1：app_pack_ori.bin；
-> >   - c） 源文件2：app_pack_new.bin，（需备份好，后续做差分包，app_pack_new.bin会作为源文件1）；
+> >   - a） 其中需要两个源文件 app\_pack\_ori.bin、 app\_pack\_new.bin，（以 BK7259 为例 路径是bk\_idk/build/app/bk7259/encrypt/app\_pack.bin）；
+> >   - b） 源文件1：app\_pack\_ori.bin；
+> >   - c） 源文件2：app\_pack\_new.bin，（需备份好，后续做差分包，app\_pack\_new.bin会作为源文件1）；
 > >   - d） 生成目标文件 ：diff1.bin；
-> >   - e） 其中第一次烧录使用all_app.bin 是和app_pack_ori.bin一同编译出来时的版本；
+> >   - e） 其中第一次烧录使用all\_app.bin 是和app\_pack\_ori.bin一同编译出来时的版本；
 > >   - f） 后续的板子，应该不需要烧录，一直迭代差分升级上区，具体操作可见下述图片。
 
 备注
 
-
 - 1.在linux环境下生成；
-
-- 2.差分工具路径是：bk_idk/tools/env_tools/diff_ota/diff-compress.o ;
+- 2.差分工具路径是：bk\_idk/tools/env\_tools/diff\_ota/diff-compress.o ;
 
 差分包制作步骤图
-:   ![diff_ota](../../../_images/diff_ota_make1.png)
+:   <a id="id5"></a>
+    ![diff_ota](../../../../../_assets/c67cec2d5cc362fc0147-diff_ota_make1.png)
 
-    图6 diff_ota_package图
 
+    图6 diff\_ota\_package图
 
     - 2、将diff2.bin 作为待升级的固件，放到服务器上。（和正常升级一样）
-
     - 3、下载成功之后，进入bootloader里面，（可以通过uart1看出差分还原的log进度 如 progress :0% ），其中正常的还原时间在55s左右（还是要镜像的大小）；
-
     - 4、bootloader中还原成功之后，会重新启动，然后进入app中运行新的固件，可查看version 看是否升成功；
 
-    ![diff_Reduction](../../../_images/diff_ota_result.png)
+    <a id="id6"></a>
+    ![diff_Reduction](../../../../../_assets/467a602cd7bf662227a0-diff_ota_result.png)
 
-    图7 diff_ota_reduction
+
+    图7 diff\_ota\_reduction

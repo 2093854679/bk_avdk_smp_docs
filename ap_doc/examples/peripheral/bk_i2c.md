@@ -1,45 +1,51 @@
+---
+type: official-document
+source_url: https://docs.bekencorp.com/arminodoc/bk_avdk_smp/ap_doc/bk7259/zh_CN/v4.0.1/examples/peripheral/bk_i2c.html
+sdk_family: bk_avdk_smp
+chip: BK7259
+processor: AP
+sdk_version: v4.0.1
+language: zh_CN
+fetched_at: '2026-10-20T16:59:36.586772+00:00'
+mirror_status: current
+---
+
+<a id="i2c"></a>
+
 # I2C
 
-
+<a id="id1"></a>
 
 ## 1 功能概述
 
-
 - I2C 接口可以通过数据引脚 (SDA) 和时钟引脚 (SCL) 连接到 I2C或 SMBus总线。SDA 线和 SCL 线均设置为漏极开漏 (open-drain) 输出，并接上拉电阻 (pull-up resistor)。因此，I2C 和 SMBus 总线上可以挂载多个器件。I2C 接口的每次传输都是由主器件 (Master) 发起和控制，
-
 - 本章主要介绍通过I2C接口完成对EEPROM芯片的数据读写。目前，cp侧不允许使用I2C，ap侧支持使用I2C0和I2C1。
-
-- I2C相关的理论介绍参考: [I2C的驱动](../../developer-guide/peripheral/bk_i2c.md "../../developer-guide/peripheral/bk_i2c.md")
+- I2C相关的理论介绍参考: [I2C的驱动](../../developer-guide/peripheral/bk_i2c.md)
 
 备注
 
-
 - 1.cp侧不允许使用I2C0和I2C1；
-
 - 2.ap侧支持使用I2C0和I2C1;
 
+<a id="id3"></a>
 
 ## 2 代码路径
 
 > - demo路径：
 >   :   `components\bk_cli\cli_i2c.c`
 > - 驱动源码路径：
->   :   `ap\middleware\driver\i2c\i2c_unified.c` (统一API层，自动路由到硬件或模拟I2C)
+>   :   `ap\middleware\driver\i2c\i2c_driver.c` (硬件I2C驱动实现，CONFIG\_SIM\_I2C\=n 时编译)
 >
->       `ap\middleware\driver\i2c\i2c_driver.c` (硬件I2C驱动实现)
->
->       `ap\middleware\driver\i2c\sim_i2c_driver.c` (软件模拟I2C驱动实现)
-> - I2C相关的api介绍参考: [I2C的api介绍](../../api-reference/peripheral/bk_i2c.md "../../api-reference/peripheral/bk_i2c.md")
+>       `ap\middleware\driver\i2c\sim_i2c_driver.c` (软件模拟I2C驱动实现，CONFIG\_SIM\_I2C\=y 时编译)
+> - I2C相关的api介绍参考: [I2C的api介绍](../../api-reference/peripheral/bk_i2c.md)
 
 备注
 
+- 1.硬件I2C与软件模拟I2C通过 `CONFIG_SIM_I2C` 在编译期二选一，二者不能共存，对外都是同一套 `bk_i2c_*` API。
+- 2.i2c\_driver.c: 硬件I2C驱动实现，使用硬件中断方式。
+- 3.sim\_i2c\_driver.c: 软件模拟I2C驱动实现，通过GPIO bit-bang模拟I2C时序，引脚由 `CONFIG_SIM_I2C0/1_SDA/SCL_GPIO` 配置。
 
-- 1.i2c_unified.c: 统一API层，根据I2C ID自动路由到硬件或模拟I2C实现
-
-- 2.i2c_driver.c: 硬件I2C驱动实现，使用硬件中断方式
-
-- 3.sim_i2c_driver.c: 软件模拟I2C驱动实现，通过GPIO模拟I2C时序
-
+<a id="cli"></a>
 
 ## 3 cli命令简介
 
@@ -47,28 +53,30 @@ demo运行依赖的宏配置：
 
 > | NAME | Description | File | value |
 > | --- | --- | --- | --- |
-> | CONFIG_I2C | support i2c | `ap\middleware\soc\bk7259\bk7259.defconfig` | y |
-> | CONFIG_I2C_SUPPORT_ID_BITS | support i2c0 or i2c1 | `ap\middleware\soc\bk7259\bk7259.defconfig` | 1 |
-> | CONFIG_SIM_I2C | value y:support software； n: hardware i2c | `ap\middleware\soc\bk7259\bk7259.defconfig` | n |
-> | CONFIG_SIM_I2C_HW_BOARD_V3 | support Touch Screen with i2c | `ap\middleware\soc\bk7259\bk7259.defconfig` | y |
+> | CONFIG\_I2C | support i2c | `ap\middleware\soc\bk7259\bk7259.defconfig` | y |
+> | CONFIG\_I2C\_SUPPORT\_ID\_BITS | support i2c0 or i2c1 | `ap\middleware\soc\bk7259\bk7259.defconfig` | 1 |
+> | CONFIG\_SIM\_I2C | y:软件模拟I2C(bit-bang)； n:硬件I2C(二选一) | `ap\middleware\soc\bk7259\bk7259.defconfig` | n |
+> | CONFIG\_SIM\_I2C0\_SDA\_GPIO | 模拟I2C id\=0 的 SDA GPIO (仅 SIM\_I2C\=y) | `ap\middleware\soc\bk7259\bk7259.defconfig` | 1 |
+> | CONFIG\_SIM\_I2C0\_SCL\_GPIO | 模拟I2C id\=0 的 SCL GPIO (仅 SIM\_I2C\=y) | `ap\middleware\soc\bk7259\bk7259.defconfig` | 0 |
 
 demo支持的命令如下表：
 
 > | Command | Param | Description |
 > | --- | --- | --- |
-> | i2c_driver init | none | init I2C driver control memory |
-> | i2c_driver deinit | none | free all resource related to I2C |
+> | i2c\_driver init | none | init I2C driver control memory |
+> | i2c\_driver deinit | none | free all resource related to I2C |
 > | i2c {id} init | i2c id number | power up and start the I2C id |
 > | i2c {id} deinit | i2c id number | power down and Stop the I2C id |
-> | i2c {id} memory_write {data_size} {dev_addr} {mem_addr_size} | id: i2c id number | write data_size bytes of data to the slave device with address dev_id |
-> | data_size:size of data written |
-> | dev_addr: slave device address |
-> | mem_addr_size: size of memory_addr |
-> | i2c {id} memory_read {data_size} {dev_addr} {mem_addr_size} | id: i2c id | read data_size bytes of data from slave device |
-> | data_size:size of data read |
-> | dev_addr: slave device address |
-> | mem_addr_size: size of memory_addr |
+> | i2c {id} memory\_write {data\_size} {dev\_addr} {mem\_addr\_size} | id: i2c id number | write data\_size bytes of data to the slave device with address dev\_id |
+> | data\_size:size of data written |
+> | dev\_addr: slave device address |
+> | mem\_addr\_size: size of memory\_addr |
+> | i2c {id} memory\_read {data\_size} {dev\_addr} {mem\_addr\_size} | id: i2c id | read data\_size bytes of data from slave device |
+> | data\_size:size of data read |
+> | dev\_addr: slave device address |
+> | mem\_addr\_size: size of memory\_addr |
 
+<a id="i2c-pin"></a>
 
 ## 4 I2C PIN脚描述
 
@@ -76,17 +84,17 @@ demo支持的命令如下表：
 >
 >   > | I2C0功能 | 组0 |
 >   > | --- | --- |
->   > | I2C0_CLK | GPIO0 |
->   > | I2C0_SDA | GPIO1 |
+>   > | I2C0\_CLK | GPIO0 |
+>   > | I2C0\_SDA | GPIO1 |
 > - I2C1对应有1组PIN脚，对应的硬件管脚如下：
 >   :   | I2C1功能 | 组0 |
 >       | --- | --- |
->       | I2C1_CLK | GPIO20 |
->       | I2C1_SDA | GPIO21 |
-
+>       | I2C1\_CLK | GPIO20 |
+>       | I2C1\_SDA | GPIO21 |
 
 ---
 
+<a id="id4"></a>
 
 ## 4 演示介绍
 
@@ -94,10 +102,11 @@ demo支持的命令如下表：
 >
 > 1、准备好EEPROM的模块，型号为ZD24C128A，使用I2C1连接方式如下：
 >
-> ![i2c_connect](../../_images/i2c_connect.png)
+> <a id="id5"></a>
+> ![i2c_connect](../../../../_assets/166ca7e2b6160ee70fce-i2c_connect.png)
 >
 >
-> Figure 1. i2c_connect图
+> Figure 1\. i2c\_connect图
 >
 > 2、顺序发送以下命令
 >
@@ -112,7 +121,7 @@ demo支持的命令如下表：
 > > cpu1:cli:I(6178):i2c(1) init
 > > ```
 > >
-> > **cpu1 i2c 1 memory_write 8 50 1**//向EEPROM中写入8字节数据
+> > **cpu1 i2c 1 memory\_write 8 50 1**//向EEPROM中写入8字节数据
 > >
 > > ```
 > > [11:45:43.027]发→◇cpu1 i2c 1 memory_write 8 50 1
@@ -122,7 +131,7 @@ demo支持的命令如下表：
 > > $cpu1:cli:I(7066):i2c(1) memory_write buf_len:8
 > > ```
 > >
-> > **cpu1 i2c 1 memory_read 8 50 1** //从EEPROM中读取8字节数据
+> > **cpu1 i2c 1 memory\_read 8 50 1** //从EEPROM中读取8字节数据
 > > :   ```
 > >     [11:45:44.825]发→◇cpu1 i2c 1 memory_read 8 50 1
 > >     [11:45:44.831]收←◆cpu1 i2c 1 memory_read 8 50 1
@@ -143,26 +152,29 @@ demo支持的命令如下表：
 >
 > - 写时序图
 >
-> ![i2c_Sequence_ZD24C128A](../../_images/i2c_Sequence_ZD24C128A_wr.png)
+> <a id="id6"></a>
+> ![i2c_Sequence_ZD24C128A](../../../../_assets/8b95e32bdd8f7764715a-i2c_Sequence_ZD24C128A_wr.png)
 >
 >
-> Figure 2. i2c_wr_Sequence_ZD24C128A
+> Figure 2\. i2c\_wr\_Sequence\_ZD24C128A
 >
 > - 读时序图
 >
-> ![i2c_Sequence_ZD24C128A](../../_images/i2c_Sequence_ZD24C128A_rd.png)
+> <a id="id7"></a>
+> ![i2c_Sequence_ZD24C128A](../../../../_assets/f4c8dd244dbbf3aaf4f0-i2c_Sequence_ZD24C128A_rd.png)
 >
 >
-> Figure 3. i2c_rd_Sequence_ZD24C128A
+> Figure 3\. i2c\_rd\_Sequence\_ZD24C128A
 
 demo2执行的步骤如下：
 
 > 1、准备好EEPROM的模块，型号为FM24C04B，使用I2C1连接方式如下：
 >
-> ![i2c_connect2](../../_images/i2c_connect2.png)
+> <a id="id8"></a>
+> ![i2c_connect2](../../../../_assets/2730b4f3449fdc43d151-i2c_connect2.png)
 >
 >
-> Figure 4. i2c_connect图
+> Figure 4\. i2c\_connect图
 >
 > 2、顺序发送以下命令
 >
@@ -177,7 +189,7 @@ demo2执行的步骤如下：
 > > cpu1:cli:I(2984):i2c(1) init
 > > ```
 > >
-> > **cpu1 i2c 1 memory_write 8 50 0**//向EEPROM中写入8字节数据
+> > **cpu1 i2c 1 memory\_write 8 50 0**//向EEPROM中写入8字节数据
 > >
 > > ```
 > > [16:44:58.285]发→◇cpu1 i2c 1 memory_write 8 50 0
@@ -187,7 +199,7 @@ demo2执行的步骤如下：
 > > $cpu1:cli:I(5652):i2c(1) memory_write buf_len:8
 > > ```
 > >
-> > **cpu1 i2c 1 memory_read 8 50 0** //从EEPROM中读取8字节数据
+> > **cpu1 i2c 1 memory\_read 8 50 0** //从EEPROM中读取8字节数据
 > > :   ```
 > >     [16:44:59.919]发→◇cpu1 i2c 1 memory_read 8 50 0
 > >     [16:44:59.926]收←◆cpu1 i2c 1 memory_read 8 50 0
@@ -208,18 +220,20 @@ demo2执行的步骤如下：
 >
 > - 写时序图
 >
-> ![i2c_Sequence_FM24C04B](../../_images/i2c_Sequence_FM24C04B_wr.png)
+> <a id="id9"></a>
+> ![i2c_Sequence_FM24C04B](../../../../_assets/edeaa0fb8272d28a5173-i2c_Sequence_FM24C04B_wr.png)
 >
 >
-> Figure 5. i2c_wr_Sequence_FM24C04B
+> Figure 5\. i2c\_wr\_Sequence\_FM24C04B
 >
 > - 读时序图
 >
-> ![i2c_Sequence_FM24C04B](../../_images/i2c_Sequence_FM24C04B_rd.png)
+> <a id="id10"></a>
+> ![i2c_Sequence_FM24C04B](../../../../_assets/e690a61f264fa80b174e-i2c_Sequence_FM24C04B_rd.png)
 >
 >
-> Figure 6. i2c_rd_Sequence_FM24C04B
+> Figure 6\. i2c\_rd\_Sequence\_FM24C04B
 
 备注
 
-注意：memory_write命令中的dev_addr 50为16进制，因为i2c驱动中会将dev_addr左移一位，所以传入的dev_addr需要将ZD24C128A的dev_addr（1010b）右移一位。
+注意：memory\_write命令中的dev\_addr 50为16进制，因为i2c驱动中会将dev\_addr左移一位，所以传入的dev\_addr需要将ZD24C128A的dev\_addr（1010b）右移一位。
